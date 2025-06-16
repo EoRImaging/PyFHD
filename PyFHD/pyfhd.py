@@ -209,6 +209,24 @@ def main():
                     f"Checkpoint Loaded: Uncalibrated visibility parameters, array and weights and the observation metadata dictionary loaded from {Path(pyfhd_config['output_dir'], 'obs_checkpoint.h5')}"
                 )
 
+        # If the calibration checkpoint exists, load it now before loading in the beam
+        # to get the observation metadata and visibility parameters
+        if (
+            pyfhd_config["calibrate_checkpoint"] is not None
+            and Path(pyfhd_config["calibrate_checkpoint"]).exists()
+        ):
+            cal_checkpoint = load(pyfhd_config["calibrate_checkpoint"], logger=logger)
+            obs = cal_checkpoint["obs"]
+            params = cal_checkpoint["params"]
+            vis_arr = cal_checkpoint["vis_arr"]
+            vis_model_arr = cal_checkpoint["vis_model_arr"]
+            vis_weights = cal_checkpoint["vis_weights"]
+            cal = cal_checkpoint["cal"]
+            del cal_checkpoint
+            logger.info(
+                f"Checkpoint Loaded: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary loaded from {Path(pyfhd_config['output_dir'], 'calibrate_checkpoint.h5')}"
+            )
+
         # Read in the beam from a file returning a psf dictionary
         psf_start = time.time()
         psf = create_psf(obs, pyfhd_config, logger)
@@ -348,25 +366,6 @@ def main():
                     logger.info(
                         f"Checkpoint Saved: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary saved into {Path(pyfhd_config['output_dir'], 'calibrate_checkpoint.h5')}"
                     )
-        else:
-            # Load the calibration checkpoint
-            if (
-                pyfhd_config["calibrate_checkpoint"]
-                and Path(pyfhd_config["calibrate_checkpoint"]).exists()
-            ):
-                cal_checkpoint = load(
-                    pyfhd_config["calibrate_checkpoint"], logger=logger
-                )
-                obs = cal_checkpoint["obs"]
-                params = cal_checkpoint["params"]
-                vis_arr = cal_checkpoint["vis_arr"]
-                vis_model_arr = cal_checkpoint["vis_model_arr"]
-                vis_weights = cal_checkpoint["vis_weights"]
-                cal = cal_checkpoint["cal"]
-                del cal_checkpoint
-                logger.info(
-                    f"Checkpoint Loaded: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary loaded from {Path(pyfhd_config['output_dir'], 'calibrate_checkpoint.h5')}"
-                )
 
         if pyfhd_config["cal_stop"]:
             logger.info(
