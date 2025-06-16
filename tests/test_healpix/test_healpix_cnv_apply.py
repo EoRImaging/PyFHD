@@ -11,7 +11,7 @@ from PyFHD.healpix.healpix_utils import healpix_cnv_apply
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "healpix_cnv_apply")
+    return Path(env.get("PYFHD_TEST_PATH"), "healpix", "healpix_cnv_apply")
 
 
 @pytest.fixture(

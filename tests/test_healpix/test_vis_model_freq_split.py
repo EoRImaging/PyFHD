@@ -11,7 +11,7 @@ from PyFHD.healpix.healpix_utils import vis_model_freq_split
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_model_freq_split")
+    return Path(env.get("PYFHD_TEST_PATH"), "healpix", "vis_model_freq_split")
 
 
 @pytest.fixture

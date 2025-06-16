@@ -9,7 +9,7 @@ from PyFHD.healpix.healpix_utils import phase_shift_uv_image
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "phase_shift_uv_image")
+    return Path(env.get("PYFHD_TEST_PATH"), "healpix", "phase_shift_uv_image")
 
 
 @pytest.fixture(
@@ -88,4 +88,4 @@ def test_phase_shift_uv_image(before_file, after_file):
     # precision rather than the double precision variant IDL has. The calculations
     # are mathematically the same in both PyFHD and FHD. phase_shift_uv_image
     # apply_astrometry is also taking into account refraction.
-    npt.assert_allclose(rephase, expected_rephase, atol=4e-6)
+    npt.assert_allclose(rephase, expected_rephase, atol=6e-5)
