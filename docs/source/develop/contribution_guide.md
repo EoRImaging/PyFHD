@@ -6,9 +6,62 @@ Welcome to your one stop shop for all the tips, tricks, best practices and HOW-T
 
 If you're a developer of PyFHD, welcome to the club! 
 
-For development purposes using `mamba` or `conda` as your package and environment manager makes changing your Python version when you need to is much easier than using `venv` for such purposes. Alternatively, if you wish to add features to `PyFHD` or eventually decide you have the need for speed and want modules made from other languages in there such as C/C++/Fortran/Julia etc. `mamba`/`conda` make it easier to install compilers or tools (even makes installing CUDA relatively easy).
+For development purposes there are several ways to manage your developer install of PyFHD, the main preference for PyFHD for now is [uv](https://docs.astral.sh/uv/), which uses the `pyproject.toml` to manage Python versions, dependencies, project, publishing to PyPi and scripts, it's much faster than pip and is very lightweight. Alternatively you can use `mamba` or `conda` or standard `venv` as your package manager makes, although do note `venv` does not install different python versions for you unlike `uv` or `mamba`. If you wish to add features to `PyFHD` or eventually decide you have the need for speed and want modules made from other languages in there such as C/C++/Fortran/Julia etc. `mamba`/`conda` make it easier to install compilers or tools (even makes installing CUDA relatively easy). If you're intending on only using Python packages, `uv` should work very well.
 
-Here's how you install `PyFHD` for development purposes:
+You can follow the install steps for uv [here](https://docs.astral.sh/uv/getting-started/installation/), and the mamba install steps [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+
+Here's how you install `PyFHD` for development purposes using uv:
+
+1. Clone and change directory into the `PyFHD` repo:
+    ```bash
+    git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
+    ```
+
+2. Create `.venv` virtual environment using uv
+    ```bash
+    uv venv
+    ```
+
+3. Run synchronization which will install everything defined in the `pyproject.toml` (this also installs PyFHD into the venv automatically in editable mode)
+    ```bash
+    uv sync
+    ```
+
+4. Activate the environment
+    ```bash
+    source .venv/bin/activate
+    ```
+
+5. Verify the installation using the version command, which should generate output that looks like this:
+    ```bash
+    pyfhd -v
+    ________________________________________________________________________
+    |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
+    |    8888   `Y88.             8888       8 8888    888   888     Y8b    |
+    |    888   .d88' oooo    ooo  888          888     888   888      888   |
+    |    888ooo88P'   `88.  .8'   888oooo8     888ooooo888   888      888   |
+    |    888           `88..8'    888          888     888   888      888   |
+    |    888            `888'     888          888     888   888     d88'   |
+    |    o888o            .8'     o888o        o888o   o888o o888bood8P'    |
+    |                 .o..P'                                                |
+    |                `Y8P'                                                  |
+    |_______________________________________________________________________|
+    
+    Python Fast Holographic Deconvolution 
+
+    Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
+
+    Repository: https://github.com/ADACS-Australia/PyFHD
+
+    Documentation: https://pyfhd.readthedocs.io/en/latest/
+
+    Version: 1.0
+
+    Git Commit Hash: 15e50c86609645ca01afcaf9d674b03107a1de7f (tutorial_adjustments)
+    ```
+
+
+Here's how you install `PyFHD` for development purposes using mamba:
 
 1. Clone and change directory into the `PyFHD` repo:
     ```bash
@@ -25,8 +78,15 @@ Here's how you install `PyFHD` for development purposes:
     ```bash
     pip install -e .
     ```
+
+4. Run the following git commands in the `PyFHD` directory
+    ```bash
+    echo __git_commit__ = \"$(git rev-parse HEAD)\" > PyFHD/__git__.py
+    echo __git_commit_date__ = \"$(git log -1 --format=%cd)\" >> PyFHD/__git__.py
+    echo __git_branch__ = \"$(git rev-parse --abbrev-ref HEAD)\" >> PyFHD/__git__.py
+    ```
     
-4. Verify the installation using the version command
+5. Verify the installation using the version command, which should generate output that looks like this:
     ```
     pyfhd -v
        ________________________________________________________________________
@@ -43,8 +103,7 @@ Here's how you install `PyFHD` for development purposes:
        
        Python Fast Holographic Deconvolution 
 
-       Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS)
-       and the Epoch of Reionisation (EoR) Team.
+       Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
        Repository: https://github.com/ADACS-Australia/PyFHD
 
@@ -52,7 +111,7 @@ Here's how you install `PyFHD` for development purposes:
 
        Version: 1.0
 
-       Git Commit Hash: b77d18d0ef640297264ce700696d75aa4ff5ea82
+       Git Commit Hash: 15e50c86609645ca01afcaf9d674b03107a1de7f (tutorial_adjustments)
     ```
 
 ## The How-To on contributing to PyFHD
@@ -265,22 +324,30 @@ from pathlib import Path
 from PyFHD.pyfhd_tools.pyfhd_utils import histogram
 from PyFHD.pyfhd_tools.test_utils import get_data, get_data_items
 
+
 @pytest.fixture
 def data_dir():
-    # This assumes you have used the splitter.py and have done a general format of **/FHD/PyFHD/tests/test_fhd_*/data/<function_name_being_tested>/*.npy
-    return Path(env.get('PYFHD_TEST_PATH'), 'histogram')
+    # The files can be found here PYFHD_TEST_PATH/pyfhd_tools/<function_name_being_tested>
+    # Files could be sav or npy or h5 depending on how you got the test data
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram")
+
 
 @pytest.fixture
 def full_data_dir():
-    return Path(env.get('PYFHD_TEST_PATH'), 'full_size_histogram')
+    return Path(
+        env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram", "full_size_histogram"
+    )
 
-def test_idl_example(data_dir: Path) :
+
+def test_idl_example(data_dir: Path):
     """
     This test is based on the example from the IDL documentation.
     This ensures we get the same behaviour as an example everybody can see.
     """
     # Setup the test from the histogram data file
-    data, expected_hist, expected_indices = get_data(data_dir, 'idl_hist_example.npy', 'idl_example_hist.npy', 'idl_example_inds.npy')
+    data, expected_hist, expected_indices = get_data(
+        data_dir, "idl_hist_example.npy", "idl_example_hist.npy", "idl_example_inds.npy"
+    )
     # Now that we're using numba it doesn't support every type, set it to more standard NumPy or Python types
     data = data.astype(int)
     hist, _, indices = histogram(data)
@@ -306,7 +373,7 @@ import numpy.testing as npt
 # files from the FHD runs, adjust it to that path.
 @pytest.fixture()
 def data_dir():
-    return Path(env.get('PYFHD_TEST_PATH'), "cal_auto_ratio_divide")
+    return Path(env.get('PYFHD_TEST_PATH'), "calibration", "cal_auto_ratio_divide")
 
 # With the FHD runs we used test tags, so all the files had consistent naming formats, 
 # for example, one of the test files was point_zenith_run1_before_cal_auto_ratio_divide.sav
@@ -450,6 +517,49 @@ def test_cal_auto_ratio_divide(before_file, after_file):
 
 Once you have set up the tests, every time you change the code and re-run the test you can be sure you haven't broken existing functionality accidentally giving you more confidence that the changes you have made will improve `PyFHD`. This section wasn't necessarily about teaching you the specifics on how to test, but to show why we do it. It's testing that has enabled us to be sure that `PyFHD` actually does the same things as `FHD` and even in some cases detect bugs on the `FHD` side. If you want to learn more about testing check out the numpy testing functions [here](https://numpy.org/doc/stable/reference/routines.testing.html) and also check out pytest [here](https://docs.pytest.org/en/7.4.x/).
 
+#### Testing functions already inside PyFHD?
+
+A place where all the test data is stored is being discussed and planned as the data is close to a TB of data (more than a TB by the time you count HEALPIX and beam files), as such it's difficult to share the test data. But assuming you have the test data, running the tests is done like so:
+
+1. Create an environment variable called `PYFHD_TEST_PATH` which points to the root diorectory of all the test data.
+2. Ensure you have pytest installed and setup in your environment (if you used `uv` or `mamba` for your environment this is already done)
+3. From there you can run all the tests using the command:
+    ```bash
+    pytest
+    ```
+    Be aware this will take a while (hence why I'm not showing the output here)!
+
+    Alternatively, you can also just run one test file:
+    ```bash
+    pytest tests/test_pyfhd_tools/test_histogram.py 
+    =============================================================================================================================================================================================== test session starts ===============================================================================================================================================================================================
+    platform linux -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+    rootdir: /home/skywatcher/projects/PyFHD
+    configfile: pyproject.toml
+    plugins: cov-6.1.1
+    collected 16 items                                                                                                                                                                                                                                                                                                                                                                                                
+
+    tests/test_pyfhd_tools/test_histogram.py .............. ..                                                                                                                                                                                                                                                                                                                                                   [100%]
+
+    ========================================================================================================================================================================================= 16 passed in 108.60s (0:01:48) ==========================================================================================================================================================================================
+    ```
+    Or run one test inside that file
+    ```bash
+    pytest tests/test_pyfhd_tools/test_histogram.py::test_idl_example
+    =============================================================================================================================================================================================== test session starts ===============================================================================================================================================================================================
+    platform linux -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+    rootdir: /home/skywatcher/projects/PyFHD
+    configfile: pyproject.toml
+    plugins: cov-6.1.1
+    collected 1 item                                                                                                                                                                                                                                                                                                                                                                                                  
+
+    tests/test_pyfhd_tools/test_histogram.py .                                                                                                                                                                                                                                                                                                                                                                  [100%]
+
+    ================================================================================================================================================================================================ 1 passed in 2.37s ================================================================================================================================================================================================
+    ```
+
+    This format should work for any tests inside of PyFHD (or for any python package using pytest).
+
 ### Debugging
 
 Tools that will help you during testing are the debugging tools available in IDE's like those in VSCode and PyCharm. Debugging tools allow you to get away from using print statements to using breakpoints instead, allowing you to see the entire snapshot of your function at that point in time in the code. This does make it easier to track down issues, see portions of large arrays, watch certain variables throughout the code to see how they change etc. VSCode in particular can allow you to set log points which can act like print statements without you having to put anything into the code. Breakpoints (and log points!) can also have conditions attached to them, so if you know you're looping through frequencies and you know an issue happens with frequency index 13, you can make a breakpoint condition that will trigger only when the frequency index is 13. To learn more about conditional breakpoints go [here](https://code.visualstudio.com/docs/debugtest/debugging#_conditional-breakpoints).
@@ -589,6 +699,8 @@ Once you have created your new function, add information about your new function
 ### Pull Request for your new function
 
 Initiate the pull request back to whatever branch the function needs to go in, and during the pull request you should notice a Pull Request Template that pops up with checkboxes, please follow the pull request template and do what it asks of you, one of which you're doing now by reading this contribution guide (Thanks 🙌). The pull request template is there for you to make sure you have followed best practices and for the reviewers to check you have followed best practices as well. 
+
+The pull request will run a black formatting check to ensure the code you made meets the formatting specification
 
 **If you're not doing any translation from IDL (`FHD`) to Python (`PyFHD`) you can safely stop here, and embark on your many scientific endeavours with PyFHD.**
 

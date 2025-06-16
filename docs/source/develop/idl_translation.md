@@ -101,7 +101,8 @@ Indexing arrays using other arrays can also lead to <del>dumb</del> *interesting
        4.0000000       4.0000000       4.0000000       4.0000000       4.0000000       4.0000000       4.0000000
        4.0000000       4.0000000       4.0000000
     ```
-    In summary, watch out for this behaviour, it does not fly in any other language, I have absolutely no idea why this is a thing or why you'd want it.
+    In summary, watch out for this behaviour, it usually comes up in C when you use pointers beyond their designated memory addresses, resulting in overflows, however for whatever reason IDL does their own version of overflow.
+    In Python, this functionality of indexing beyond the array, does not work, and is expected to never work (and it never should).
 
 ### Poly fit/val
 The `POLY_FIT` function in IDL has the ability to do both `polyfit` and `polyval`, so watch out for the use of the `YFIT` keyword. In general, `poly_fit(a, b, 2)` in IDL is `np.polynomial.polynomial.Polynomial.fit(a, b, deg=2).convert().coef` in Python. If you see the `YFIT` keyword, then it's a case of calling `np.polynomial.polynomial.polyval` on the calculated coefficients i.e. `phase_fit = np.polynomial.polynomial.polyval(a, np.polynomial.polynomial.Polynomial.fit(a, b, deg=2).convert().coef)`.\
