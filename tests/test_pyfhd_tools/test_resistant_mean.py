@@ -10,7 +10,7 @@ from PyFHD.io.pyfhd_io import convert_sav_to_dict
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "resistant_mean")
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "resistant_mean")
 
 
 @pytest.fixture(
