@@ -418,9 +418,21 @@ def flag_model_visibilities(
         0
     ]
 
-    data_include_per_time = np.sort(
-        np.concat([flaginfo_data.cross_locs_per_time, flaginfo_data.auto_locs_per_time])
-    )
+    # Check if the model has auto-correlations
+    if (flaginfo_model.num_autos) > 0:
+        data_include_per_time = np.sort(
+            np.concat(
+                [flaginfo_data.cross_locs_per_time, flaginfo_data.auto_locs_per_time]
+            )
+        )
+    else:
+        # If no auto-correlations, just use the cross-correlations, Keep the autos as zeroes
+        data_include_per_time = flaginfo_data.cross_locs_per_time
+        if flaginfo_data.num_autos > 0:
+            logger.warning(
+                "The data has auto-correlations, but the model does not. "
+                "Setting the auto correlations locations to zero in the model."
+            )
 
     # empty holder for the flagged model - this should be the same shape
     vis_model_arr_flagged = np.zeros(

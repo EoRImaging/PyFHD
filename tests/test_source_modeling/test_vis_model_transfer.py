@@ -14,12 +14,12 @@ from logging import Logger
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_model_transfer")
+    return Path(env.get("PYFHD_TEST_PATH"), "source_modeling", "vis_model_transfer")
 
 
 @pytest.fixture
 def model_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "models")
+    return Path(env.get("PYFHD_TEST_PATH"), "source_modeling", "models")
 
 
 @pytest.fixture(scope="function", params=["point_zenith", "1088716296", "1088285600"])
@@ -57,6 +57,7 @@ def before_file(tag, run, data_dir, model_dir):
         "obs_id": tag,
         "instrument": "mwa",
         "n_pol": 2,
+        "save_model": False,
     }
 
     del h5_save_dict["extra"]
@@ -97,16 +98,7 @@ def test_model_transfer(before_file, after_file):
     h5_before = load(before_file)
     expected_vis_model_arr = load(after_file)
 
-    vis_model_arr, params_model = vis_model_transfer(
-        h5_before["pyfhd_config"], h5_before["obs"], Logger(1)
+    vis_model_arr = vis_model_transfer(
+        h5_before["pyfhd_config"], h5_before["obs"], h5_before["params"], Logger(1)
     )
-    if h5_before["pyfhd_config"]["flag_model"]:
-        vis_model_arr = flag_model_visibilities(
-            vis_model_arr,
-            h5_before["params"],
-            params_model,
-            h5_before["obs"],
-            h5_before["pyfhd_config"],
-            Logger(1),
-        )
     npt.assert_allclose(vis_model_arr, expected_vis_model_arr, atol=1e-8)
