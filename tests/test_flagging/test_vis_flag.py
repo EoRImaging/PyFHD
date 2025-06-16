@@ -14,7 +14,7 @@ import numpy.testing as npt
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_flag")
+    return Path(env.get("PYFHD_TEST_PATH"), "flagging", "vis_flag")
 
 
 @pytest.fixture(scope="function", params=["point_zenith", "point_offzenith"])
