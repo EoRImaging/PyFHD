@@ -42,7 +42,7 @@ pyfhd = "PyFHD.pyfhd:main"
 [project.urls]
 "Repository" = "https://github.com/ADACS-Australia/PyFHD"
 "Documentation" = "https://pyfhd.readthedocs.io/en/latest/"
-"Bug Tracker" = "https://github.com/ADACS-Australia/PyFHD/Issues"
+"Bug Tracker" = "https://github.com/ADACS-Australia/PyFHD/issues"
 "Changelog" = "https://pyfhd.readthedocs.io/en/latest/changelog/changelog.html"
 
 [dependency-groups]
@@ -66,7 +66,7 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
 ignore-vcs = true
 include = ["PyFHD/**", "PyFHD/__git__.py"]
-exclude = ["mwa_full_embedded_element_pattern.h5", "*.pyc"]
+exclude = ["mwa_full_embedded_element_pattern.h5", "*.pyc", "test_data/**"]
 
 
 [[tool.hatch.build.hooks.build-scripts.scripts]]
