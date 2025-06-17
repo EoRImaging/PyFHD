@@ -142,6 +142,11 @@ def pyfhd_parser():
         default="./input/",
     )
     parser.add_argument(
+        "--copy-sample-data",
+        action="store_true",
+        help="Copy sample data from PyFHD package directory to the current working directory. Will copy to an 'input' directory.",
+    )
+    parser.add_argument(
         "-r",
         "--recalculate-all",
         action=OrderedBooleanOptionalAction,
@@ -1239,29 +1244,21 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
         log_terminal.setFormatter(logging.Formatter("%(message)s"))
         logger.addHandler(log_terminal)
 
-    # Check the output_path exists, and create if not
-
-    if not os.path.isdir(pyfhd_config["output_path"]):
-        print(
-            f"Output path specified by `--output-path={pyfhd_config['output_path']}` does not exist. Attempting to create now."
-        )
-        output_dir = Path(pyfhd_config["output_path"])
-        Path.mkdir(output_dir)
-        print(f"Successfully created directory: {pyfhd_config['output_path']}")
-
     # Create the output directory path. If the user has selected a description,
     # don't use the time in the name - that gets used for the log
     if pyfhd_config["description"] is None:
         dir_name = "pyfhd_" + log_time
     else:
         dir_name = "pyfhd_" + pyfhd_config["description"].replace(" ", "_")
-
-    output_dir = Path(pyfhd_config["output_path"], dir_name)
+    if pyfhd_config["copy_sample_data"]:
+        output_dir = Path(pyfhd_config["output_path"])
+    else:
+        output_dir = Path(pyfhd_config["output_path"], dir_name)
     if Path.is_dir(output_dir):
         output_dir_exists = True
     else:
         output_dir_exists = False
-        Path.mkdir(output_dir)
+        Path.mkdir(output_dir, parents=True, exist_ok=True)
 
     # Create the logger for the file
     if pyfhd_config["log_file"]:
@@ -1653,8 +1650,9 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     logger.info("Input validated, starting PyFHD run now")
 
     # Create the config directory
-    config_path = Path(output_dir, "config")
-    config_path.mkdir(exist_ok=True)
-    write_collated_yaml_config(pyfhd_config, config_path)
+    if not pyfhd_config["copy_sample_data"]:
+        config_path = Path(output_dir, "config")
+        config_path.mkdir(exist_ok=True)
+        write_collated_yaml_config(pyfhd_config, config_path)
 
     return pyfhd_config, logger

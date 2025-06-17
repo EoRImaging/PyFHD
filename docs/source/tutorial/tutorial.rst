@@ -4,13 +4,35 @@
 .. _FHD: https://github.com/EoRImaging/FHD
 .. _pyuvdata: https://pyuvdata.readthedocs.io/en/latest/index.html
 
+.. _tutorial:
+
 Tutorial
 =========
 
+First make sure you have installed ``PyFHD`` following the instructions in the :doc:`Installation Guide <../installation/installation>`.
+
 Let's start with getting you off the ground and running using the sample data built into ``PyFHD``. 
 The example data is a small subset of the observation ``1088285600`` with a beam that uses only one frequency, 
-and a skymodel created using `WODEN`_. To run ``PyFHD`` you use the CLI, built with ``configargparse``
-which allows you to take in configuration files. The command below assumes you're running from inside the root directory of the repository.
+and a skymodel created using `WODEN`_. To run ``PyFHD`` we will use the command line interface (CLI) that has been
+built to run ``PyFHD``.
+
+.. _sample-data:
+
+Sample Data
+-----------
+
+To run the example data, you'll need to get the sample data first, to do this run:
+
+.. code-block:: bash
+
+  pyfhd --copy-sample-data 1088285600
+
+Which will copy the sample data built into the PyFHD package to your current working directory, inside a directory and sub-directory called ``input/1088285600_example``.
+
+Running the sample data
+-----------------------
+
+From there in that directory, you should be able to run the following command to run the example data:
 
 .. code-block:: bash
 
@@ -33,11 +55,11 @@ This will run the entire PyFHD pipeline in this order:
 
 If the command runs successfully you should get a log to your terminal (stdout) that looks something like this:
 
-  .. raw:: html
+.. raw:: html
 
-    <details>
-    <summary>Sample Data PyFHD Log</summary>
-    <p>
+  <details>
+  <summary>Sample Data PyFHD Collapsible Log</summary>
+  <p>
 
 .. code-block:: text
                                                                             
@@ -447,7 +469,7 @@ If the command runs successfully you should get a log to your terminal (stdout) 
 
 Take note of the line:
 
-.. code-block:: python
+.. code-block:: text
 
   Logging and configuration file created and copied to here: /home/skywatcher/projects/PyFHD/output/pyfhd_1088285600_example
 
@@ -706,6 +728,11 @@ in comparison to the template in the root of the repository (which will be used 
 
 Running calibration on the sample data
 ++++++++++++++++++++++++++++++++++++++
+
+.. tip::
+
+  This assumes you have retrieved the sample data and have it the directory ``input/1088285600_example/``. If you haven't retrieved the sample data, please refer to the section above on how to get the :ref:`sample-data`.
+  
 
 .. code-block:: bash
 

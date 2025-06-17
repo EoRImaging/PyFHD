@@ -29,13 +29,14 @@ from PyFHD.pyfhd_tools.pyfhd_utils import (
     vis_weights_update,
 )
 from PyFHD.source_modeling.vis_model_transfer import (
-    flag_model_visibilities,
     vis_model_transfer,
 )
 from PyFHD.io.pyfhd_io import save, load
 from PyFHD.io.pyfhd_quickview import quickview
 from PyFHD.healpix.export import healpix_snapshot_cube_generate
 from PyFHD.plotting.gridding import plot_gridding
+import importlib_resources
+import shutil
 
 
 def _print_time_diff(
@@ -71,17 +72,18 @@ def finish_pyfhd(
     # Close all open h5 files
     if isinstance(psf, h5py.File):
         psf.close()
-    # Write a final collated yaml for the final pyfhd_config
-    write_collated_yaml_config(
-        pyfhd_config, Path(pyfhd_config["output_dir"], "config"), "-final"
-    )
-    # Save the config in a HDF5 file for ease of reading in previous parameters from previous runs
-    save(
-        Path(pyfhd_config["output_dir"], "config", "pyfhd_config.h5"),
-        pyfhd_config,
-        "pyfhd_config",
-        logger=logger,
-    )
+    if not pyfhd_config["copy_sample_data"]:
+        # Write a final collated yaml for the final pyfhd_config
+        write_collated_yaml_config(
+            pyfhd_config, Path(pyfhd_config["output_dir"], "config"), "-final"
+        )
+        # Save the config in a HDF5 file for ease of reading in previous parameters from previous runs
+        save(
+            Path(pyfhd_config["output_dir"], "config", "pyfhd_config.h5"),
+            pyfhd_config,
+            "pyfhd_config",
+            logger=logger,
+        )
     logger.info(
         f'PyFHD Run Completed for {pyfhd_config["obs_id"]}\nTotal Runtime (Days:Hours:Minutes:Seconds.Millseconds): {runtime}'
     )
@@ -92,10 +94,41 @@ def finish_pyfhd(
 
 def main():
     pyfhd_start = time.time()
-    options = pyfhd_parser().parse_args()
+    configargparser = pyfhd_parser()
+    options = configargparser.parse_args()
+
+    if options.copy_sample_data:
+        options.input_path = importlib_resources.files("PyFHD").joinpath(
+            "resources/1088285600_example"
+        )
+        options.output_path = Path.cwd() / "input" / "1088285600_example"
 
     # Validate options and Create the Logger
     pyfhd_config, logger = pyfhd_setup(options)
+
+    if pyfhd_config["copy_sample_data"]:
+        sample_path = Path(importlib_resources.files("PyFHD")).joinpath(
+            "resources/1088285600_example"
+        )
+        for file in sample_path.iterdir():
+            if file.is_file():
+                dest_file = pyfhd_config["output_path"] / file.name
+                if file.suffix == ".yaml":
+                    config = file.read_text()
+                    # Replace the input directory in the config with the current working directory
+                    config = config.replace(
+                        "./PyFHD/resources/1088285600_example",
+                        str(pyfhd_config["output_path"]),
+                    )
+                    dest_file.write_text(config)
+                    logger.info(
+                        f"Wrote the sample config file to {dest_file} with updated paths to your machine"
+                    )
+                else:
+                    shutil.copyfile(file, dest_file)
+                    logger.info(f"Copied sample data file: {file.name} to {dest_file}")
+        finish_pyfhd(pyfhd_start, logger, None, pyfhd_config)
+        sys.exit(0)
 
     try:
         checkpoint_name = pyfhd_config["description"]
@@ -580,24 +613,29 @@ def main():
             )
 
         finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
+        pyfhd_successful = True
     except Exception as e:
-        pyfhd_end = time.time()
         logger.exception(
             f"An error occurred in PyFHD: {e}\n\tExiting PyFHD.",
             exc_info=True,
         )
+        pyfhd_successful = False
     finally:
-        runtime = timedelta(seconds=pyfhd_end - pyfhd_start)
-        # Close all open h5 files
-        if "psf" in locals() and isinstance(psf, h5py.File):
-            psf.close()
-        logger.info(
-            f'PyFHD Run Stopped for {pyfhd_config["obs_id"]}\nTotal Runtime (Days:Hours:Minutes:Seconds.Millseconds): {runtime}'
-        )
-        # Close the handlers in the log
-        for handler in logger.handlers:
-            handler.close()
-        sys.exit(1)
+        if pyfhd_successful:
+            sys.exit(0)
+        else:
+            pyfhd_end = time.time()
+            runtime = timedelta(seconds=pyfhd_end - pyfhd_start)
+            # Close all open h5 files
+            if "psf" in locals() and isinstance(psf, h5py.File):
+                psf.close()
+            logger.info(
+                f'PyFHD Run Unsuccessful for {pyfhd_config["obs_id"]}\nTotal Runtime (Days:Hours:Minutes:Seconds.Millseconds): {runtime}'
+            )
+            # Close the handlers in the log
+            for handler in logger.handlers:
+                handler.close()
+            sys.exit(1)
 
 
 if __name__ == "__main__":
