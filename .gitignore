@@ -145,10 +145,6 @@ input/**
 # Include these specifically files and directories
 !output/README.md
 !input/README.md
-!input/instrument_config/
-!input/instrument_config/*
-!input/1088285600_example/
-!input/1088285600_example/*
 
 # test things to ignore (for now)
 tests/*/__pycache__
