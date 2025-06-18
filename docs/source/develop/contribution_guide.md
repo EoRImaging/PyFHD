@@ -517,13 +517,159 @@ def test_cal_auto_ratio_divide(before_file, after_file):
 
 Once you have set up the tests, every time you change the code and re-run the test you can be sure you haven't broken existing functionality accidentally giving you more confidence that the changes you have made will improve `PyFHD`. This section wasn't necessarily about teaching you the specifics on how to test, but to show why we do it. It's testing that has enabled us to be sure that `PyFHD` actually does the same things as `FHD` and even in some cases detect bugs on the `FHD` side. If you want to learn more about testing check out the numpy testing functions [here](https://numpy.org/doc/stable/reference/routines.testing.html) and also check out pytest [here](https://docs.pytest.org/en/7.4.x/).
 
-#### Testing functions already inside PyFHD?
+#### Testing a subset of the PyFHD functions
+
+There is a curated set of tests that have been marked with `pytest.mark` as `github_actions`. You can see them in the test files in two ways, either over the test function:
+
+```python
+@pytest.mark.github_actions # Here's the mark
+def test_idl_example(data_dir: Path):
+    """
+    This test is based on the example from the IDL documentation.
+    This ensures we get the same behaviour as an example everybody can see.
+    """
+    # Setup the test from the histogram data file
+    data, expected_hist, expected_indices = get_data(
+        data_dir, "idl_hist_example.npy", "idl_example_hist.npy", "idl_example_inds.npy"
+    )
+    # Now that we're using numba it doesn't support every type, set it to more standard NumPy or Python types
+    data = data.astype(int)
+    hist, _, indices = histogram(data)
+    assert np.array_equal(hist, expected_hist)
+    assert np.array_equal(indices, expected_indices)
+```
+
+Alternatively, if there's a case we only wanted to use one fixture inside that test, then `pytest.param` was used to indicate that particular fixture:
+
+```python
+@pytest.fixture(
+    scope="function",
+    params=[
+        "1088285600",
+        "1088716296",
+        pytest.param("point_zenith", marks=pytest.mark.github_actions),
+        "point_offzenith",
+    ],
+)
+```
+
+In the cases where `pytest.param` was used, then you will likely see the checking of the mark at some points in the creation of the test files:
+
+```python
+if request.node.get_closest_marker("github_actions"):
+    data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "healpix", "healpix_cnv_apply"
+    )
+```
+
+In order to run these tests you need to do the following:
+
+1. Download the data, you can do so here: [![Static Badge](https://img.shields.io/badge/Test%20Data%20DOI-10.5281%2Fzenodo.15687722-grey?labelColor=blue)](https://doi.org/10.5281/zenodo.15687722). Put the zip file 
+in the following directory inside the repository (the directory given is relative to the root of the repository): `PyFHD/resources/test_data`
+
+2. Unzip the zip file in the previously mentioned `PyFHD/resources/test_data` directory.
+
+3. In a terminal, at the root of the repository, run the following command:
+
+```bash
+pytest -m github_actions
+```
+
+You should expect output that looks like this:
+
+```bash
+=========================================== test session starts ===========================================
+platform linux -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+rootdir: /home/skywatcher/projects/PyFHD
+configfile: pyproject.toml
+plugins: metadata-3.1.1, cov-6.1.1, html-4.1.1
+collected 436 items / 315 deselected / 121 selected                                                       
+
+tests/test_calibration/test_cal_auto_ratio_divide.py .....s                                         [  4%]
+tests/test_calibration/test_cal_auto_ratio_remultiply.py .....s                                     [  9%]
+tests/test_calibration/test_calculate_adaptive_gain.py ....                                         [ 13%]
+tests/test_calibration/test_vis_cal_bandpass.py ........s                                           [ 20%]
+tests/test_calibration/test_vis_cal_polyfit.py ........s                                            [ 28%]
+tests/test_calibration/test_vis_calibration_flag.py .....s..s                                       [ 35%]
+tests/test_data_setup/test_sample_data_extraction.py .                                              [ 36%]
+tests/test_gridding/test_gridding_utils/test_interpolate_kernel.py ...                              [ 38%]
+tests/test_gridding/test_visibility_grid.py ......                                                  [ 43%]
+tests/test_healpix/test_healpix_cnv_apply.py ssssss......                                           [ 53%]
+tests/test_healpix/test_healpix_cnv_generate.py s.                                                  [ 55%]
+tests/test_io/test_configuration.py .                                                               [ 56%]
+tests/test_io/test_save_and_load.py ...                                                             [ 58%]
+tests/test_pyfhd_tools/test_array_match.py ...                                                      [ 61%]
+tests/test_pyfhd_tools/test_deriv_coefficients.py ...                                               [ 63%]
+tests/test_pyfhd_tools/test_histogram.py .............                                              [ 74%]
+tests/test_pyfhd_tools/test_meshgrid.py ...                                                         [ 76%]
+tests/test_pyfhd_tools/test_rebin.py ...................                                            [ 92%]
+tests/test_pyfhd_tools/test_region_grow.py ..                                                       [ 94%]
+tests/test_pyfhd_tools/test_resistant_mean.py ......                                                [ 99%]
+tests/test_pyfhd_tools/test_weight_invert.py .                                                      [100%]
+
+============================================ warnings summary =============================================
+tests/test_calibration/test_cal_auto_ratio_divide.py::test_cal_auto_ratio_divide[1088716296-run1]
+  /home/skywatcher/projects/PyFHD/PyFHD/pyfhd_tools/pyfhd_utils.py:715: RuntimeWarning: overflow encountered in divide
+    result[i_use] = 1 / weights[i_use]
+
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_zenith-run1]
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_zenith-run3]
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_offzenith-run1]
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_offzenith-run3]
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[1088716296-run1]
+  /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:816: RuntimeWarning: divide by zero encountered in divide
+    gain3[freq_use, :] /= gain2_input[freq_use, :]
+
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_zenith-run1]
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_offzenith-run1]
+tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[1088716296-run1]
+  /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:816: RuntimeWarning: invalid value encountered in divide
+    gain3[freq_use, :] /= gain2_input[freq_use, :]
+
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run1]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run2]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run3]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run1]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run2]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run3]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run1]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run2]
+  /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:1164: RuntimeWarning: divide by zero encountered in divide
+    gain_arr = og_gain_arr[pol_i] / cal["gain"][pol_i]
+
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run1]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run2]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run3]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run1]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run2]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run3]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run1]
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run2]
+  /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:1164: RuntimeWarning: invalid value encountered in divide
+    gain_arr = og_gain_arr[pol_i] / cal["gain"][pol_i]
+
+tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run1]
+  /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:1193: RuntimeWarning: invalid value encountered in divide
+    norm_autos = auto_ratio[pol_i] / rebin(
+
+tests/test_gridding/test_visibility_grid.py::test_visibility_grid[4]
+  /home/skywatcher/projects/PyFHD/tests/test_gridding/test_visibility_grid.py:158: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+    new_arr[0] = h5_before["fi_use"]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 108 passed, 13 skipped, 315 deselected, 27 warnings in 36.53s ======================
+```
+
+These are the same tests that the actions run on every pull request and push to main.
+
+#### Testing All PyFHD functions
 
 A place where all the test data is stored is being discussed and planned as the data is close to a TB of data (more than a TB by the time you count HEALPIX and beam files), as such it's difficult to share the test data. But assuming you have the test data, running the tests is done like so:
 
-1. Create an environment variable called `PYFHD_TEST_PATH` which points to the root diorectory of all the test data.
-2. Ensure you have pytest installed and setup in your environment (if you used `uv` or `mamba` for your environment this is already done)
-3. From there you can run all the tests using the command:
+1. Ensure you have followed the instructions for [Testing a subset of the PyFHD functions](#testing-a-subset-of-the-pyfhd-functions)
+2. Create an environment variable called `PYFHD_TEST_PATH` which points to the root directory of all the test data.
+3. Ensure you have pytest installed and setup in your environment (if you used `uv` or `mamba` for your environment this is already done)
+4. From there you can run all the tests using the command:
     ```bash
     pytest
     ```

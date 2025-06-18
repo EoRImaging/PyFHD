@@ -127,7 +127,7 @@ def create_obs(
     # from the uvfits antenna table
     all_ants = np.hstack([params["antenna1"], params["antenna2"]])
     all_ants = np.unique(all_ants)
-    if not (np.all(np.in1d(all_ants, layout["antenna_numbers"]))):
+    if not (np.all(np.isin(all_ants, layout["antenna_numbers"]))):
         logger.warning("Antenna arrays contain number(s) not found in antenna table")
 
     # fhd expects antenna1 and antenna2 arrays containing indices that are one-indexed.

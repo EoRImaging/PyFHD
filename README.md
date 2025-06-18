@@ -4,8 +4,10 @@
 [![Python](https://img.shields.io/badge/Python-3.10--3.13-%231475b3?logo=python&logoColor=%23fff)](https://www.python.org/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ADACS-Australia/PyFHD?logo=github&color=blue&link=https%3A%2F%2Fgithub.com%2FADACS-Australia%2FPyFHD%2Fcommits%2Fmain%2F)
 [![Documentation Status](https://readthedocs.org/projects/pyfhd/badge/?version=latest)](https://pyfhd.readthedocs.io/en/latest/?badge=latest)
+
 ![GitHub branch status](https://img.shields.io/github/checks-status/ADACS-Australia/PyFHD/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Static Badge](https://img.shields.io/badge/Test%20Data%20DOI-10.5281%2Fzenodo.15687722-grey?labelColor=blue)](https://doi.org/10.5281/zenodo.15687722)
 
 TODO: Add Testing Results and Testing coverage
 
