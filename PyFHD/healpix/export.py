@@ -189,7 +189,6 @@ def healpix_snapshot_cube_generate(
             dirty_or_res_cube = np.zeros([n_freq_use, hpx_inds.size])
 
             for freq_i in range(n_freq_use):
-                # TODO: check the indexing and sizing of the arrays
                 beam_squared_cube[freq_i, :] = healpix_cnv_apply(
                     beam_arr[pol_i, freq_i] * nf_vis_use[freq_i], hpx_cnv
                 )

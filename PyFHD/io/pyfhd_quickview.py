@@ -227,19 +227,23 @@ def quickview(
         beam_correction_out[pol_i] = weight_invert(beam_base_out[pol_i], 1e-3)
         if pol_i == 0:
             beam_mask_test = beam_base_out[pol_i]
-            # Didn't see the option for allow_sidelobe_image_output in FHD dictionary defined or used anywhere?
-            beam_i = region_grow(
-                beam_mask_test,
-                np.array(
-                    [
-                        obs_out["dimension"] / 2
-                        + obs_out["dimension"] * obs_out["elements"] / 2
-                    ],
-                    dtype=np.int64,
-                ),
-                low=0.05 / 2,  # This is beam_threshold/2 in FHD
-                high=np.max(beam_mask_test),
-            )
+            if pyfhd_config["allow_sidelobe_model_sources"]:
+                beam_i = np.where(
+                    beam_mask_test >= 0.025
+                )  # This is beam_threshold/2 in FHD
+            else:
+                beam_i = region_grow(
+                    beam_mask_test,
+                    np.array(
+                        [
+                            obs_out["dimension"] / 2
+                            + obs_out["dimension"] * obs_out["elements"] / 2
+                        ],
+                        dtype=np.int64,
+                    ),
+                    low=0.05 / 2,  # This is beam_threshold/2 in FHD
+                    high=np.max(beam_mask_test),
+                )
             beam_mask0 = np.zeros([obs_out["dimension"], obs_out["elements"]])
             beam_mask0.flat[beam_i] = 1
             beam_avg += beam_base_out[pol_i] ** 2

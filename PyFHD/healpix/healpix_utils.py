@@ -100,7 +100,6 @@ def healpix_cnv_generate(
         sparse storage mode as described in section 2.7 of Numerical Recipes
         in C, 2nd edition.
     """
-    # TODO: Add ability to restore old healpix_inds from PyFHD runs
 
     # Have ignored the code that relates to hpx_radius being empty, in PyFHD's case
     # we will assume that a value for hpx_radius is supplied, if you want to add it
