@@ -7,12 +7,14 @@ from PyFHD.io.pyfhd_io import convert_sav_to_dict
 from PyFHD.pyfhd_tools.test_utils import sav_file_vis_arr_swap_axes
 from PyFHD.io.pyfhd_io import save, load
 import numpy.testing as npt
-from copy import deepcopy
+import importlib_resources
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "calibration", "cal_auto_ratio_remultiply")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "calibration", "cal_auto_ratio_remultiply"
+    )
 
 
 @pytest.fixture(
@@ -87,6 +89,7 @@ def after_file(tag, run, data_dir):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_cal_auto_ratio_remultiply(before_file, after_file):
     """
     Runs the test on `cal_auto_ratio_remultiply` reads in the data in before_file and after_file,

@@ -405,6 +405,9 @@ def save(
                         h5_file, key, to_save[key], to_chunk, variable_lengths, logger
                     )
             case _:
+                h5_file.attrs[dataset_name] = save_dataset(
+                    h5_file, dataset_name, to_save, to_chunk, variable_lengths, logger
+                )
                 if logger:
                     logger.warning(
                         "Not a dict or numpy array, PyFHD won't write other types at this time, refer to PyFHD.io.pyfhd_io.save to see what is supported"

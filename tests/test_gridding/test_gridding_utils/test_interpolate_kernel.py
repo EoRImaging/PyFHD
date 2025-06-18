@@ -5,11 +5,14 @@ import pytest
 from PyFHD.gridding.gridding_utils import interpolate_kernel
 from PyFHD.pyfhd_tools.test_utils import get_data_items
 from PyFHD.io.pyfhd_io import save, load, recarray_to_dict
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "gridding", "interpolate_kernel")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "gridding", "interpolate_kernel"
+    )
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
@@ -70,6 +73,7 @@ def interp_kernel_after(data_dir, number):
     return interp_kernel_after
 
 
+@pytest.mark.github_actions
 def test_interpolate_kernel(interp_kernel_before: Path, interp_kernel_after: Path):
     h5_before = load(interp_kernel_before)
     expected_kernel = load(interp_kernel_after)
