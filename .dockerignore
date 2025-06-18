@@ -23,3 +23,6 @@ root/.cache/
 input/**
 !input/instrument_config.yaml
 !input/1088285600_example
+
+# Test Data
+PyFHD/resources/test_data/**/*

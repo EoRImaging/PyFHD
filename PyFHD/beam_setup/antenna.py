@@ -214,7 +214,7 @@ def init_beam(obs: dict, pyfhd_config: dict, logger: Logger) -> dict:
             raise FileNotFoundError(
                 f"MWA beam file {mwa_beam_file} does not exist. "
                 "Please download it from http://ws.mwatelescope.org/static/mwa_full_embedded_element_pattern.h5 into the."
-                "directory PyFHD/resources/instrument_config/"
+                f"directory {mwa_beam_file.parent}"
             )
         beam = UVBeam.from_file(mwa_beam_file, delays=obs["delays"])
     # If you wish to add a different insturment, do it by adding a new elif here

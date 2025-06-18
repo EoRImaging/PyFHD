@@ -32,6 +32,9 @@ RUN rm -rf /pyfhd/.cache/uv
 RUN .venv/bin/python -c "from astropy.utils.iers import IERS_Auto; iers_a = IERS_Auto.open()"
 RUN .venv/bin/python -c "from astropy.coordinates import EarthLocation; site_names = EarthLocation.get_site_names()"
 
+# Grab the MWA FEE Beam file
+RUN cd /pyfhd/PyFHD/resources/instrument_config && wget "http://ws.mwatelescope.org/static/mwa_full_embedded_element_pattern.h5" && cd /pyfhd
+
 RUN rm -rf /pyfhd/.git /pyfhd/.cache/uv 
 
 # Separate build stage as uv is not needed in the final image
