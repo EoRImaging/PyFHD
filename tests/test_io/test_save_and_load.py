@@ -2,8 +2,10 @@ from PyFHD.io.pyfhd_io import load, save
 from pathlib import Path
 import numpy as np
 from h5py import File, Group, Dataset
+import pytest
 
 
+@pytest.mark.github_actions
 def test_save_and_load():
     """
     Test the save and load functionality of PyFHD.
@@ -48,6 +50,7 @@ def test_save_and_load():
     Path("test_data.h5").unlink()  # Clean up the test file
 
 
+@pytest.mark.github_actions
 def test_save_and_load_empty():
     """
     Test the save and load functionality with an empty dictionary.
@@ -68,6 +71,7 @@ def test_save_and_load_empty():
     Path("empty_data.h5").unlink()  # Clean up the test file
 
 
+@pytest.mark.github_actions
 def test_lazy_load():
     """
     Test the lazy loading functionality of PyFHD.

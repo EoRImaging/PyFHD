@@ -85,3 +85,7 @@ commands = [
 ]
 clean_artifacts = true
 
+[tool.pytest.ini_options]
+markers = [
+    "github_actions: Tests with small data that can run in actions",
+]

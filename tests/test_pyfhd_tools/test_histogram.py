@@ -4,12 +4,15 @@ from os import environ as env
 from pathlib import Path
 from PyFHD.pyfhd_tools.pyfhd_utils import histogram
 from PyFHD.pyfhd_tools.test_utils import get_data, get_data_items
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
     # This assumes you have used the splitter.py and have done a general format of **/FHD/PyFHD/tests/test_fhd_*/data/<function_name_being_tested>/*.npy
-    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "pyfhd_tools", "histogram"
+    )
 
 
 @pytest.fixture
@@ -19,6 +22,7 @@ def full_data_dir():
     )
 
 
+@pytest.mark.github_actions
 def test_idl_example(data_dir: Path):
     """
     This test is based on the example from the IDL documentation.
@@ -35,6 +39,7 @@ def test_idl_example(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_one_hundred_nums(data_dir: Path):
     """
     This is a basic test of an array with numbers 0 to 99 in increasing
@@ -56,6 +61,7 @@ def test_one_hundred_nums(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_one_hundred_ten_bins(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -72,6 +78,7 @@ def test_one_hundred_ten_bins(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_min(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -87,6 +94,7 @@ def test_min(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_ones_and_min():
     only_ones = np.array([0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0])
     output, _, ri = histogram(only_ones, min=1)
@@ -96,6 +104,7 @@ def test_ones_and_min():
     assert np.array_equal(ri, expected_ri)
 
 
+@pytest.mark.github_actions
 def test_max(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -111,6 +120,7 @@ def test_max(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_min_max(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -126,6 +136,7 @@ def test_min_max(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_find_none():
     only_twos = np.array([0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0])
     output, _, ri = histogram(only_twos, min=1, max=1)
@@ -135,6 +146,7 @@ def test_find_none():
     assert np.array_equal(ri, expected_ri)
 
 
+@pytest.mark.github_actions
 def test_one_max(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -150,6 +162,7 @@ def test_one_max(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_normals(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -162,6 +175,7 @@ def test_normals(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_normals_binsize(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -177,6 +191,7 @@ def test_normals_binsize(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_normals_min_max(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
@@ -192,6 +207,7 @@ def test_normals_min_max(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
+@pytest.mark.github_actions
 def test_normals_times_10(data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(

@@ -3,8 +3,10 @@ from PyFHD.pyfhd_tools.pyfhd_setup import pyfhd_parser, pyfhd_setup
 import sys
 import importlib_resources
 import configargparse
+import pytest
 
 
+@pytest.mark.github_actions
 def test_configuration():
     """
     Test the configuration setup for PyFHD.
