@@ -306,26 +306,26 @@ def beam_image_hyperresolved(
     Parameters
     ----------
     antenna : dict
-        _description_
+        Antenna metadata dictionary
     beam : UVBeam | AnalyticBeam
-        _description_
+        UVBeam or AnalyticBeam object containing the beam model and metadata.
     ant_pol_1 : int
-        _description_
+        Polarization index for the first antenna
     ant_pol_2 : int
-        _description_
+        Polarization index for the second antenna
     freq_i : int
-        _description_
+        Frequency index for current iteration
     zen_int_x : float
-        _description_
+        x pixel index of the zenith for the beam power image
     zen_int_y : float
-        _description_
+        y pixel index of the zenith for the beam power image
     psf : dict
-        _description_
+        Beam metadata dictionary
 
     Returns
     -------
     NDArray[np.complexfloating]
-        _description_
+        An estimation of the image-space beam power, normalized to the zenith power. 
     """
     # FHD was designed to account for multiple antennas but in most cases only one was ever used
     # So we will just use the first antenna twice as I PyFHD does not support multiple antennas at this time,
@@ -389,37 +389,40 @@ def beam_power(
     pyfhd_config: dict,
 ) -> NDArray[np.complexfloating]:
     """
-    _summary_
+    Generate the hyperresolved image-space beam power to reduce aliasing artifacts, and 
+    fourier transform it to a specific grid in complex uv-space. Reduce artifacts further 
+    by applying an extremely low-level contiguous mask to the uv-space beam power and 
+    renomalizing the beam power to a volume of 1.
 
     Parameters
     ----------
     antenna : dict
-        _description_
+        Antenna metadata dictionary
     beam : UVBeam | AnalyticBeam
-        _description_
+       UVBeam or AnalyticBeam object containing the beam model and metadata.
     ant_pol_1 : int
-        _description_
+        Polarization index for the first antenna
     ant_pol_2 : int
-        _description_
+        Polarization index for the second antenna
     freq_i : int
-        _description_
+        Frequency index for current iteration
     psf : dict
-        _description_
+        Beam metadata dictionary
     zen_int_x : np.ndarray
-        _description_
+        x pixel index of the zenith for the beam power image
     zen_int_y : np.ndarray
-        _description_
+        y pixel index of the zenith for the beam power image
     xvals_uv_superres : np.ndarray
-        _description_
+        A grid of the hyperresolved indices in the u direction for the uv-space beam power image
     yvals_uv_superres : np.ndarray
-        _description_
+        A grid of the hyperresolved indices in the v direction for the uv-space beam power image
     pyfhd_config : dict
-        _description_
+        The PyFHD configuration dictionary
 
     Returns
     -------
     NDArray[np.complexfloating]
-        _description_
+        Hyperresolved uv-space of the beam power image, normalized to a volume of 1
     """
     # For now we will ignore beam_gaussian_decomp and much of the debug keywords
     image_power_beam = beam_image_hyperresolved(

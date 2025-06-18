@@ -17,25 +17,25 @@ from astropy.time import Time
 
 def init_beam(obs: dict, pyfhd_config: dict, logger: Logger) -> dict:
     """
-    TODO: _summary_
+    TODO: _summary_ 
 
     Parameters
     ----------
     obs : dict
-        _description_
+        Observation metadata dictionary.
     pyfhd_config : dict
-        _description_
+        PyFHD's configuration dictionary containing all the options for a run
     logger : Logger
-        _description_
+        PyFHD's logger.
 
     Returns
     -------
     antenna : dict
         _description_
     psf : dict
-        _description_
+        Beam metadata dictionary.
     beam : UVBeam or AnalyticBeam
-        _description_
+        UVBeam or AnalyticBeam object containing the beam model and metadata.
 
     Raises
     ------
