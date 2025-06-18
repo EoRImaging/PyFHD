@@ -7,6 +7,7 @@ import h5py
 from logging import Logger
 from PyFHD.io.pyfhd_io import convert_sav_to_dict, load, recarray_to_dict, save
 from PyFHD.healpix.healpix_utils import healpix_cnv_generate
+import importlib_resources
 
 
 @pytest.fixture
@@ -16,7 +17,12 @@ def data_dir():
 
 @pytest.fixture(
     scope="function",
-    params=["1088285600", "1088716296", "point_zenith", "point_offzenith"],
+    params=[
+        "1088285600",
+        "1088716296",
+        pytest.param("point_zenith", marks=pytest.mark.github_actions),
+        "point_offzenith",
+    ],
 )
 def tag(request):
     return request.param
@@ -36,9 +42,13 @@ skip_tests = [
 
 
 @pytest.fixture
-def before_file(tag, run, data_dir):
+def before_file(tag, run, data_dir, request):
     if [tag, run] in skip_tests:
         return None
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "healpix", "healpix_cnv_generate"
+        )
     before_file = Path(data_dir, f"{tag}_{run}_before_{data_dir.name}.h5")
     # If the h5 file already exists and has been created, return the path to it
     if before_file.exists():
@@ -62,9 +72,13 @@ def before_file(tag, run, data_dir):
 
 
 @pytest.fixture()
-def after_file(tag, run, data_dir):
+def after_file(tag, run, data_dir, request):
     if [tag, run] in skip_tests:
         return None
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "healpix", "healpix_cnv_generate"
+        )
     after_file = Path(data_dir, f"{tag}_{run}_after_{data_dir.name}.h5")
     # If the h5 file already exists and has been created, return the path to it
     if after_file.exists():
