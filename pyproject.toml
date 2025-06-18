@@ -32,7 +32,6 @@ dependencies = [
     "matplotlib>=3.10.3",
     "numba>=0.61.2",
     "numpy>=2.2.5",
-    "pytest-html>=4.1.1",
     "pyuvdata>=3.2.1",
     "scipy>=1.15.3",
 ]
@@ -55,8 +54,11 @@ dev = [
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
+    "pytest-html>=4.1.1",
+    "pytest-html-merger>=0.1.0",
     "sphinx>=8.1.3",
     "sphinx-argparse>=0.5.2",
+    "sphinx-reports>=0.7.5",
     "sphinx-rtd-theme>=3.0.2",
 ]
 

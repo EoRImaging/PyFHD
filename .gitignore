@@ -51,6 +51,10 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+tests/**/*.html
+tests/**/*.xml
+!docs/source/reports/*
+!/docs/source/_static/**/*
 
 # Translations
 *.mo
@@ -157,3 +161,4 @@ __git__.py
 
 # Beam files
 mwa_full_embedded_element_pattern.h5
+
