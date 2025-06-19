@@ -1,5 +1,7 @@
-PyFHD Unit Test Report (``github_actions``)
-###########################################
+PyFHD Unit Test Report
+######################
+
+Point to GitHub Pages for unit test report
 
 View the latest unit test results below:
 

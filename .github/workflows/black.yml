@@ -1,4 +1,4 @@
-name: Black_Formatting_Check    
+name: Black Formatting Check    
 
 on:
     workflow_dispatch:

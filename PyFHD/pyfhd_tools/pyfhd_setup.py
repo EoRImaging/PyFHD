@@ -1104,6 +1104,8 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
 
         Documentation: https://pyfhd.readthedocs.io/en/latest/
 
+        Version: {version('PyFHD')}
+
         Git Commit Hash: {commit} ({branch})
 
         PyFHD Run Started At: {stdout_time}
@@ -1363,11 +1365,11 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     errors += _check_file_exists(pyfhd_config, "transfer_calibration")
 
     # smooth-width depends on filter_background (Warning)
-    if not pyfhd_config["filter_background"] and pyfhd_config["smooth_width"]:
-        logger.warning(
-            "filter_background must be True for smooth_width to have any effect"
-        )
-        warnings += 1
+    # if not pyfhd_config["filter_background"] and pyfhd_config["smooth_width"]:
+    #     logger.warning(
+    #         "filter_background must be True for smooth_width to have any effect"
+    #     )
+    #     warnings += 1
 
     # allow_sidelobe_model_sources depends on model_visibilities (Error)
     if (
@@ -1423,31 +1425,31 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
             )
 
     # Entirety of Simulation Group depends on run-simulation (Error)
-    if not pyfhd_config["run_simulation"] and (
-        pyfhd_config["in_situ_sim_input"]
-        or pyfhd_config["eor_vis_filepath"]
-        or pyfhd_config["sim_noise"]
-    ):
-        logger.error(
-            "run_simulation should be True if you're planning on running any type of simulation and therefore using in_situ_sim_input, eor_vis_filepath or sim_noise shouldn't be used when run_simulation is False"
-        )
-        errors += 1
+    # if not pyfhd_config["run_simulation"] and (
+    #     pyfhd_config["in_situ_sim_input"]
+    #     or pyfhd_config["eor_vis_filepath"]
+    #     or pyfhd_config["sim_noise"]
+    # ):
+    #     logger.error(
+    #         "run_simulation should be True if you're planning on running any type of simulation and therefore using in_situ_sim_input, eor_vis_filepath or sim_noise shouldn't be used when run_simulation is False"
+    #     )
+    #     errors += 1
 
     # in-situ-sim-input depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "in_situ_sim_input")
+    # errors += _check_file_exists(pyfhd_config, "in_situ_sim_input")
 
     # eor_vis_filepath depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "eor_vis_filepath")
+    # errors += _check_file_exists(pyfhd_config, "eor_vis_filepath")
 
     # enhance_eor depends on eor_vis_filepath when its not 1
-    if pyfhd_config["enhance_eor"] > 1 and pyfhd_config["eor_vis_filepath"]:
-        logger.error(
-            "enhance_eor is only used when importing general visibilities for a simulation, it should stay as 1 when eor_vis_filepath is not being used"
-        )
-        errors += 1
+    # if pyfhd_config["enhance_eor"] > 1 and pyfhd_config["eor_vis_filepath"]:
+    #     logger.error(
+    #         "enhance_eor is only used when importing general visibilities for a simulation, it should stay as 1 when eor_vis_filepath is not being used"
+    #     )
+    #     errors += 1
 
     # sim_noise depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "sim_noise")
+    # errors += _check_file_exists(pyfhd_config, "sim_noise")
 
     # restrict_healpix_inds depends on a file (Error)
     if (
@@ -1459,10 +1461,6 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     pyfhd_config["ring_radius"] = (
         pyfhd_config["pad_uv_image"] * pyfhd_config["ring_radius_multi"]
     )
-
-    # if
-    # restrict_healpix_inds depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "IDL_variables_file")
 
     # --------------------------------------------------------------------------
     # Checks are finished, report any errors or warnings
