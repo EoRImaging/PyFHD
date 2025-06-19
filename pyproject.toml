@@ -9,7 +9,7 @@ authors = [
     { name = "Jack Line (JLBLine)"},
     { name = "Nichole Barry (nicholebarry)", email = "nichole.barry@unsw.edu.au"}
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.10, <3.13"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -87,5 +87,5 @@ clean_artifacts = true
 
 [tool.pytest.ini_options]
 markers = [
-    "github_actions: Tests with small data that can run in actions",
+    "github_actions",
 ]

@@ -1,5 +1,7 @@
-PyFHD Unit Test Code Coverage Summary (``github_actions``)
-##########################################################
+PyFHD Unit Test Code Coverage Summary
+#####################################
+
+TODO: point to GitHub Pages for coverage report
 
 View the latest unit test results below:
 
