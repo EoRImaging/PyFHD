@@ -1,0 +1,28 @@
+name: Publish PyFHD
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    publish-pypi:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v5
+              with:
+                enable-cache: true
+                python-version: 3.12
+
+            - name: Sync dependencies
+              run: uv sync --locked --no-dev
+
+            - name: Build distributions
+              run: |
+                uv build -v
+
+            - name: Publish to PyPI
+              run: uv publish --trusted-publishing

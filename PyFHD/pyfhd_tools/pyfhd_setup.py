@@ -1104,6 +1104,8 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
 
         Documentation: https://pyfhd.readthedocs.io/en/latest/
 
+        Version: {version('PyFHD')}
+
         Git Commit Hash: {commit} ({branch})
 
         PyFHD Run Started At: {stdout_time}

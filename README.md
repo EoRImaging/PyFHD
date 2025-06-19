@@ -24,21 +24,11 @@ FHD is an open-source imaging algorithm for radio interferometers, specifically 
 PyFHD is the translated library of FHD from IDL to Python, it aims to get close to the same results as the original FHD project. Do expect some minor differences compared to the original FHD project due to the many differences between IDL and Python. These differences are often due to the difference in precision between IDL and Python with IDL being single-precision (accurate upto 1e-8) and Python being double-precision (1e-16). Some of the IDL functions are double-precision but most default to single-precision.
 
 ## Quick Start
-Clone (and move into) the PyFHD repo:
-
 ```
-git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
+pip install pyfhd
 ```
 
-Then just pip install the repo:
-
-```
-pip install -r requirements.txt .
-```
-
-For full installation notes, including dependencies on FHD, check out the [ReadTheDocs installation page](https://pyfhd.readthedocs.io/en/latest/installation/installation.html).
-
-> Note: Once PyFHD is feature-complete, we aim to make this both a `conda` install and a `pip` install.
+For full installation notes, including dependencies on PyFHD, check out the [ReadTheDocs installation page](https://pyfhd.readthedocs.io/en/latest/installation/installation.html).
 
 To check if PyFHD is available on your path, run the following command:
 
@@ -49,7 +39,7 @@ pyfhd -v
 You should see output that resembles something like this:
 
 ```
-   ________________________________________________________________________
+    ________________________________________________________________________
     |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
     |    8888   `Y88.             8888       8 8888    888   888     Y8b    |
     |    888   .d88' oooo    ooo  888          888     888   888      888   |
@@ -69,9 +59,9 @@ You should see output that resembles something like this:
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 
-    Version: 1.0
+    Version: 1.0.1
 
-    Git Commit Hash: a36c37a966eb00ddcd936b9acee6bb7c71f9bb5a
+    Git Commit Hash: aa3cddb69cb617d88cb95d8b3d177d934f1c5d01 (tutorial_adjustments)
 ```
 
 To run the examples built into the repository and beyond, please find them here: [PyFHD Examples](https://pyfhd.readthedocs.io/en/latest/examples/examples.html)
@@ -88,10 +78,15 @@ We are an open-source community that interacts and discusses issues via GitHub. 
 
 If you wish to contribute to PyFHD, first of all thank you, second please read the contribution guide which can be found here, [Contribution Guide](https://pyfhd.readthedocs.io/en/latest/develop/contribution_guide.html). The contribution will cover all you need to know for developing in PyFHD from adding features, formatting adding tests and some advice in translating IDL to Python.
 
-Please cite [Sullivan et al 2012](https://arxiv.org/abs/1209.1653) and [Barry et al 2019a](https://arxiv.org/abs/1901.02980) when publishing data reduction from FHD.
+TODO: Add citation details for PyFHD
 
 ## Maintainers
 FHD was built by Ian Sullivan and the University of Washington radio astronomy team. Maintainance is a group effort split across University of Washington and Brown University, with contributions from University of Melbourne and Arizona State University. 
 
-PyFHD is currently being created by Nichole Barry and Astronomy Data and Computing Services (ADACS) members Joel Dunstan, Paul Hancock, and Jack Line. ADACS is a collaboration between the University of Swinburne and Curtin Institute for Data Science (CIDS) located in Curtin University.
+PyFHD is currently being created by Nichole Barry and Astronomy Data and Computing Services (ADACS) member Joel Dunstan. ADACS is a collaboration between the University of Swinburne and Curtin Institute for Data Science (CIDS) located in Curtin University.
+
+Thank you to the previous maintainers:
+Jack Line - Astronomy Data and Computing Services (ADACS)
+
+Acknowledgements to Bryna Hazelton and Paul Hancock for their advice and knowledge.
 

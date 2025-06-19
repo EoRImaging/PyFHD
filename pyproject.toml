@@ -1,12 +1,12 @@
 [project]
 name = "PyFHD"
-version = "1.0.0"
+version = "1.0.1"
 readme = "README.md"
 license = { file = "LICENSE" }
 description = "Python Fast Holograhic Deconvolution: A Python package that does fast-mode Epoch of Reionization analysis."
 authors = [
     { name = "Joel Dunstan (SkyWa7ch3r)", email = "joel.g.w.dunstan@gmail.com"},
-    { name = "Jack Line (JLBLine)"},
+    { name = "Jack Line (JLBLine)", email = "jack.line@curtin.edu.au"},
     { name = "Nichole Barry (nicholebarry)", email = "nichole.barry@unsw.edu.au"}
 ]
 requires-python = ">=3.10, <3.13"
@@ -69,7 +69,7 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
 ignore-vcs = true
 include = ["PyFHD/**", "PyFHD/__git__.py"]
-exclude = ["mwa_full_embedded_element_pattern.h5", "*.pyc", "test_data/**"]
+exclude = ["mwa_full_embedded_element_pattern.h5", "*.pyc", "PyFHD/resources/test_data/**/*"]
 
 
 [[tool.hatch.build.hooks.build-scripts.scripts]]
