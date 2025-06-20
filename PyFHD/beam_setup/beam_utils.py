@@ -301,7 +301,10 @@ def beam_image_hyperresolved(
     psf: dict,
 ) -> NDArray[np.complexfloating]:
     """
-    _summary_
+    Build the hyperresolved image-space beam power for a station/tile. Currently, this
+    function assumes that the amplitude of the jones matrix response between two antennas, 
+    multiplied by the station/tile response, is the image beam power. This calculation
+    may be suject to change in the future. 
 
     Parameters
     ----------
