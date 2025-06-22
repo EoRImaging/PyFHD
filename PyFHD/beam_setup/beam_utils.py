@@ -302,9 +302,9 @@ def beam_image_hyperresolved(
 ) -> NDArray[np.complexfloating]:
     """
     Build the hyperresolved image-space beam power for a station/tile. Currently, this
-    function assumes that the amplitude of the jones matrix response between two antennas, 
+    function assumes that the amplitude of the jones matrix response between two antennas,
     multiplied by the station/tile response, is the image beam power. This calculation
-    may be suject to change in the future. 
+    may be suject to change in the future.
 
     Parameters
     ----------
@@ -328,7 +328,7 @@ def beam_image_hyperresolved(
     Returns
     -------
     NDArray[np.complexfloating]
-        An estimation of the image-space beam power, normalized to the zenith power. 
+        An estimation of the image-space beam power, normalized to the zenith power.
     """
     # FHD was designed to account for multiple antennas but in most cases only one was ever used
     # So we will just use the first antenna twice as I PyFHD does not support multiple antennas at this time,
@@ -392,9 +392,9 @@ def beam_power(
     pyfhd_config: dict,
 ) -> NDArray[np.complexfloating]:
     """
-    Generate the hyperresolved image-space beam power to reduce aliasing artifacts, and 
-    fourier transform it to a specific grid in complex uv-space. Reduce artifacts further 
-    by applying an extremely low-level contiguous mask to the uv-space beam power and 
+    Generate the hyperresolved image-space beam power to reduce aliasing artifacts, and
+    fourier transform it to a specific grid in complex uv-space. Reduce artifacts further
+    by applying an extremely low-level contiguous mask to the uv-space beam power and
     renomalizing the beam power to a volume of 1.
 
     Parameters

@@ -16,10 +16,10 @@ from PyFHD.pyfhd_tools.pyfhd_utils import histogram, rebin, weight_invert
 
 def create_psf(obs: dict, pyfhd_config: dict, logger: Logger) -> dict | File:
     """
-    Creates the psf dictionary, which includes the hyperresolved uv-kernel used for 
-    gridding, by building the image-space response of a set of antennas and transforming 
-    it to uv-space, or by loading in a `sav` or `HDF5` file from a FHD run. The 
-    base response of an antenna is retreived from a pyuvdata class/object. 
+    Creates the psf dictionary, which includes the hyperresolved uv-kernel used for
+    gridding, by building the image-space response of a set of antennas and transforming
+    it to uv-space, or by loading in a `sav` or `HDF5` file from a FHD run. The
+    base response of an antenna is retreived from a pyuvdata class/object.
     In the future it would be nice to have the ability to read in a beam fits file.
     Do note, that PyFHD was made with the assumption that the beam is the MWA beam,
     and assumes the beam does not differ on a per baseline basis. If you wish to use
@@ -42,10 +42,10 @@ def create_psf(obs: dict, pyfhd_config: dict, logger: Logger) -> dict | File:
     Returns
     -------
     dict | h5py.File
-        Return the psf dictionary containing the hyperresolved uv-beam and other metadata, 
+        Return the psf dictionary containing the hyperresolved uv-beam and other metadata,
         or a h5py File object if lazy loading is enabled.
     """
-    
+
     if pyfhd_config["beam_file_path"] is None:
         # Form the beam from scratch using pyuvdata for the Jones Matrix
         # and translations from FHD for the antenna response.

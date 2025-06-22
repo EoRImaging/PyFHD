@@ -18,12 +18,12 @@ from astropy.time import Time
 def init_beam(obs: dict, pyfhd_config: dict, logger: Logger) -> dict:
     """
     Build an antenna-specific metadata dictionary and a full station/tile power beam model
-    and dictionary. Currently, the jones matrix of the antenna is acquired through pyuvdata. 
-    
-    The antenna dictionary contains antenna parameters as well as response and jones matrices 
+    and dictionary. Currently, the jones matrix of the antenna is acquired through pyuvdata.
+
+    The antenna dictionary contains antenna parameters as well as response and jones matrices
     that can be used to build a beam power response. The psf dictionary contains parameters
-    and options required to build a uv-response from that beam power with reduced aliasing 
-    contamination. 
+    and options required to build a uv-response from that beam power with reduced aliasing
+    contamination.
 
     Parameters
     ----------
@@ -39,7 +39,7 @@ def init_beam(obs: dict, pyfhd_config: dict, logger: Logger) -> dict:
     antenna : dict
         Antenna metadata dictionary, including jones and response matrices.
     psf : dict
-        Beam metadata dictionary for the station/tile. 
+        Beam metadata dictionary for the station/tile.
     beam : UVBeam or AnalyticBeam
         A pyuvdata beam, can be a UVBeam, and AnalyticBeam subclass, or a
         BeamInterface object.
@@ -406,7 +406,7 @@ def general_antenna_response(
 ) -> NDArray[np.complexfloating]:
     """
     Calculate the response of a set of antennas for a given observation and antenna configuration,
-    including the electrical delays and coupling. 
+    including the electrical delays and coupling.
 
     Parameters
     ----------
