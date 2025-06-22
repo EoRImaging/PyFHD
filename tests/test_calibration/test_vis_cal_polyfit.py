@@ -14,7 +14,7 @@ from logging import Logger
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_cal_polyfit")
+    return Path(env.get("PYFHD_TEST_PATH"), "calibration", "vis_cal_polyfit")
 
 
 @pytest.fixture(
@@ -209,10 +209,6 @@ def test_vis_cal_polyfit(before_file, after_file):
 
     pyfhd_config = h5_before["pyfhd_config"]
     pyfhd_config["instrument"] = "mwa"
-    pyfhd_config["cable_reflection_coefficients"] = Path(
-        pyfhd_config["cable_reflection_coefficients"]
-    )
-    pyfhd_config["cable_lengths"] = Path(pyfhd_config["cable_lengths"])
     logger = Logger(1)
 
     cal_polyfit, _ = vis_cal_polyfit(obs, cal, auto_ratio, pyfhd_config, logger)

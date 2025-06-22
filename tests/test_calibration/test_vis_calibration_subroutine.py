@@ -14,12 +14,7 @@ from PyFHD.io.pyfhd_io import save, load
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_calibrate_subroutine")
-
-
-@pytest.fixture
-def full_data_dir():
-    return glob("../**/full_size_vis_calibrate_subroutine/", recursive=True)[0]
+    return Path(env.get("PYFHD_TEST_PATH"), "calibration", "vis_calibrate_subroutine")
 
 
 @pytest.fixture(
@@ -78,6 +73,7 @@ def before_file(tag, run, data_dir):
     pyfhd_config["cal_convergence_threshold"] = h5_save_dict["cal"]["conv_thresh"]
     pyfhd_config["cal_base_gain"] = h5_save_dict["cal"]["base_gain"]
     pyfhd_config["cal_phase_fit_iter"] = h5_save_dict["cal"]["phase_iter"]
+    pyfhd_config["max_cal_iter"] = h5_save_dict["cal"]["max_iter"]
     h5_save_dict["pyfhd_config"] = pyfhd_config
 
     save(before_file, h5_save_dict, "before_file")
@@ -130,7 +126,13 @@ def test_points(before_file, after_file):
     )
 
     assert expected_cal["n_vis_cal"] == cal_return["n_vis_cal"]
-    assert_allclose(cal_return["gain"], expected_cal["gain"], atol=4e-05)
+    # Code was added that flagged the gain based on tiles, making them NaN, FHD doesn't do this
+    # So to compare we need to remove the NaN values
+    assert_allclose(
+        cal_return["gain"][:, :, ~cal_return["tile_flag"]],
+        expected_cal["gain"][:, :, ~cal_return["tile_flag"]],
+        atol=4e-05,
+    )
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
@@ -182,6 +184,7 @@ def subroutine_before(data_dir, subroutine_test):
     pyfhd_config["cal_convergence_threshold"] = h5_save_dict["cal"]["conv_thresh"]
     pyfhd_config["cal_base_gain"] = h5_save_dict["cal"]["base_gain"]
     pyfhd_config["cal_phase_fit_iter"] = h5_save_dict["cal"]["phase_iter"]
+    pyfhd_config["max_cal_iter"] = h5_save_dict["cal"]["max_iter"]
     h5_save_dict["pyfhd_config"] = pyfhd_config
 
     save(subroutine_before, h5_save_dict, "before_file")
@@ -239,4 +242,8 @@ def test_vis_calibration_x(subroutine_before, subroutine_after):
 
     assert expected_cal_return["n_vis_cal"] == cal_return["n_vis_cal"]
 
-    assert_allclose(cal_return["gain"], expected_cal_return["gain"], atol=1.02e-03)
+    assert_allclose(
+        cal_return["gain"][:, :, ~cal_return["tile_flag"]],
+        expected_cal_return["gain"][:, :, ~cal_return["tile_flag"]],
+        atol=1.02e-03,
+    )

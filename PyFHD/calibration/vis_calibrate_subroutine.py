@@ -121,6 +121,7 @@ def vis_calibrate_subroutine(
     cal["convergence"] = np.zeros([n_pol, n_freq, n_tile])
     cal["conv_iter"] = np.zeros([n_pol, n_freq, n_tile])
     cal["n_converged"] = np.zeros(n_pol)
+    cal["tile_flag"] = np.zeros([n_tile], dtype=np.bool)
     for pol_i in range(n_pol):
         logger.info(
             f"Beginning Calibration for polarization {pol_i} ({obs['pol_names'][pol_i]})"
@@ -444,6 +445,8 @@ def vis_calibrate_subroutine(
         if tile_flag.size > 0:
             # set flagged tiles to NAN to remove from calculations
             gain_arr[:, tile_flag] = np.nan
+
+        cal["tile_flag"][tile_flag] = True
         cal["gain"][pol_i] = gain_arr
         cal["convergence"][pol_i] = convergence
         cal["n_converged"][pol_i] = n_converged
