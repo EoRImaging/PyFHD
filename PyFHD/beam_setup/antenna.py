@@ -17,25 +17,32 @@ from astropy.time import Time
 
 def init_beam(obs: dict, pyfhd_config: dict, logger: Logger) -> dict:
     """
-    TODO: _summary_
+    Build an antenna-specific metadata dictionary and a full station/tile power beam model
+    and dictionary. Currently, the jones matrix of the antenna is acquired through pyuvdata.
+
+    The antenna dictionary contains antenna parameters as well as response and jones matrices
+    that can be used to build a beam power response. The psf dictionary contains parameters
+    and options required to build a uv-response from that beam power with reduced aliasing
+    contamination.
 
     Parameters
     ----------
     obs : dict
-        _description_
+        Observation metadata dictionary.
     pyfhd_config : dict
-        _description_
+        PyFHD's configuration dictionary containing all the options for a run
     logger : Logger
-        _description_
+        PyFHD's logger.
 
     Returns
     -------
     antenna : dict
-        _description_
+        Antenna metadata dictionary, including jones and response matrices.
     psf : dict
-        _description_
+        Beam metadata dictionary for the station/tile.
     beam : UVBeam or AnalyticBeam
-        _description_
+        A pyuvdata beam, can be a UVBeam, and AnalyticBeam subclass, or a
+        BeamInterface object.
 
     Raises
     ------
@@ -398,7 +405,9 @@ def general_antenna_response(
     az_arr: NDArray[np.floating],
 ) -> NDArray[np.complexfloating]:
     """
-    TODO: summary
+    Calculate the response of a set of antennas for a given observation and antenna configuration,
+    including the electrical delays and coupling.
+
     Parameters
     ----------
     obs : dict
@@ -413,7 +422,7 @@ def general_antenna_response(
     Returns
     -------
     response
-        Antenna response
+        The unpolarised response of a set of antennas
     """
     light_speed = c.value
 
