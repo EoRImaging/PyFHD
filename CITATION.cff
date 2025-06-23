@@ -13,4 +13,12 @@ authors:
 title: "Python Fast Holographic Deconvolution (PyFHD)"
 version: 1.0.1
 date-released: 2025-06-24
-url: "https://github.com/ADACS-Australia/PyFHD"
+license: "MIT"
+type: software
+url: "https://github.com/EoRImaging/PyFHD"
+keywords: 
+  - eor 
+  - epoch of reionisation
+  - epoch of reionization
+  - radio astronomy
+  - astronomy
