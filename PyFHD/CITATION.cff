@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use PyFHD, please cite according to the instructions."
+authors:
+- family-names: "Dunstan"
+  given-names: "Joel"
+  orcid: "https://orcid.org/0009-0004-0120-3464"
+- family-names: "Barry"
+  given-names: "Nichole"
+  orcid: "https://orcid.org/0000-0003-2064-6979"
+- family-names: "Line"
+  given-names: "Jack"
+  orcid: "https://orcid.org/0000-0002-9130-5920"
+title: "Python Fast Holographic Deconvolution (PyFHD)"
+version: 1.0.1
+date-released: 2025-06-24
+url: "https://github.com/ADACS-Australia/PyFHD"

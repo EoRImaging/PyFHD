@@ -18,7 +18,7 @@
 
 ## Version 1.0
 
-PyFHD 1.0 🎉
+PyFHD 1.0.1 🎉
 
 The translation from FHD (IDL) to PyFHD (Python) is now mostly complete and runs without needing IDL.
 
