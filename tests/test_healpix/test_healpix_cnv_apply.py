@@ -119,7 +119,7 @@ def test_healpix_cnv_apply(before_file, after_file, request):
     # This was done here to make it work in GitHub Actions
     if request.node.get_closest_marker("github_actions"):
         data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
-            "healpix", "healpix_cnv_generate"
+            "healpix", "healpix_cnv_apply"
         )
         before_file = Path(data_dir, before_file.name)
         after_file = Path(data_dir, after_file.name)
