@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm AS builder
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS builder
 
 # Install the project into `/pyfhd`
 WORKDIR /pyfhd
@@ -23,7 +23,7 @@ ENV XDG_CACHE_HOME="/pyfhd/.cache"
 RUN mkdir -p /pyfhd/.cache/astropy /pyfhd/.config
 
 # Install the dependencies and project (This also creates the __git__.py file)
-RUN uv sync --locked --no-dev
+RUN uv sync --frozen --no-dev
 
 # Remove the cache directory for uv to reduce image size
 RUN rm -rf /pyfhd/.cache/uv
@@ -38,7 +38,7 @@ RUN cd /pyfhd/PyFHD/resources/instrument_config && wget "http://ws.mwatelescope.
 RUN rm -rf /pyfhd/.git /pyfhd/.cache/uv 
 
 # Separate build stage as uv is not needed in the final image
-FROM python:3.13-slim-bookworm AS runner
+FROM python:3.12-slim-bookworm AS runner
 
 # This essentially "installs" PyFHD into the final image
 COPY --from=builder --chown=1000:1000 /pyfhd /pyfhd

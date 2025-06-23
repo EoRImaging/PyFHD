@@ -40,9 +40,9 @@ dependencies = [
 pyfhd = "PyFHD.pyfhd:main"
 
 [project.urls]
-"Repository" = "https://github.com/ADACS-Australia/PyFHD"
+"Repository" = "https://github.com/EoRImaging/PyFHD"
 "Documentation" = "https://pyfhd.readthedocs.io/en/latest/"
-"Bug Tracker" = "https://github.com/ADACS-Australia/PyFHD/issues"
+"Bug Tracker" = "https://github.com/EoRImaging/PyFHD/issues"
 "Changelog" = "https://pyfhd.readthedocs.io/en/latest/changelog/changelog.html"
 
 [dependency-groups]

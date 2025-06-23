@@ -77,7 +77,7 @@ If the command runs successfully you should get a log to your terminal (stdout) 
 
   Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-  Repository: https://github.com/ADACS-Australia/PyFHD
+  Repository: https://github.com/EoRImaging/PyFHD
 
   Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -488,7 +488,7 @@ likely you'll need to adjust the default configuration file to suit your needs. 
   If you wish to use the default configuration file to do your own configurations, from inside the repository, you can find the configuration file
   in the resources directory of PyFHD, ``PyFHD/PyFHD/resources/config/pyfhd.yaml``. You can also find the default configuration file at this link here:
 
-  `pyfhd.yaml <https://raw.githubusercontent.com/ADACS-Australia/PyFHD/refs/heads/main/PyFHD/resources/config/pyfhd.yaml>`_
+  `pyfhd.yaml <https://raw.githubusercontent.com/EoRImaging/PyFHD/refs/heads/main/PyFHD/resources/config/pyfhd.yaml>`_
 
 Some files can be discovered automatically through the ``input-path`` option of ``PyFHD`` so read through the usage help text to work 
 out how you wish to configure your input. ``PyFHD`` is rather flexible on how you do your input

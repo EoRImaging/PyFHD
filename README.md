@@ -2,10 +2,10 @@
 **Py**thon **F**ast **H**olographic **D**econvolution
 
 [![Python](https://img.shields.io/badge/Python-3.10--3.12-%231475b3?logo=python&logoColor=%23fff)](https://www.python.org/)
-![GitHub last commit](https://img.shields.io/github/last-commit/ADACS-Australia/PyFHD?logo=github&color=blue&link=https%3A%2F%2Fgithub.com%2FADACS-Australia%2FPyFHD%2Fcommits%2Fmain%2F)
-![GitHub License](https://img.shields.io/github/license/ADACS-Australia/PyFHD)
+![GitHub last commit](https://img.shields.io/github/last-commit/EoRImaging/PyFHD?logo=github&color=blue&link=https%3A%2F%2Fgithub.com%2FEoRImaging%2FPyFHD%2Fcommits%2Fmain%2F)
+![GitHub License](https://img.shields.io/github/license/EoRImaging/PyFHD)
 
-![GitHub branch check runs](https://img.shields.io/github/check-runs/ADACS-Australia/PyFHD/main)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/EoRImaging/PyFHD/main)
 [![Documentation Status](https://readthedocs.org/projects/pyfhd/badge/?version=latest)](https://pyfhd.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -55,7 +55,7 @@ You should see output that resembles something like this:
 
     Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-    Repository: https://github.com/ADACS-Australia/PyFHD
+    Repository: https://github.com/EoRImaging/PyFHD
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 

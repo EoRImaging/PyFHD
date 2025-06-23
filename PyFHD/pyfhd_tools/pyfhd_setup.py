@@ -115,7 +115,7 @@ def pyfhd_parser():
 
     Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-    Repository: https://github.com/ADACS-Australia/PyFHD
+    Repository: https://github.com/EoRImaging/PyFHD
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -1100,7 +1100,7 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
 
         Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-        Repository: https://github.com/ADACS-Australia/PyFHD
+        Repository: https://github.com/EoRImaging/PyFHD
 
         Documentation: https://pyfhd.readthedocs.io/en/latest/
 
