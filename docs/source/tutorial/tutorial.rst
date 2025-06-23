@@ -911,18 +911,17 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
     grid-uniform: false
 
     # Deconvolution
-    deconvolve : false
-    max-deconvolution-components : 20000
-    filter-background : true
-    smooth-width : 32
+    # deconvolve : false
+    # max-deconvolution-components : 20000
+    # filter-background : true
+    # smooth-width : 32
     dft-threshold : true
-    return-decon-visibilities : false
-    deconvolution-filter : 'filter_uv_uniform'
+    # return-decon-visibilities : false
+    # deconvolution-filter : 'filter_uv_uniform'
 
     # Export
     output-path : '/path/to/output'
     export-images : true
-    cleanup : false
     save-obs: true
     save-params: true
     save-cal: true
@@ -950,13 +949,13 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
     allow-sidelobe-model-sources : false
 
     # Simulation
-    run-simulation : false
-    in-situ-sim-input : ~
-    eor-vis-filepath : ~
-    enhance-eor : 1
-    sim-noise : ~
-    tile-flag-list : ~
-    remove-sim-flags : false
+    # run-simulation : false
+    # in-situ-sim-input : ~
+    # eor-vis-filepath : ~
+    # enhance-eor : 1
+    # sim-noise : ~
+    # tile-flag-list : ~
+    # remove-sim-flags : false
 
     # HEALPIX
     ps-kbinsize : 0.5
