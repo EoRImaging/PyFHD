@@ -108,11 +108,18 @@ def after_file(tag, run, array_type, data_dir, request):
     return after_file
 
 
-def test_healpix_cnv_apply(before_file, after_file):
+def test_healpix_cnv_apply(before_file, after_file, request):
     if before_file == None or after_file == None:
         pytest.skip(
             f"This test has been skipped because the test was listed in the skipped tests due to FHD not outputting them: {skip_tests}"
         )
+    # This was done here to make it work in GitHub Actions
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "healpix", "healpix_cnv_generate"
+        )
+        before_file = Path(data_dir, before_file.name)
+        after_file = Path(data_dir, after_file.name)
 
     h5_before = load(before_file)
     expected_hpx_map = load(after_file)
