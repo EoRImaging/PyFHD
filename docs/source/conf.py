@@ -79,12 +79,7 @@ source_suffix = {
 }
 
 # --- LaTEX options
-latex_elements = {
-    "preamble": r"""
-\usepackage[utf8x]{inputenc}
-\usepackage{ucs}
-"""
-}
+latex_engine = "xelatex"
 
 # ==============================================================================
 # Sphinx-reports - DocCov
