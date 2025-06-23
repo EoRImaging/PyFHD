@@ -369,6 +369,10 @@ def main():
                     _print_time_diff(
                         flag_start, flag_end, "Visibilities Flagged", logger
                     )
+                    if np.max(vis_weights) == 0:
+                        raise ValueError(
+                            "All visibilities were flagged during the flagging step, exiting PyFHD."
+                        )
 
                 noise_start = time.time()
                 obs["vis_noise"] = vis_noise_calc(obs, vis_arr, vis_weights)

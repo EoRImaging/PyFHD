@@ -146,7 +146,7 @@ def pyfhd_parser():
         "-r",
         "--recalculate-all",
         action=OrderedBooleanOptionalAction,
-        help="Forces PyFHD to recalculate all values. This will ignore values set for recalculate-grid, recalculate-beam, recalculate-mapfn as it will set all of them to True",
+        help="Forces PyFHD to recalculate all values. This will ignore values set for recalculate-grid, recalculate-beam, as it will set all of them to True",
     )
     parser.add_argument(
         "-s",
