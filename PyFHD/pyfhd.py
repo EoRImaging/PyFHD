@@ -91,6 +91,8 @@ def finish_pyfhd(
     for handler in logger.handlers:
         handler.close()
 
+    return
+
 
 def main():
     pyfhd_start = time.time()
@@ -128,8 +130,9 @@ def main():
                     shutil.copyfile(file, dest_file)
                     logger.info(f"Copied sample data file: {file.name} to {dest_file}")
         finish_pyfhd(pyfhd_start, logger, None, pyfhd_config)
-        sys.exit(0)
+        return
 
+    pyfhd_successful = False
     try:
         checkpoint_name = pyfhd_config["description"]
         if pyfhd_config["description"] is None or pyfhd_config["description"] == "":
@@ -455,7 +458,8 @@ def main():
                 "The cal_stop option was used, calibration was finished, exiting PyFHD"
             )
             finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
-            exit(0)
+            pyfhd_successful = True
+            sys.exit(0)
 
         if (
             psf["image_info"]["image_power_beam_arr"] is not None
@@ -615,9 +619,8 @@ def main():
                 pyfhd_config,
                 logger,
             )
-
-        finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
         pyfhd_successful = True
+        finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
     except Exception as e:
         logger.exception(
             f"An error occurred in PyFHD: {e}\n\tExiting PyFHD.",
@@ -626,7 +629,7 @@ def main():
         pyfhd_successful = False
     finally:
         if pyfhd_successful:
-            sys.exit(0)
+            return
         else:
             pyfhd_end = time.time()
             runtime = timedelta(seconds=pyfhd_end - pyfhd_start)

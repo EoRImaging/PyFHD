@@ -746,7 +746,6 @@ Running calibration on the sample data
     --no-calibration-auto-initialize \
     --no-vis-baseline-hist \
     --no-digital-gain-jump-polyfit \
-    --no-return-cal-visibilities \
     --cal-stop \
     --no-flag-frequencies \
     --description "1088285600_example_cal_stop" \
@@ -1099,10 +1098,9 @@ This would be the same as runnning the command below:
 .. code-block:: bash
 
   pyfhd \
-    --config "./pyfhd.yaml" \
     --input-path "./input/1088285600_example/" \
-    --description "1088285600_example"
-    --beam-file-path "./input/1088285600_example/gauss_beam_pointing0_167635008Hz.h5" 
+    --description "1088285600_gridding_example" \
+    --beam-file-path "./input/1088285600_example/gauss_beam_pointing0_167635008Hz.h5" \
     --calibrate-checkpoint "./output/pyfhd_1088285600_example/checkpoints/1088285600_example_calibrate_checkpoint.h5" \
     --recalculate-grid \
     --image-filter 'filter_uv_uniform' \
@@ -1111,7 +1109,9 @@ This would be the same as runnning the command below:
     --grid-weights \
     --grid-variance \
     --no-grid-uniform \
-    --gridding-plots
+    --gridding-plots \
+    --no-snapshot-healpix-export \
+    1088285600
 
 Below we have the example plots of the gridded continuum data for the two polarizations, XX and YY, for the sample data.
 

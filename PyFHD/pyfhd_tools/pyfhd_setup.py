@@ -646,12 +646,12 @@ def pyfhd_parser():
     #     default=20000,
     #     help="The number of source components allowed to be found in fast holographic deconvolution.",
     # )
-    # deconv.add_argument(
-    #     "--dft-threshold",
-    #     default=False,
-    #     action=OrderedBooleanOptionalAction,
-    #     help="Set to True to use the DFT approximation. When set equal to 0 the true DFT is calculated for each source.\nIt can also be explicitly set to a value that determines the accuracy of the approximation.",
-    # )
+    parser.add_argument(
+        "--dft-threshold",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Set to True to use the DFT approximation. When set equal to 0 the true DFT is calculated for each source.\nIt can also be explicitly set to a value that determines the accuracy of the approximation.",
+    )
     # deconv.add_argument(
     #     "--return-decon-visibilities",
     #     default=False,
