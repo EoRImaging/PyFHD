@@ -78,6 +78,14 @@ source_suffix = {
     ".md": "markdown",
 }
 
+# --- LaTEX options
+latex_elements = {
+    "preamble": r"""
+\usepackage[utf8x]{inputenc}
+\usepackage{ucs}
+"""
+}
+
 # ==============================================================================
 # Sphinx-reports - DocCov
 # ==============================================================================
