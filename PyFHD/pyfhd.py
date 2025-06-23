@@ -72,7 +72,7 @@ def finish_pyfhd(
     # Close all open h5 files
     if isinstance(psf, h5py.File):
         psf.close()
-    if not pyfhd_config["copy_sample_data"]:
+    if not pyfhd_config["get_sample_data"]:
         # Write a final collated yaml for the final pyfhd_config
         write_collated_yaml_config(
             pyfhd_config, Path(pyfhd_config["output_dir"], "config"), "-final"
@@ -97,7 +97,7 @@ def main():
     configargparser = pyfhd_parser()
     options = configargparser.parse_args()
 
-    if options.copy_sample_data:
+    if options.get_sample_data:
         options.input_path = importlib_resources.files("PyFHD").joinpath(
             "resources/1088285600_example"
         )
@@ -106,7 +106,7 @@ def main():
     # Validate options and Create the Logger
     pyfhd_config, logger = pyfhd_setup(options)
 
-    if pyfhd_config["copy_sample_data"]:
+    if pyfhd_config["get_sample_data"]:
         sample_path = Path(importlib_resources.files("PyFHD")).joinpath(
             "resources/1088285600_example"
         )

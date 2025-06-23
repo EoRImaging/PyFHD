@@ -25,7 +25,7 @@ To run the example data, you'll need to get the sample data first, to do this ru
 
 .. code-block:: bash
 
-  pyfhd --copy-sample-data 1088285600
+  pyfhd --get-sample-data 1088285600
 
 Which will copy the sample data built into the PyFHD package to your current working directory, inside a directory and sub-directory called ``input/1088285600_example``.
 

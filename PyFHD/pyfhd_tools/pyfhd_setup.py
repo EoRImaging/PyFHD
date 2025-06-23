@@ -138,7 +138,7 @@ def pyfhd_parser():
         default="./input/",
     )
     parser.add_argument(
-        "--copy-sample-data",
+        "--get-sample-data",
         action="store_true",
         help="Copy sample data from PyFHD package directory to the current working directory. Will copy to an 'input' directory.",
     )
@@ -1139,7 +1139,7 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
         dir_name = "pyfhd_" + log_time
     else:
         dir_name = "pyfhd_" + pyfhd_config["description"].replace(" ", "_")
-    if pyfhd_config["copy_sample_data"]:
+    if pyfhd_config["get_sample_data"]:
         output_dir = Path(pyfhd_config["output_path"])
     else:
         output_dir = Path(pyfhd_config["output_path"], dir_name)
@@ -1486,7 +1486,7 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     logger.info("Input validated, starting PyFHD run now")
 
     # Create the config directory
-    if not pyfhd_config["copy_sample_data"]:
+    if not pyfhd_config["get_sample_data"]:
         config_path = Path(output_dir, "config")
         config_path.mkdir(exist_ok=True)
         write_collated_yaml_config(pyfhd_config, config_path)
