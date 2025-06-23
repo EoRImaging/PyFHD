@@ -12,7 +12,10 @@ import importlib_resources
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "healpix", "healpix_cnv_apply")
+    if env.get("PYFHD_TEST_PATH"):
+        return Path(env.get("PYFHD_TEST_PATH"), "healpix", "healpix_cnv_apply")
+    else:
+        return None
 
 
 @pytest.fixture(

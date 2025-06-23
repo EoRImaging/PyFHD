@@ -14,7 +14,10 @@ import importlib_resources
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "gridding", "visibility_grid")
+    if env.get("PYFHD_TEST_PATH"):
+        return Path(env.get("PYFHD_TEST_PATH"), "gridding", "visibility_grid")
+    else:
+        return None
 
 
 @pytest.fixture(
