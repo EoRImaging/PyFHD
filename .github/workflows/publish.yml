@@ -25,4 +25,4 @@ jobs:
                 uv build -v
 
             - name: Publish to PyPI
-              run: uv publish --trusted-publishing
+              run: uv publish --trusted-publishing automatic
