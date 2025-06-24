@@ -41,9 +41,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Determine tag
         id: tag
@@ -73,8 +70,7 @@ jobs:
           push: true
           tags: ${{ steps.tag.outputs.LIST }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-
+        
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
