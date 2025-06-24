@@ -36,6 +36,7 @@ Contents
    reports/unit_test_report
    reports/coverage_report
    reports/documentation_report
+   reports/example_profile
    
 Browse
 -----------------

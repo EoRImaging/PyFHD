@@ -18,7 +18,7 @@ jobs:
                 python-version: 3.12
 
             - name: Sync dependencies
-              run: uv sync --locked --no-dev
+              run: uv sync --frozen --no-dev
 
             - name: Build distributions
               run: |

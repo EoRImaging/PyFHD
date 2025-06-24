@@ -1,7 +1,7 @@
 # PyFHD
 **Py**thon **F**ast **H**olographic **D**econvolution
 
-[![Python](https://img.shields.io/badge/Python-3.10--3.12-%231475b3?logo=python&logoColor=%23fff)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10--3.13-%231475b3?logo=python&logoColor=%23fff)](https://www.python.org/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/EoRImaging/PyFHD?logo=github&color=blue&link=https%3A%2F%2Fgithub.com%2FEoRImaging%2FPyFHD%2Fcommits%2Fmain%2F)
 ![GitHub License](https://img.shields.io/github/license/EoRImaging/PyFHD)
 
