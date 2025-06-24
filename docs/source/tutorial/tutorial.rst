@@ -619,8 +619,12 @@ In the below example we will run ``PyFHD`` with the ``--calibrate-checkpoint`` o
 
 Within the logs of the ``PyFHD`` you should see the following message::
 
+.. code-block:: text
   yyyy-mm-dd HH:MM:SS - INFO:
         Checkpoint Loaded: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary loaded from output/pyfhd_1088285600_example/calibrate_checkpoint.h5
+
+Do note if you wish to use the ``gridding-checkpoint`` then you also need ``calibrate-checkpoint``.
+
 
 Configuration
 -------------
