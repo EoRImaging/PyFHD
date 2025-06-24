@@ -10,13 +10,14 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ![PyPI - Version](https://img.shields.io/pypi/v/pyfhd)
+![Static Badge](https://img.shields.io/badge/DockerHub-skywa7ch3r%2Fpyfhd%3Alatest-blue?logo=docker&logoColor=white)
+
 
 
 [![Static Badge](https://img.shields.io/badge/Test%20Data%20DOI-10.5281%2Fzenodo.15687722-grey?labelColor=blue)](https://doi.org/10.5281/zenodo.15687722)
+[![Static Badge](https://img.shields.io/badge/PyFHD%20Repository%20DOI-10.5281%2Fzenodo.15720184-blue)](https://doi.org/10.5281/zenodo.15720184)
 
 
-
-TODO: Add Testing Results and Testing coverage
 
 ## FHD
 FHD is an open-source imaging algorithm for radio interferometers, specifically tested on MWA Phase I, MWA Phase II, PAPER, and HERA. There are three main use-cases for FHD: efficient image deconvolution for general radio astronomy, fast-mode Epoch of Reionization analysis, and simulation.
