@@ -151,7 +151,10 @@ def calibrate(
 
     # Save the ratio and sigma average variance related to vis_cal
     logger.info("Saving the ratio and sigma average variance")
-    cal["vis_baseline_hist"] = vis_baseline_hist(obs, params, vis_cal, vis_model_arr)
+    if pyfhd_config["vis_baseline_hist"]:
+        cal["vis_baseline_hist"] = vis_baseline_hist(
+            obs, params, vis_cal, vis_model_arr
+        )
 
     # Calculate statistics to put into the calibration dictionary for output purposes
     logger.info("Calculating statistics from calibration")
