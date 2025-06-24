@@ -779,7 +779,7 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
 
     pyfhd \
         1091128160 \
-        --input_path=/place/for/input/uvfits/1091128160 \
+        --input-path=/path/to/input/uvfits/1091128160 \
         --calibrate-visibilities \
         --cable-bandpass-fit \
         --calibration-polyfit \
@@ -797,12 +797,14 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
         --auto-ratio-calibration \
         --no-cal-time-average \
         --no-digital-gain-jump-polyfit \
-        --calibration-plots
+        --calibration-plots \
         --cal-stop \
-        --output_path "/path/to/outputs/" \
+        --output-path "/path/to/output/" \
         --description 1091128160 \
-        --model_file_type "uvfits" \
-        --model_file_path "./path/to/model/1091128160/puma_LoBES_2s_80kHz_hbeam_1091128160.uvfits" 
+        --model-file-type "uvfits" \
+        --model-file-path "/path/to/input/models/1091128160/puma_LoBES_2s_80kHz_hbeam_1091128160.uvfits" \
+        --beam-file-path "/path/to/beams/decomp_beam_pointing0.h5" \
+        --lazy-load-beam
 
 .. tip::
 
@@ -844,7 +846,7 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
     override-target-phasedec: ~
 
     # Beam Setup
-    beam-file-path: ~
+    beam-file-path: /path/to/beams/decomp_beam_pointing0.h5
     lazy-load-beam: true
     recalculate-beam : true
     beam-clip-floor : true
@@ -1129,7 +1131,7 @@ Running Gridding with a full MWA observation
 
 In this observation we will run calibration and then use the results for gridding, you'll notice some more advanced options
 being used here. Such options like ``--digital-gain-jump-polyfit`` should only be used if you know that it's needed (although
-``PyFHD`` will warn you if you try to use it in the wrong conditions). Also take notice that the beam is being loaded here, through
+``PyFHD`` will warn you if you try to use it on the wrong data). Also take notice that the beam is being loaded here, through
 the use of the ``--beam-file-path`` option, this is required for gridding to work. If you wish to learn more about the ``--lazy-load-beam``
 option refer to :ref:`lazy-loading` section below.
 
@@ -1553,12 +1555,17 @@ To run the docker image of PyFHD, you can use the following commands:
 .. code-block:: bash
 
   # To see the PyFHD version of latest
-  docker run -it skywa7ch3r/pyfhd:latest pyfhd -v
+  docker run skywa7ch3r/pyfhd:latest pyfhd -v
+
+.. code-block:: bash
+  
+  # grab the sample data into your machine
+  docker run --volume .:/pyfhd/input --user $(id -u):$(id -g) skywa7ch3r/pyfhd:latest pyfhd --get-sample-data 1088285600
 
 .. code-block:: bash
   
   # To run PyFHD with the sample data (with the output going to the current directory)
-  docker run -it --volume /path/to/output:/pyfhd/output --user $(id -u):$(id -g) skywa7ch3r/pyfhd:latest  \
+  docker run --volume /path/to/output:/pyfhd/output --volume /path/to/1088285600_example:/pyfhd/input/1088285600_example --user $(id -u):$(id -g) skywa7ch3r/pyfhd:latest  \
     pyfhd -c ./input/1088285600_example/1088285600_example.yaml \
     --description 108825600_docker_example \
     1088285600
