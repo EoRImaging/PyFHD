@@ -31,29 +31,34 @@ def healpix_snapshot_cube_generate(
     logger: Logger,
 ) -> None:
     """
-    TODO: _summary_
+    Generate and save HEALPix images per polarization and per frequency channel for
+    each of the gridded visibility products, creating calibrated data, model
+    data, sampling map, and variance map cubes. General settings split up the
+    outputs into even and odd interleaved time samples. Interpolation is
+    performed from the orthoslant projection to the HEALPix grid.
 
     Parameters
     ----------
     obs : dict
-        _description_
+        Observation metadata dictionary.
     psf : dict | h5py.File
-        _description_
+        Beam dictionary
     cal : dict
-        _description_
+        Calibration dictionary
     params : dict
-        _description_
+        Visibility metadata dictionary
     vis_arr : NDArray[np.complex128]
-        _description_
+        The visibility array
     vis_model_arr : NDArray[np.complex128]
-        _description_
+        The model visibility array
     vis_weights : NDArray[np.float64]
-        _description_
+        The visibility weights
     pyfhd_config : dict
-        _description_
+        PyFHD configuration settings
     logger : Logger
-        _description_
+        PyFHD's Logger
     """
+
     if pyfhd_config["split_ps_export"]:
         cube_name = ["hpx_even", "hpx_odd"]
     else:
@@ -184,7 +189,6 @@ def healpix_snapshot_cube_generate(
             dirty_or_res_cube = np.zeros([n_freq_use, hpx_inds.size])
 
             for freq_i in range(n_freq_use):
-                # TODO: check the indexing and sizing of the arrays
                 beam_squared_cube[freq_i, :] = healpix_cnv_apply(
                     beam_arr[pol_i, freq_i] * nf_vis_use[freq_i], hpx_cnv
                 )

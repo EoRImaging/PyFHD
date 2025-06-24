@@ -10,7 +10,7 @@ from PyFHD.pyfhd_tools.pyfhd_utils import region_grow
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "region_grow")
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "region_grow")
 
 
 @pytest.fixture(
@@ -90,6 +90,7 @@ def after_file(tag, run, subfunc, data_dir):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_simple_1D_region_grow():
     # Equivalent to doing region_grow([0,0,0,0,5,10,5,0,0,0,0], [5], threshold=[5,10])
     input = np.array([0, 0, 0, 0, 5, 10, 5, 0, 0, 0, 0])
@@ -99,6 +100,7 @@ def test_simple_1D_region_grow():
     npt.assert_array_equal(output, expected)
 
 
+@pytest.mark.github_actions
 def test_simple_2D_region_grow():
     # Equivalent to doing:
     # IDL> test = reform(indgen(100)*1., 10,10)

@@ -62,7 +62,7 @@ def get_hist(
 
     Parameters
     ----------
-    data : NDArray[np.float\_ | np.int\_ | np.complex\_]
+    data : NDArray[np.floating | np.integer | np.complexfloating]
         A NumPy array that is of one dtype float, int, or complex. Cannot be object
     bins : NDArray[np.float64 | np.int64]
         A NumPy array of bins for the histogram
@@ -156,7 +156,7 @@ def get_ri(
 
     Parameters
     ----------
-    data : NDArray[np.float\_ | np.int\_ | np.complex\_]
+    data : NDArray[np.floating | np.integer | np.complexfloating]
         A NumPy array of the data
     bins : NDArray[np.float64 | np.int64]
         A NumPy array containing the bins for the histogram
@@ -236,7 +236,7 @@ def histogram(
 
     Parameters
     ----------
-    data : NDArray[np.float\_ | np.int\_ | np.complex\_]
+    data : NDArray[np.floating | np.integer | np.complexfloating]
         A NumPy array containing the data we want a histogram of
     bin_size : int, optional
         Sets the bin size for this histogram, by default 1
@@ -303,36 +303,42 @@ def l_m_n(
     right_ascension_arr: NDArray[np.floating] | None = None,
 ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
-    Calculates the l mode, m mode and the n_tracked
-    TODO: Add Detailed Description of l_m_n
+    Calculate the directional cosines l,m,n given an RA, Dec, and phase centre for
+    each pixel in the input arrays given, or from the hyperresolved RA/Dec array
+    created during beam creation.
 
     Parameters
     ----------
     obs: dict
-
+        Observation metadata dictionary.
     psf: dict | h5py.File
-
+        Beam dictionary.
     obsdec: float | None, optional
-        By default is set to None, as such by default this value will be set to
-        obs['obsdec']
+        The Dec phase centre for the observation, by default None and set to
+        the phase centre saved in the observation metadata dicitonary
+        (obs['obsdec'])
     obsra: float | None, optional
-        By default is set to None, as such by default this value will be set to
-        obs['obsra']
-    declination_arr: NDArray[np.float\_] | None, optional
-        By default is set to None, as such by default this value will be set to
-        psf['image_info']['dec_arr']
-    right_ascension_arr: NDArray[np.float\_] | None, optional
-        By default is set to None, as such by default this value will be set to
-        psf['image_info']['ra_arr']
+        The RA phase centre for the observation, by default None and set to
+        the phase centre saved in the observation metadata dicitonary
+        (obs['obsra'])
+    declination_arr: NDArray[np.floating] | None, optional
+        An array of declinations, by default None and set to the hyperresolved Dec
+        array in psf['image_info']['dec_arr']
+    right_ascension_arr: NDArray[np.floating] | None, optional
+        An array of right ascensions, by default None and set to the hyperresolved RA
+        array in psf['image_info']['ra_arr']
 
     Returns
     -------
     l_mode : NDArray[np.float64]
-        TODO: Add description for l_mode
+        Directional cosine l array, or the cosine of the vector that contributes
+        to the x-axis
     m_mode : NDArray[np.float64]
-        TODO: Add description for m_mode
+        Directional cosine m array, or the cosine of the vector that contributes
+        to the y-axis
     n_tracked : NDArray[np.float64]
-        TODO: Add description for n_tracked.
+        Directional cosine n array, or the cosine of the vector that contributes
+        to the z-axis, dependent on the phase centre.
     """
     # If the variables passed through are None them
     if obsdec is None:
@@ -387,7 +393,7 @@ def rebin_columns(
 
     Parameters
     ----------
-    a : NDArray[np.int\_  |  np.float\_  |  np.complex\_]
+    a : NDArray[np.integer  |  np.floating  |  np.complexfloating]
         An array to be expanded
     ax : int
         The axis we're expanding, almost always set to 1
@@ -398,7 +404,7 @@ def rebin_columns(
 
     Returns
     -------
-    rebinned : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    rebinned : NDArray[np.integer | np.floating | np.complexfloating]
         An interpolated array of a containing shape[1] * col_sizer columns
 
     See Also
@@ -434,7 +440,7 @@ def rebin_rows(
 
     Parameters
     ----------
-    a : NDArray[np.int\_  |  np.float\_  |  np.complex\_]
+    a : NDArray[np.integer  |  np.floating  |  np.complexfloating]
         The array to be rebinned
     ax : int
         The axis we're expanding, almost always set to 0
@@ -447,7 +453,7 @@ def rebin_rows(
 
     Returns
     -------
-    row_rebinned : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    row_rebinned : NDArray[np.integer | np.floating | np.complexfloating]
         The interpolated array with row_sizer extra columns between existing rows
 
     See Also
@@ -486,7 +492,7 @@ def rebin(
 
     Parameters
     ----------
-    a : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    a : NDArray[np.integer | np.floating | np.complexfloating]
         Input array.
     new_shape : ArrayLike
         Shape of the output array in (rows, columns)
@@ -496,7 +502,7 @@ def rebin(
 
     Returns
     -------
-    rebinned : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    rebinned : NDArray[np.integer | np.floating | np.complexfloating]
         If the new shape is smaller of the input array, the data are averaged,
         if the new shape is bigger array elements are repeated and interpolated
 
@@ -652,7 +658,7 @@ def weight_invert(
 
     Parameters
     ----------
-    weights: NDArray[np.int\_ | np.float\_ | np.complex\_] | int | float | np.number
+    weights: NDArray[np.integer | np.floating | np.complexfloating] | int | float | np.number
         An array of values of some dtype
     threshold: float | None, optional
         A real number set as the threshold for the array.
@@ -664,7 +670,7 @@ def weight_invert(
 
     Returns
     -------
-    result: NDArray[np.int\_ | np.float\_ | np.complex\_] | int | float | np.number
+    result: NDArray[np.integer | np.floating | np.complexfloating] | int | float | np.number
         The weights array that has had NaNs and Infinities removed, and zeros OR
         values that don't meet the threshold.
     """
@@ -727,27 +733,31 @@ def array_match(
     array_2: NDArray[np.integer | np.floating | np.complexfloating] | None = None,
 ) -> NDArray[np.int64]:
     """
-    TODO: Description for array match
+    Find the indices of the input array which match the array of values provided.
+    If a second input array is provided, then find the indices where the values
+    provided match in both input arrays. This matching can only be done between
+    integer values.
 
     Parameters
     ----------
-    array_1: NDArray[np.int\_ | np.float\_ | np.complex\_]
-        TODO: Add Description for Array_1
-    value_match: NDArray[np.int\_ | np.float\_ | np.complex\_]
-        TODO: Add Description for Value_Match
-    array_2: NDArray[np.int\_ | np.float\_ | np.complex\_] | None, optional
-        TODO: Add Description for Array_2, by default is None
+    array_1: NDArray[np.integer | np.floating | np.complexfloating]
+        The input array to match the values in
+    value_match: NDArray[np.integer | np.floating | np.complexfloating]
+        The values to find in the input array
+    array_2: NDArray[np.integer | np.floating | np.complexfloating] | None, optional
+        A second array to match the values in via a logical AND, by default is None
 
     Returns
     -------
     match_indices: NDArray[np.int64]
-        TODO: Add Description for return of array_match
+        The indices of the input array(s) which match the values provided
 
     Raises
     ------
     ValueError
         Gets raised if value_match is None
     """
+
     if value_match is None:
         raise ValueError("Value Match Should be a value not None")
     # If array_2 has been supplied, compare which mins and maxes to use based on two arrays
@@ -885,7 +895,7 @@ def idl_argunique(
 
     Parameters
     ----------
-    arr : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    arr : NDArray[np.integer | np.floating | np.complexfloating]
         A sorted numpy array of any type.
 
     Returns
@@ -1002,10 +1012,11 @@ def simple_deproject_w_term(
     """
 
     icomp = 1j
-    zcen = np.outer(params["ww"], obs["baseline_info"]["freq"])
+    zcen = np.outer(obs["baseline_info"]["freq"], params["ww"])
     sign = 1 if direction > 0 else -1
     phase = np.exp(direction * icomp * zcen)
-    vis_arr[: obs["n_pol"], :, :] *= np.tile(phase, (obs["n_pol"], 1))
+    for pol_i in range(obs["n_pol"]):
+        vis_arr[pol_i, :, :] *= phase
 
     sign_str = " +1" if sign > 0 else " -1"
     logger.info(f"Applying simple w-term deprojection:{sign_str}")
@@ -1038,7 +1049,7 @@ def resistant_mean(
 
     Parameters
     ----------
-    array : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    array : NDArray[np.integer | np.floating | np.complexfloating]
         A 1 dimensional array of values, multidimensional arrays should be flattened before use
     deviations : int
         The number of median absolute deviations from the median we want use to exclude outliers
@@ -1107,25 +1118,28 @@ def vis_weights_update(
     vis_weights: NDArray[np.float64], obs: dict, psf: dict | h5py.File, params: dict
 ) -> tuple[NDArray[np.float64], dict]:
     """
-    TODO: _summary_
+    Update the visibility weights array to match any updates to the observation
+    metadata dictionary, including flagged times, frequencies, tiles, and
+    min/max baseline length.
 
     Parameters
     ----------
     vis_weights : NDArray[np.float64]
-        _description_
+        Visibility weights array.
     obs : dict
-        _description_
+        Observation metadata dictionary
     psf: dict | h5py.File
-        _description_
+        Beam dictionary
     params : dict
-        _description_
+        Visibility metadata dictionary
 
     Returns
     -------
     vis_weights : NDArray[np.float64]
-        Updated vis_weights
+        Updated vis_weights given the modified observation metadata dictionary
     obs : dict
-        The observation metadata dictionary now containing the sums of the flags
+        The observation metadata dictionary, now containing the correct summary
+        statistics of the new flagging
     """
     kx_arr = params["uu"] / obs["kpix"]
     ky_arr = params["vv"] / obs["kpix"]
@@ -1215,21 +1229,27 @@ def split_vis_weights(
     obs: dict, vis_weights: NDArray[np.float64]
 ) -> tuple[NDArray[np.float64], NDArray[np.int64]]:
     """
-    TODO: _summary_
+    Separate the indices in the visibility array (data/model/res/weights) into
+    interleaved time samples, generally called "even" and "odd" depending on
+    whether the time index is even or odd. Interleaved data can be used to generate
+    cross power spectra and propagate uncertainties, see eq 2 of Jacobs et al. 2016.
+    Ensures that the same flagging is applied to both sets.
 
     Parameters
     ----------
     obs : dict
-        _description_
+        Observation metadata dictionary
     vis_weights : NDArray[np.float64]
-        _description_
+        Visibility weights array
 
     Returns
     -------
     vis_weights : NDArray[np.float64]
-        _description_
+        Full visibility weights array with the same flagging applied
+        to both interleaved sets.
     bi_use  NDArray[np.int64]
-        _description_
+        Baseline index arrays for interleaved time samples, separated
+        by "even" and "odd" indices.
     """
     # Not always used in vis_noise_calc requires this check in other cases
     if obs["n_time"] < 2:
@@ -1294,7 +1314,11 @@ def vis_noise_calc(
     bi_use: NDArray[np.int64] | None = None,
 ) -> NDArray[np.float64]:
     """
-    TODO: _summary_
+    Calculate the noise from the calibrated visibilities by taking
+    the difference between the imaginary parts of the interleaved
+    time samples. A factor of sqrt(2) is required because there is
+    half as many independent noise samples when calculated from just
+    the imaginary part.
 
     Parameters
     ----------
@@ -1305,12 +1329,14 @@ def vis_noise_calc(
     vis_weights : NDArray[np.float64]
         The visibility weights array
     bi_use : NDArray[np.int64] | None, optional
-        If provided, indexes for the baselines to use, by default None
+        Baseline index arrays for interleaved time samples, separated
+        by "even" and "odd" indices, by default None
 
     Returns
     -------
     noise_arr: NDArray[np.float64]
-        TODO: _description_
+        Calculated variance of the noise as a function of polarisation
+        and frequency.
     """
     noise_arr = np.zeros([obs["n_pol"], obs["n_freq"]])
 
@@ -1343,17 +1369,20 @@ def idl_median(
     even: bool = False,
 ) -> float:
     """
-    TODO:_summary_
+    The IDL Median function doesn't always work as you'd expect, as generally you need to use the
+    EVEN keyword to get the median of an even number of elements, otherwise it returns the
+    maximum element of the two numbers in the middle of an even sorted array.
+    This function replicates the IDL median function, in case you need that functionality.
+    Typically though, we recommend using `numpy.median` or `scipy.ndimage.median_filter`.
 
     Parameters
     ----------
-    x : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    x : NDArray[np.integer | np.floating | np.complexfloating]
         Data to perform median on
     width : int
         If set, perform a type of median filtering.
     even : bool, optional
-        _description_, by default False
-
+        In this case it will just run numpy.median, by default False
 
 
     When `width` is set. unfortunately the edge conditions when using cannot be
@@ -1362,7 +1391,12 @@ def idl_median(
     Returns
     -------
     float
-        _description_
+        The median of the array
+
+    See Also
+    --------
+    numpy.median: Computes the median of an array
+    scipy.ndimage.median_filter: Applies a median filter to an array
     """
 
     if width:
@@ -1446,9 +1480,9 @@ def region_grow(
 
     Parameters
     ----------
-    image : NDArray[np.int\_ | np.float\_ | np.complex\_]
+    image : NDArray[np.integer | np.floating | np.complexfloating]
         A 2D array of pixels
-    roiPixels : NDArray[np.int\_]
+    roiPixels : NDArray[np.integer]
         The region of interest given as FLAT indexes i.e. array.flat
     low : int | float | None, optional
         The low threshold, any number below this is considered background,
@@ -1459,7 +1493,7 @@ def region_grow(
 
     Returns
     -------
-    growROIPixels: NDArray[np.int\_ | np.float\_ | np.complex\_] | None
+    growROIPixels: NDArray[np.integer | np.floating | np.complexfloating] | None
         The grown region of interest that has connected neighbours by using the threshold
 
     See Also
@@ -1543,21 +1577,26 @@ def crosspol_split_real_imaginary(
     image: NDArray[np.complex128], pol_names: list[str] | None = None
 ) -> tuple[NDArray[np.complex128], list[str] | None]:
     """
-    TODO: _summary_
+    Reformat the input full polarisation image, containing PP, PQ, QP, and QQ,
+    into PP, real(PQ), imaginary(PQ), and QQ. PQ and QP (i.e. XY and YX)
+    are complex and conjugate mirrors of one another. To make a understandable
+    image, we can plot the real and imaginary parts of PQ separately without
+    loss of information.
 
     Parameters
     ----------
     image : NDArray[np.complex128]
-        _description_
+        Image array ordered in polarisation by PP, PQ, QP, and QQ.
     pol_names : list[str] | None, optional
-        _description_, by default None
+        The name of the polarisations, by default None
 
     Returns
     -------
     image : NDArray[np.complex128]
-        _description_
+        Image array ordered in polarisation by PP, real(PQ), imaginary(PQ),
+        and QQ
     pol_names : list[str]|None]
-        _description_
+        New polarisation name array to reflect real(PQ) and imaginary(PQ)
     """
     crosspol_image: NDArray[np.complex128] = image[2]
     image[2] = crosspol_image.real

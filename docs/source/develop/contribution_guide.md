@@ -6,13 +6,66 @@ Welcome to your one stop shop for all the tips, tricks, best practices and HOW-T
 
 If you're a developer of PyFHD, welcome to the club! 
 
-For development purposes using `mamba` or `conda` as your package and environment manager makes changing your Python version when you need to is much easier than using `venv` for such purposes. Alternatively, if you wish to add features to `PyFHD` or eventually decide you have the need for speed and want modules made from other languages in there such as C/C++/Fortran/Julia etc. `mamba`/`conda` make it easier to install compilers or tools (even makes installing CUDA relatively easy).
+For development purposes there are several ways to manage your developer install of PyFHD, the main preference for PyFHD for now is [uv](https://docs.astral.sh/uv/), which uses the `pyproject.toml` to manage Python versions, dependencies, project, publishing to PyPi and scripts, it's much faster than pip and is very lightweight. Alternatively you can use `mamba` or `conda` or standard `venv` as your package manager makes, although do note `venv` does not install different python versions for you unlike `uv` or `mamba`. If you wish to add features to `PyFHD` or eventually decide you have the need for speed and want modules made from other languages in there such as C/C++/Fortran/Julia etc. `mamba`/`conda` make it easier to install compilers or tools (even makes installing CUDA relatively easy). If you're intending on only using Python packages, `uv` should work very well.
 
-Here's how you install `PyFHD` for development purposes:
+You can follow the install steps for uv [here](https://docs.astral.sh/uv/getting-started/installation/), and the mamba install steps [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+
+Here's how you install `PyFHD` for development purposes using uv:
 
 1. Clone and change directory into the `PyFHD` repo:
     ```bash
-    git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
+    git clone https://github.com/EoRImaging/PyFHD && cd PyFHD
+    ```
+
+2. Create `.venv` virtual environment using uv
+    ```bash
+    uv venv
+    ```
+
+3. Run synchronization which will install everything defined in the `pyproject.toml` (this also installs PyFHD into the venv automatically in editable mode)
+    ```bash
+    uv sync
+    ```
+
+4. Activate the environment
+    ```bash
+    source .venv/bin/activate
+    ```
+
+5. Verify the installation using the version command, which should generate output that looks like this:
+    ```bash
+    pyfhd -v
+    ________________________________________________________________________
+    |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
+    |    8888   `Y88.             8888       8 8888    888   888     Y8b    |
+    |    888   .d88' oooo    ooo  888          888     888   888      888   |
+    |    888ooo88P'   `88.  .8'   888oooo8     888ooooo888   888      888   |
+    |    888           `88..8'    888          888     888   888      888   |
+    |    888            `888'     888          888     888   888     d88'   |
+    |    o888o            .8'     o888o        o888o   o888o o888bood8P'    |
+    |                 .o..P'                                                |
+    |                `Y8P'                                                  |
+    |_______________________________________________________________________|
+    
+    Python Fast Holographic Deconvolution 
+
+    Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
+
+    Repository: https://github.com/EoRImaging/PyFHD
+
+    Documentation: https://pyfhd.readthedocs.io/en/latest/
+
+    Version: 1.0
+
+    Git Commit Hash: 15e50c86609645ca01afcaf9d674b03107a1de7f (tutorial_adjustments)
+    ```
+
+
+Here's how you install `PyFHD` for development purposes using mamba:
+
+1. Clone and change directory into the `PyFHD` repo:
+    ```bash
+    git clone https://github.com/EoRImaging/PyFHD && cd PyFHD
     ```
 2. Create a `pyfhd` virtual environment and automatically install the required dependencies
    ```bash
@@ -25,8 +78,15 @@ Here's how you install `PyFHD` for development purposes:
     ```bash
     pip install -e .
     ```
+
+4. Run the following git commands in the `PyFHD` directory
+    ```bash
+    echo __git_commit__ = \"$(git rev-parse HEAD)\" > PyFHD/__git__.py
+    echo __git_commit_date__ = \"$(git log -1 --format=%cd)\" >> PyFHD/__git__.py
+    echo __git_branch__ = \"$(git rev-parse --abbrev-ref HEAD)\" >> PyFHD/__git__.py
+    ```
     
-4. Verify the installation using the version command
+5. Verify the installation using the version command, which should generate output that looks like this:
     ```
     pyfhd -v
        ________________________________________________________________________
@@ -43,16 +103,15 @@ Here's how you install `PyFHD` for development purposes:
        
        Python Fast Holographic Deconvolution 
 
-       Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS)
-       and the Epoch of Reionisation (EoR) Team.
+       Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-       Repository: https://github.com/ADACS-Australia/PyFHD
+       Repository: https://github.com/EoRImaging/PyFHD
 
        Documentation: https://pyfhd.readthedocs.io/en/latest/
 
        Version: 1.0
 
-       Git Commit Hash: b77d18d0ef640297264ce700696d75aa4ff5ea82
+       Git Commit Hash: 15e50c86609645ca01afcaf9d674b03107a1de7f (tutorial_adjustments)
     ```
 
 ## The How-To on contributing to PyFHD
@@ -265,22 +324,30 @@ from pathlib import Path
 from PyFHD.pyfhd_tools.pyfhd_utils import histogram
 from PyFHD.pyfhd_tools.test_utils import get_data, get_data_items
 
+
 @pytest.fixture
 def data_dir():
-    # This assumes you have used the splitter.py and have done a general format of **/FHD/PyFHD/tests/test_fhd_*/data/<function_name_being_tested>/*.npy
-    return Path(env.get('PYFHD_TEST_PATH'), 'histogram')
+    # The files can be found here PYFHD_TEST_PATH/pyfhd_tools/<function_name_being_tested>
+    # Files could be sav or npy or h5 depending on how you got the test data
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram")
+
 
 @pytest.fixture
 def full_data_dir():
-    return Path(env.get('PYFHD_TEST_PATH'), 'full_size_histogram')
+    return Path(
+        env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram", "full_size_histogram"
+    )
 
-def test_idl_example(data_dir: Path) :
+
+def test_idl_example(data_dir: Path):
     """
     This test is based on the example from the IDL documentation.
     This ensures we get the same behaviour as an example everybody can see.
     """
     # Setup the test from the histogram data file
-    data, expected_hist, expected_indices = get_data(data_dir, 'idl_hist_example.npy', 'idl_example_hist.npy', 'idl_example_inds.npy')
+    data, expected_hist, expected_indices = get_data(
+        data_dir, "idl_hist_example.npy", "idl_example_hist.npy", "idl_example_inds.npy"
+    )
     # Now that we're using numba it doesn't support every type, set it to more standard NumPy or Python types
     data = data.astype(int)
     hist, _, indices = histogram(data)
@@ -306,7 +373,7 @@ import numpy.testing as npt
 # files from the FHD runs, adjust it to that path.
 @pytest.fixture()
 def data_dir():
-    return Path(env.get('PYFHD_TEST_PATH'), "cal_auto_ratio_divide")
+    return Path(env.get('PYFHD_TEST_PATH'), "calibration", "cal_auto_ratio_divide")
 
 # With the FHD runs we used test tags, so all the files had consistent naming formats, 
 # for example, one of the test files was point_zenith_run1_before_cal_auto_ratio_divide.sav
@@ -448,11 +515,282 @@ def test_cal_auto_ratio_divide(before_file, after_file):
     npt.assert_allclose(expected_cal['gain'], result_cal['gain'], atol=atol)
 ```
 
-Once you have set up the tests, every time you change the code and re-run the test you can be sure you haven't broken existing functionality accidentally giving you more confidence that the changes you have made will improve `PyFHD`. 
+Once you have set up the tests, every time you change the code and re-run the test you can be sure you haven't broken existing functionality accidentally giving you more confidence that the changes you have made will improve `PyFHD`. This section wasn't necessarily about teaching you the specifics on how to test, but to show why we do it. It's testing that has enabled us to be sure that `PyFHD` actually does the same things as `FHD` and even in some cases detect bugs on the `FHD` side. If you want to learn more about testing check out the numpy testing functions [here](https://numpy.org/doc/stable/reference/routines.testing.html) and also check out pytest [here](https://docs.pytest.org/en/7.4.x/).
 
-Another tool that will help you during testing is the debugging tools available in IDE's like those in VSCode and PyCharm. Debugging tools allow you to get away from using print statements to using breakpoints instead, allowing you to see the entire snapshot of your function at that point in time in the code. This does make it easier to track down issues, see portions of large arrays, watch certain variables throughout the code to see how they change etc. VSCode in particular can allow you to set log points which can act like print statements without you having to put anything into the code. Breakpoints can also have conditions attached to them, so if you know you're looping through frequencies and you know an issue happens with frequency index 13, you can make a breakpoint condition that will trigger only when the frequency index is 13. Check the debugging tools for VSCode [here](https://code.visualstudio.com/docs/python/debugging) and the tools for PyCharm [here](https://www.jetbrains.com/help/pycharm/debugging-code.html).
+(testing-subset)=
+#### Testing a subset of the PyFHD functions
 
-This section wasn't necessarily about teaching you the specifics on how to test, but to show why we do it. It's testing that has enabled us to be sure that `PyFHD` actually does the same things as `FHD` and even in some cases detect bugs on the `FHD` side. If you want to learn more about testing check out the numpy testing functions [here](https://numpy.org/doc/stable/reference/routines.testing.html) and also check out pytest [here](https://docs.pytest.org/en/7.4.x/).
+There is a curated set of tests that have been marked with `pytest.mark` as `github_actions`. You can see them in the test files in two ways, either over the test function:
+
+```python
+@pytest.mark.github_actions # Here's the mark
+def test_idl_example(data_dir: Path):
+    """
+    This test is based on the example from the IDL documentation.
+    This ensures we get the same behaviour as an example everybody can see.
+    """
+    # Setup the test from the histogram data file
+    data, expected_hist, expected_indices = get_data(
+        data_dir, "idl_hist_example.npy", "idl_example_hist.npy", "idl_example_inds.npy"
+    )
+    # Now that we're using numba it doesn't support every type, set it to more standard NumPy or Python types
+    data = data.astype(int)
+    hist, _, indices = histogram(data)
+    assert np.array_equal(hist, expected_hist)
+    assert np.array_equal(indices, expected_indices)
+```
+
+Alternatively, if there's a case we only wanted to use one fixture inside that test, then `pytest.param` was used to indicate that particular fixture:
+
+```python
+@pytest.fixture(
+    scope="function",
+    params=[
+        "1088285600",
+        "1088716296",
+        pytest.param("point_zenith", marks=pytest.mark.github_actions),
+        "point_offzenith",
+    ],
+)
+```
+
+In the cases where `pytest.param` was used, then you will likely see the checking of the mark at some points in the creation of the test files:
+
+```python
+if request.node.get_closest_marker("github_actions"):
+    data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "healpix", "healpix_cnv_apply"
+    )
+```
+
+In order to run these tests you need to do the following:
+
+1. Download the data, you can do so here: [![Static Badge](https://img.shields.io/badge/Test%20Data%20DOI-10.5281%2Fzenodo.15687722-grey?labelColor=blue)](https://doi.org/10.5281/zenodo.15687722). 
+
+    Put the zip file in the following directory inside the repository (the directory given is relative to the root of the repository): `PyFHD/resources/test_data`
+
+2. Unzip the zip file in the previously mentioned `PyFHD/resources/test_data` directory.
+
+3. In a terminal, at the root of the repository, run the following command:
+
+    ```bash
+    pytest -m github_actions
+    ```
+
+    You should expect output that looks like this:
+
+    ```bash
+    =========================================== test session starts ===========================================
+    platform linux -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+    rootdir: /home/skywatcher/projects/PyFHD
+    configfile: pyproject.toml
+    plugins: metadata-3.1.1, cov-6.1.1, html-4.1.1
+    collected 436 items / 315 deselected / 121 selected                                                       
+
+    tests/test_calibration/test_cal_auto_ratio_divide.py .....s                                         [  4%]
+    tests/test_calibration/test_cal_auto_ratio_remultiply.py .....s                                     [  9%]
+    tests/test_calibration/test_calculate_adaptive_gain.py ....                                         [ 13%]
+    tests/test_calibration/test_vis_cal_bandpass.py ........s                                           [ 20%]
+    tests/test_calibration/test_vis_cal_polyfit.py ........s                                            [ 28%]
+    tests/test_calibration/test_vis_calibration_flag.py .....s..s                                       [ 35%]
+    tests/test_data_setup/test_sample_data_extraction.py .                                              [ 36%]
+    tests/test_gridding/test_gridding_utils/test_interpolate_kernel.py ...                              [ 38%]
+    tests/test_gridding/test_visibility_grid.py ......                                                  [ 43%]
+    tests/test_healpix/test_healpix_cnv_apply.py ssssss......                                           [ 53%]
+    tests/test_healpix/test_healpix_cnv_generate.py s.                                                  [ 55%]
+    tests/test_io/test_configuration.py .                                                               [ 56%]
+    tests/test_io/test_save_and_load.py ...                                                             [ 58%]
+    tests/test_pyfhd_tools/test_array_match.py ...                                                      [ 61%]
+    tests/test_pyfhd_tools/test_deriv_coefficients.py ...                                               [ 63%]
+    tests/test_pyfhd_tools/test_histogram.py .............                                              [ 74%]
+    tests/test_pyfhd_tools/test_meshgrid.py ...                                                         [ 76%]
+    tests/test_pyfhd_tools/test_rebin.py ...................                                            [ 92%]
+    tests/test_pyfhd_tools/test_region_grow.py ..                                                       [ 94%]
+    tests/test_pyfhd_tools/test_resistant_mean.py ......                                                [ 99%]
+    tests/test_pyfhd_tools/test_weight_invert.py .                                                      [100%]
+
+    ============================================ warnings summary =============================================
+    tests/test_calibration/test_cal_auto_ratio_divide.py::test_cal_auto_ratio_divide[1088716296-run1]
+    /home/skywatcher/projects/PyFHD/PyFHD/pyfhd_tools/pyfhd_utils.py:715: RuntimeWarning: overflow encountered in divide
+        result[i_use] = 1 / weights[i_use]
+
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_zenith-run1]
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_zenith-run3]
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_offzenith-run1]
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_offzenith-run3]
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[1088716296-run1]
+    /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:816: RuntimeWarning: divide by zero encountered in divide
+        gain3[freq_use, :] /= gain2_input[freq_use, :]
+
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_zenith-run1]
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[point_offzenith-run1]
+    tests/test_calibration/test_vis_cal_bandpass.py::test_vis_cal_bandpass[1088716296-run1]
+    /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:816: RuntimeWarning: invalid value encountered in divide
+        gain3[freq_use, :] /= gain2_input[freq_use, :]
+
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run1]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run2]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run3]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run1]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run2]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run3]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run1]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run2]
+    /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:1164: RuntimeWarning: divide by zero encountered in divide
+        gain_arr = og_gain_arr[pol_i] / cal["gain"][pol_i]
+
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run1]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run2]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_zenith-run3]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run1]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run2]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[point_offzenith-run3]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run1]
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run2]
+    /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:1164: RuntimeWarning: invalid value encountered in divide
+        gain_arr = og_gain_arr[pol_i] / cal["gain"][pol_i]
+
+    tests/test_calibration/test_vis_cal_polyfit.py::test_vis_cal_polyfit[1088716296-run1]
+    /home/skywatcher/projects/PyFHD/PyFHD/calibration/calibration_utils.py:1193: RuntimeWarning: invalid value encountered in divide
+        norm_autos = auto_ratio[pol_i] / rebin(
+
+    tests/test_gridding/test_visibility_grid.py::test_visibility_grid[4]
+    /home/skywatcher/projects/PyFHD/tests/test_gridding/test_visibility_grid.py:158: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+        new_arr[0] = h5_before["fi_use"]
+
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    ====================== 108 passed, 13 skipped, 315 deselected, 27 warnings in 36.53s ======================
+    ```
+
+These are the same tests that the actions run on every pull request and push to main.
+
+#### Testing All PyFHD functions
+
+A place where all the test data is stored is being discussed and planned as the data is close to a TB of data (more than a TB by the time you count HEALPIX and beam files), as such it's difficult to share the test data. But assuming you have the test data, running the tests is done like so:
+
+1. Ensure you have followed the instructions for [Testing a subset of the PyFHD functions](#testing-subset)
+2. Create an environment variable called `PYFHD_TEST_PATH` which points to the root directory of all the test data.
+3. Ensure you have pytest installed and setup in your environment (if you used `uv` or `mamba` for your environment this is already done)
+4. From there you can run all the tests using the command:
+    ```bash
+    pytest
+    ```
+    Be aware this will take a while (hence why I'm not showing the output here)!
+
+    Alternatively, you can also just run one test file:
+    ```bash
+    pytest tests/test_pyfhd_tools/test_histogram.py 
+    =============================================================================================================================================================================================== test session starts ===============================================================================================================================================================================================
+    platform linux -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+    rootdir: /home/skywatcher/projects/PyFHD
+    configfile: pyproject.toml
+    plugins: cov-6.1.1
+    collected 16 items                                                                                                                                                                                                                                                                                                                                                                                                
+
+    tests/test_pyfhd_tools/test_histogram.py .............. ..                                                                                                                                                                                                                                                                                                                                                   [100%]
+
+    ========================================================================================================================================================================================= 16 passed in 108.60s (0:01:48) ==========================================================================================================================================================================================
+    ```
+    Or run one test inside that file
+    ```bash
+    pytest tests/test_pyfhd_tools/test_histogram.py::test_idl_example
+    =============================================================================================================================================================================================== test session starts ===============================================================================================================================================================================================
+    platform linux -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+    rootdir: /home/skywatcher/projects/PyFHD
+    configfile: pyproject.toml
+    plugins: cov-6.1.1
+    collected 1 item                                                                                                                                                                                                                                                                                                                                                                                                  
+
+    tests/test_pyfhd_tools/test_histogram.py .                                                                                                                                                                                                                                                                                                                                                                  [100%]
+
+    ================================================================================================================================================================================================ 1 passed in 2.37s ================================================================================================================================================================================================
+    ```
+
+    This format should work for any tests inside of PyFHD (or for any python package using pytest).
+
+### Debugging
+
+Tools that will help you during testing are the debugging tools available in IDE's like those in VSCode and PyCharm. Debugging tools allow you to get away from using print statements to using breakpoints instead, allowing you to see the entire snapshot of your function at that point in time in the code. This does make it easier to track down issues, see portions of large arrays, watch certain variables throughout the code to see how they change etc. VSCode in particular can allow you to set log points which can act like print statements without you having to put anything into the code. Breakpoints (and log points!) can also have conditions attached to them, so if you know you're looping through frequencies and you know an issue happens with frequency index 13, you can make a breakpoint condition that will trigger only when the frequency index is 13. To learn more about conditional breakpoints go [here](https://code.visualstudio.com/docs/debugtest/debugging#_conditional-breakpoints).
+
+For doing debugging on tests specifically while in VSCode, it's usually easiest to setup the Testing part of the VSCode IDE that is bundled in with the Python extension, I'll leave a guide here to set it up:
+
+1. First download the [Python extension](https://marketplace.visualstudio.com/items/?itemName=ms-python.python) from the VSCode marketplace (this should also download the Python Debugger).
+2. Navigate to the testing tab in VSCode on the left sidebar, it should look like a beaker
+
+![beaker](beaker.png){align=center}
+
+3. In that testing tab it should offer you some text or a button you can click to setup the tests. Alternatively you can bring up the command palette <kbd>Ctrl + Shift + P</kbd> on Windows/Linux or <kbd>Shift + Command + P</kbd> for Mac and search for **Python: Configure Tests**.
+
+4. When going through the process it should:
+    1. Ask if you're using pytests or unittest, choose **pytest**
+    2. For the directory, choose the root directory of the repository.
+    3. From there it should automatically discover the tests in the repository
+
+5. Hover over one of the tests and you should see three buttons:
+
+    ![debug_buttons](debug_buttons.png){align=center}
+
+    Each of these buttons does the following things in order: Runs the test, Runs the test with Debugging enabled, Runs the test with coverage enabled.
+    In this case, click the second test with the bug on it.
+    From there the test should run with debugging enabled and stop at breakpoints set in the tests themselves or the code the test touches.
+
+It's also possible to setup a debug sesion for running ``PyFHD`` in the command line, this is setup using the ``launch.json`` file in the VSCode Workspace inside the ``.vscode`` directory. An example with comments that contain more detail is below, this is based on running the sample data as per the tutorial:
+
+```json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // You can name it whatever you want.
+            "name": "Python Debugger: Sample Data",
+            // This needs to be set to debugpy
+            "type": "debugpy",
+            // There's multiple ways to do this, you could also attach
+            // to a python process
+            "request": "launch",
+            // Tells debugpy to run the main pyfhd.py file.
+            "program": "PyFHD/pyfhd.py",
+            "console": "integratedTerminal",
+            // Set the arguments, if you want multiple configurations
+            // I'd suggest duplicating the configuration, and change the name
+            // and args to get multiple debugging profiles.
+            "args": [
+                "-c", 
+                "./input/1088285600_example/1088285600_example.yaml",
+                // Here's an example of using the command line to override or negate the yaml file
+                "--no-silent",
+                "108885600"
+            ],
+            // If you select the Python Interpreter in VSCode this isn't needed.
+            "python": "/path/to/python/env/python"
+            // Set to false if you need to debug interactions with PyFHD and it's dependencies
+            "justMyCode": true,
+            // If you're inside a docker or singularity container, you likely need to also set the
+            // path mappings (this tells debugpy where to map your files on your machine to inside
+            // the container)
+            // "pathMappings": [
+            //     {
+            //         "localRoot": "${workspaceFolder}",
+            //         "remoteRoot": "/pyfhd"
+            //     }
+            // ]
+        }
+    ]
+}
+```
+
+Once you have added that to the ``launch.json`` file go to the Play button with a bug on the left sidebar, and at the top of the sidebar you should no see a dropdown with the name you set:
+![debug_bar](debug_bar.png){align=center}
+
+Click the Play button by the dropdown to run the debug session. Below is an example what it it looks like when you have set a breakpoint and debugging has stopped at that breakpoint:
+![debug_example](debug_example.png){align=center}
+
+What has been particuarly useful is the ability at this breakpoint to go deeper into the arrays and see their values, that way you can keep an eye on certain values as they go through parts of the `PyFHD` pipeline. There's also a **Watch** feature, right clicking on a variable can allow you to add it to the watch list, so instead of finding the variable each time you can just check the watch list. 
+
+There are lots of other debugging features that I haven't gove over or explored, if you're interested check out the documentation for the debugging tools in VSCode [here](https://code.visualstudio.com/docs/python/debugging) and the tools for PyCharm [here](https://www.jetbrains.com/help/pycharm/debugging-code.html).
 
 ### The Need for Speed
 
@@ -510,155 +848,10 @@ Once you have created your new function, add information about your new function
 
 Initiate the pull request back to whatever branch the function needs to go in, and during the pull request you should notice a Pull Request Template that pops up with checkboxes, please follow the pull request template and do what it asks of you, one of which you're doing now by reading this contribution guide (Thanks 🙌). The pull request template is there for you to make sure you have followed best practices and for the reviewers to check you have followed best practices as well. 
 
+The pull request will run a black formatting check to ensure the code you made meets the formatting specification
+
 **If you're not doing any translation from IDL (`FHD`) to Python (`PyFHD`) you can safely stop here, and embark on your many scientific endeavours with PyFHD.**
 
-## IDL to Python Translation Guide
+**Oh you want to do translation?**
 
-This part of the guide is going to be more personal and contains lessons from my own (Joel Dunstan, [SkyWa7ch3r](https://github.com/SkyWa7ch3r)) 2 year experience of translating the majority of `FHD` from IDL to Python to create `PyFHD`.
-
-### Introduction
-
-Hello there weary traveler, you wish to translate from IDL to Python or have been tasked with doing so, first thing my sincerest apologies for your future sanity and also to your colleagues as you likely vent to them about the annoyances of doing the translation. Here I'll try to put all the discoveries, roadbumps and potholes that will slow you down along the way. Be prepared to laugh, sigh, be filled with rage and maybe shed a tear if you find out a problem you've been facing for a week is because of some <del>dumb</del> *interesting* behaviour.
-
-### Getting IDL
-
-First thing, you'll need access to IDL, this is easier said than done as you require a license to use the language if you're lucky your instituion has an IDL license or the HPC you use has an IDL license. If you plan on installing IDL to your local machine you will need to contact [NV5 Geospatial](https://www.nv5geospatialsoftware.com/Products/IDL) directly to get a license and get the download link through their locked download links. If you're institution has a license server you should be able to get a license from the server and an install package from your institution. There are open source versions of IDL, [`GDL`](https://github.com/gnudatalanguage/gdl) and [`Fawlty`](https://www.flxpert.hu/fl/), however in my experience they didn't support running all the functions needed for `FHD` or produced different results to what's expected even in simple scenarios, hopefully that has changed and you can try to use them, feel free to let me know how that went.
-
-Now that you have IDL, you'll need to follow the [FHD install steps](https://github.com/EoRImaging/FHD/tree/master#installation). You'll notice that all the functions get added to the IDL path, IDL only really has one namespace for functions, do keep that in mind unlike Python which has packages/libraries, modules/subpackages which divide up the name spaces and require explicit imports. 
-
-### FHD Dependency Equivalents
-
-Now in terms of matching up some of the `FHD` dependencies and `PyFHD` dependencies, anything from the `FHD`, `fhdps_utils`, and `pipeline_scripts` repositories will require straight translation line by line. For the `IDLAstro` library from NASA, a mix of `astropy`, `numpy` and `scipy` should allow you to either drectly replace functions when they appear in the `FHD` code or allow much easier translation/rewriting of the function. For the `IDLAstro` library all the `pro` files are publicly available so if there is a need to directly translate the function into Python that is possible. `coyote` does much of the graphical heavy lifting in `FHD`, for any plots inside of `PyFHD`, the plotting/imaging libraries `matplotlib`, `seaborn`, `plotly`, `Pillow` and `OpenCV` should get you what you need to make almost any visualization you wish to make (`plotly` is excellent when you need interactivity). For `HEALPix` you have the `healpy` library maintained by the same organization, so functions should have similar names and similar purposes without any translation needed.
-
-### The Right Tools for the Right Job
-
-In terms of tools you can use to translate IDL to Python, after all this time, unfortunately for you, I've decided the best tool is **you**. None of the tools out there like [`idl2py`](https://github.com/dnidever/idl2py) successfully translate to Python in a way that makes it faster than you translating the function line by line, they even occasionally miss things like `FLTARR` which translate perfectly into `np.zeros`. To be fair on these tools its an almost impossible task to automate because in IDL keywords in functions can *entirely change how the function works* thus any code you make to automatically translate will be full of exceptions and will still have problems translating pointer arrays due to the shapes of said arrays not always being easy to know ahead of time. Unfortunately, not even ChatGPT or LLMs can completely help you either, although to be honest they do a somewhat decent job, feel free to experiment with them and let me know how it goes, although I suspect it will miss some of the interesting behaviour that I will point out later. If you're using VSCode, NV5 recently brought out an official VSCode extension for IDL, check it out [here](https://marketplace.visualstudio.com/items?itemName=IDL.idl-for-vscode). IDL for VSCode will give you proper syntax highlighting for `pro` files, and hopefully they will continue to increase it's usefulness in the future.
-
-Another pair of tools that are worth talking about is the `IDL to Python Bridge` and `Python to IDL Bridge` that is provided as a part of the IDL package. The `Python to IDL Bridge` can provide some nice to have features such as running IDL code in a Jupyter notebook which can be particularly useful for debugging some IDL to Python translations because you can rerun just parts of the code you're having issues with translating. The `IDL to Python Bridge` does also make it possible to use Python within IDL, while the `Python to IDL Bridge` makes it possible to use IDL in Python. At the time of writing this its now possible to pass objects to and from IDL in the `Python to IDL Bridge`, however I cannot confirm if you can still only run the built-in IDL functions in the `Python to IDL Bridge`. When I previously used the bridge I wasn't able to run functions made inside of `FHD` such as `weight_invert` (I suspected this was due to the IDL_PATH being setup everytime you re-ran IDL.run for every command). Hopefully if you try the bridges on the latest version of IDL, you may have better luck meaning you could have more power for debugging than I did because you can directly run the IDL code side by side and directly compare the IDL and Python outputs without the need for `sav` files. Feel free to let me know how this changes or to update this section yourself.
-
-### The Hidden Gems in IDL to make you tear your hair out
-
-There are several gotchas hidden thoughout IDL, usually most of them won't appear to an unexperienced IDL person who hasn't been burned by them before until they try to run the Python equivalent, for example, me and hopefully not you. I will try to list as many as I can here, lot of these can be found in IDL documentation as extra notes or footnotes (rather than a big notice saying "Hey this is important, if you use this function this way, this function is entirely different" which would be a little nicer):
-* IDL is column based while Python is row based, meaning you will likely need to change the shape of certain arrays for the multiplication of arrays and matrices to work as you expect. It's the reason why the visibility arrays go by polarization then frequency then baselines in PyFHD compared to polarization then baselines then frequencies in `FHD` as it allows us to translate the indexing as it's done in `FHD` without having to constantly swap indexes around during translation which gets confusing.
-* IDL is single precision even if it kills itself, in many cases even if you specify double precision using the `/DOUBLE` keyword, there's bound to be some function somewhere that is restricted to single precision. This is slowly changing.
-* Function parameters in IDL can be input **or** output! If during your translation a variable exists seemingly without being initialized somewhere, check the function calls, parameters store the results, this is the case with many IDL functions, like `HISTOGRAM` where the `REVERSE_INDICES=ri` part of the call actually *returns* the reverse indices into an `ri` variable. This is also used extensively for many `FHD` functions and can get confusing, in Python doing returns this way is possible but for the sake of being consistent, any and all returns are done with an explicit `return` statement and put into the docstrings as a return.  
-* When dealing with how IDL deals with subsetting, it's important to remember than IDL is inclusive of *both* the start and the end index, i.e. if we index an array between the 0th value and the 3rd value, we will get the 0th value and all the values upto and including the 3rd value. In Python the subsetting is only inclusive of the start but not the end index, i.e. if we index an array between the 0th value and the 3rd value, we will get the 0th value and all the values upto the 3rd value, but not including the third value.
-    
-    IDL
-    ```idl
-    IDL> test = [1,2,3,4,5]
-    IDL> test[0:3]
-           1       2       3       4
-    ```
-
-    Python
-    ```python
-    >>> test = np.array([1,2,3,4,5])
-    >>> test[0:3]
-    array([1, 2, 3])
-    ```
-
-    The inclusion of both ends in IDL also works the same for loops of any kind, so when translating you should be careful with how you index the array at the end primarily or the end conditions for your loop. You will find many users of IDL have already taken this into account and loop `n` times going from `0` to `n - 1`, so in python using the `range(n)` function should do the trick.
-* The median function in IDL doesn't do the average between the two middle numbers by default when dealing with an array of even size unless you use the `/EVEN` keyword, it will take the maximum of the two numbers when dealing with an even sized array be default. This has often made a difference when dealing with close to single precision values, in my experience you're usually better off using `np.median` in most cases and accepting the differences, there has only been one notable case where we needed the IDL median over `np.median` and that's during the calibration process (as the comparison to `conv_thresh` would fail due to the precision differences).
-* Matrix Multiply does the dot product for matrices, and because IDL is column based while Python is row based, you will need to switch around the order of multiplication in Python compared to IDL. Furthermore, matrix multiply does the outer product when you make on the provided matrices/arrays 1D array. So everytime you see matrix multiply you'll likely have to check at runtime during testing if the multiply is meant to be the dot product or outer product.
-* In the case of an array containing only `NaNs` there is a slight difference between IDL's `total` and `mean`, where  `total(x,/nan)` will give you `0` while `mean(x, /nan)` will give you a `NaN`
-* In IDL `ATAN` when used with complex numbers and the `/PHASE` keyword is actually an arctan with the imaginary part divided by the real part i.e. in IDL `ATAN(COMPLEX(2,1), /phase) EQ 0.46364760` while in Python the same code is done as `np.arctan(1/2)`. 
-* When doing a divide by 0 in IDL, it does produce an error `% Program caused arithmetic error: Integer divide by 0` however it doesn't actually break the program, IDL continues to work, watch out for it! Don't ask me why they've done it...and if you don't believe me here is an example in IDL 8.8.0:
-  ```idl
-  IDL> test = [[1.,2.],[3.,4.]]
-  IDL> test[0] = 1/0 + 10
-  % Program caused arithmetic error: Integer divide by 0
-  IDL> test
-  11.000000       2.0000000
-  3.0000000       4.0000000
-  ```
-* Indexing arrays using other arrays can also lead to <del>dumb</del> *interesting* behaviour, if we follow our test array again of 4 values and we try to access the 5th element of the array we expectedly get an error.
-    ```idl
-    IDL> test = [[1.,2.],[3.,4.]]
-    IDL> test[5]
-    % Attempt to subscript TEST with <INT      (       5)> is out of range.
-    % Execution halted at: $MAIN$ 
-    ```
-    However if we put that index into another array, let's call it `idx` and then access the `test` array with the `idx` array we get the following:
-    ```idl
-    IDL> test = [[1.,2.],[3.,4.]]
-    IDL> idx = [5]
-    IDL> test[idx]
-       4.0000000
-    ```
-    Yep that's the last value of the array, and to really get the ball into the endzone:
-    ```idl
-    IDL> idx = indgen(10) + 1000
-    IDL> idx
-      1000    1001    1002    1003    1004    1005    1006    1007    1008    1009
-    IDL> test[idx]
-       4.0000000       4.0000000       4.0000000       4.0000000       4.0000000       4.0000000       4.0000000
-       4.0000000       4.0000000       4.0000000
-    ```
-    In summary, watch out for this behaviour, it does not fly in any other language, I have absolutely no idea why this is a thing or why you'd want it.
-* The `POLY_FIT` function in IDL has the ability to do both `polyfit` and `polyval`, so watch out for the use of the `YFIT` keyword. In general, `poly_fit(a, b, 2)` in IDL is `np.polynomial.polynomial.Polynomial.fit(a, b, deg=2).convert().coef` in Python. If you see the `YFIT` keyword, then it's a case of calling `np.polynomial.polynomial.polyval` on the calculated coefficients i.e. `phase_fit = np.polynomial.polynomial.polyval(a, np.polynomial.polynomial.Polynomial.fit(a, b, deg=2).convert().coef)`.
-* `LA_LEAST_SQUARES` in IDL and `np.linalg.lstsq` in Python (and the SciPy least square functions as well) will produce different results due to the solvers in use, and the assumption that the design matrix given to the solvers is full rank in `LA_LEAST_SQUARES` while NumPy and SciPy assuming that the design matrix is not full rank. Even using the same solvers doesn't give the same results, so it might come down to how each of the functions were compiled, either way, keep into consideration they just won't get the same results in most cirumstances.
-* The `REBIN` has been replicated in `PyFHD`, however it's use should be used sparingly as its doing interpolation when increasing an array in size, and averaging when decreasing the size of an array i.e. it's  upscaling or downscaling and it's treating your array or matrix as an image rather than any ordinary array. In many cases it could be best to use `np.tile`, `np.pad` or `np.repeat` to do the same task more consistently.
-* The `SMOOTH` function in IDL is a boxcar averaging function so it should be replaced with `scipy.ndimage.uniform_filter` and the `/edge` keywords will dictate the mode you need to use for the `uniform_filter` function.
-* When dealing with complex numbers in IDL, it's possible to get different results when using `WHERE` in IDL and `np.where` as `WHERE` in IDL applies to the absolute values of the numbers, while `np.where` looks at just the real numbers for example:
-  
-  IDL
-  ```idl
-  IDL> test = COMPLEX([1,2,0],[1,2,3])
-  IDL> WHERE(test gt 1)
-           0           1           2
-  ```
-
-  Python
-  ```python
-  >>> test = np.array([1 + 1j, 2 + 2j, 0 + 3j])
-  >>> np.where(test > 1)
-  (array([0, 1]),)
-  >>> np.where(np.abs(test) > 1)
-  (array([0, 1, 2]),)
-  ```
-
-  It has only affected my translation once, but something to be aware of.
-* Pointers are used in IDL a lot, especially in `FHD`, when translating pointer arrays my advice is to try and find out the full shape of the array and set the dtype appropriately, rather than creating an `object` array or `list` to represent the pointer array. `object` arrays in NumPy usually lead to more problems than they're worth, and make using the built in vectorized functions a real pain.
-* There is a `readsav` function in `scipy.io` that gives you the ability to read in `sav` files, which is great that it exists. Unfortunately though, `readsav` is usually quite slow due to IDL's differences to other languages down to the byte level, as such it's having to loop through all the bytes to get the necessary bits out (poor thing, imagine having to read a 44GB file *several bytes at a time in a python loop*). `readsav` does read the `sav` file into a python dictionary which sounds good, except that it turns structures that were saved into the `sav` files into `np.recarrays` or NumPy record arrays. NumPy record arrays are often slower than dictionaries to access and in the case of `PyFHD` offer no benefits over dictionaries (in fact I'd argue a dictionary is better is almost all circumstances). `readsav` also usually makes a mess of pointer arrays too by turning pointer arrays into `object` arrays which each index contains a `numpy.ndarray`, meaning to access an array you might have to do something like `sav_file['array'][0]array[0][0]` to access the first numpy array in the array of arrays. As such I developed the `PyFHD.io.recarray_to_dict` function which can take in a `np.recarray` or `dict` and turn any record arrays into a `dict`. `recarray_to_dict` works recursively too, so any sub-record arrays will also turn into a `dict`, furthermore, additional formatting of arrays will take place to turn any `object` arrays into a proper NumPy array with a numpy data type (dtype). `recarray_to_dict` also deals with the values that are scalar values when loaded in from the `sav` file as well, `readsav` usually turns scalar values into arrays with a single vaue which are inconvenient to access. `recarray_to_dict` is always a work in progress, happy to try and edit the function as necessary.
-* If you're dealing with large pointer arrays that can't convert to a proper dtype array due their size, e.g. the `beam_ptr` complex array was an example of this with a size of `2*384*8128*51*51*2916*16 bytes` or `~757.5 TB`, then ideally you need to convert these into HDF5 (with `h5py`) files which can allow you to chunk large datasets. It's also worth checking that there aren't pointers referencing other pointers, this was the case with `beam_ptr` as such theactual size ended up being `2*384*51*51*2916*16 bytes` or `~93.2 GB` instead. It's also possible to use other frameworks like `Dask` to achieve what we're doing with `h5py`, but we can use `h5py` without having to worry about compatiblity with NumPy functions.
-* In IDL concatenating arrays can be done in many ways, one of the ways you may see is like so:
-  ```idl
-  IDL> test = [1,2,3]
-  IDL> test = [test, test]
-  IDL> test
-         1       2       3       1       2       3
-  ```
-  So be on the look out for that sort of behaviour.
-* The `>` and `<` operators in IDL do the same behaviour as `np.maximum` and `np.minimum` respectively, do not get them confused with the `GT` (greater than) and `LT` (less than) operators in IDL. Furthermore, the `>` and `<` operators in IDL can be chained together, I'll provide many examples below:
-    ```idl
-    IDL> test = [-1,2,3,-4,5]
-    IDL> test > 0
-       0       2       3       0       5
-    IDL> test < 0
-      -1       0       0      -4       0
-    IDL> test < 0 > 3
-       3       3       3       3       3
-    IDL> test < 1 > 0
-       0       1       1       0       1
-    ```
-
-    The bottom example is the most common example you'll see in `FHD` as it turns all numbers above 1 into 1, and the numbers below 0 into 0 allowing to quickly make a flagged array. To show the same examples in Python look below:
-
-    ```python
-    >>> test = np.array([-1,2,3,-4,5])
-    >>> np.maximum(test, 0)
-    array([0, 2, 3, 0, 5])
-    >>> np.minimum(test, 0)
-    array([-1,  0,  0, -4,  0])
-    >>> np.maximum(np.minimum(test, 0), 3)
-    array([3, 3, 3, 3, 3])
-    >>> np.maximum(np.minimum(test, 1), 0)
-    array([0, 1, 1, 0, 1])
-    ```
-
-### Thanks for Reading, and Ye Be Warned
-
-I hope this contribution guide helps you in your translation efforts with much less pain than me, and all of this helps you get your function into Python as quick as possible. Translation and testing of IDL to Python code can be a frustrating task even at the best of times. So...
-
-![Translators Ye Be Warned](ye_be_warned_smaller.gif)
+**Come this way traveller &rarr; [IDL to Python Translation Guide](idl_translation.md)**

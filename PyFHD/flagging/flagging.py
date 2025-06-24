@@ -204,6 +204,9 @@ def vis_flag_basic(
     obs["n_tile_flag"] = np.count_nonzero(obs["baseline_info"]["tile_use"] == 0)
     obs["n_freq_flag"] = np.count_nonzero(obs["baseline_info"]["freq_use"] == 0)
 
+    if np.max(vis_weight_arr) == 0:
+        raise ValueError("All data has been flagged, check your flagging parameters")
+
     return vis_weight_arr, obs
 
 
@@ -215,7 +218,9 @@ def vis_flag(
     logger: Logger,
 ) -> tuple[np.ndarray, dict]:
     """
-    TODO: __summary__
+    Flag frequencies, times, and tiles which are 3 sigma away from the median
+    of the visibility amplitudes, along with baselines which are outside the
+    supplied minimum and maximum baseline distances.
 
     Parameters
     ----------
@@ -253,16 +258,17 @@ def vis_flag(
     if cut_baselines_i.size > 0:
         vis_weights[: obs["n_pol"], :, cut_baselines_i] = 0
 
-    tile_fom = np.empty(n_tiles_use)
+    tile_fom = np.zeros(n_tiles_use, dtype=np.float64)
     for tile_i in range(n_tiles_use):
         tile_ai = np.where((obs["baseline_info"]["tile_a"] - 1) == tile_i)
         tile_bi = np.where((obs["baseline_info"]["tile_b"] - 1) == tile_i)
         if tile_ai[0].size == 0 and tile_bi[0].size == 0:
             continue
-        elif tile_bi[0].size > 0 and tile_ai[0].size > 0:
-            tile_abi = np.hstack([tile_ai[0], tile_bi[0]])
-        elif tile_bi[0].size > 0 and tile_ai[0].size == 0:
-            tile_abi = tile_bi
+        if tile_bi[0].size > 0:
+            if tile_ai[0].size > 0:
+                tile_abi = np.hstack([tile_ai[0], tile_bi[0]])
+            else:
+                tile_abi = tile_bi
         else:
             tile_abi = tile_ai
         data_subset = data_abs[:, tile_abi]
@@ -303,10 +309,10 @@ def vis_flag(
     freq_dev2 = np.std((freq_fom - freq_mean2)[freq_cut0])
     # Currently assuming tile_cut and freq_cut are 1D
     tile_cut = np.where(
-        (np.abs(tile_mean2 - tile_fom) > flag_nsigma * tile_dev2) | (tile_fom == 0)
+        (np.abs(tile_mean2 - tile_fom) > (flag_nsigma * tile_dev2)) | (tile_fom == 0)
     )[0]
     freq_cut = np.where(
-        (np.abs(freq_mean2 - freq_fom) > flag_nsigma * freq_dev2) | (freq_fom == 0)
+        (np.abs(freq_mean2 - freq_fom) > (flag_nsigma * freq_dev2)) | (freq_fom == 0)
     )[0]
 
     if tile_cut.size > 0:

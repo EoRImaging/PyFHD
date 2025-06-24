@@ -7,15 +7,16 @@ from PyFHD.io.pyfhd_io import convert_sav_to_dict
 from PyFHD.pyfhd_tools.test_utils import sav_file_vis_arr_swap_axes
 import numpy.testing as npt
 from PyFHD.io.pyfhd_io import save, load
-import importlib_resources
 import numpy as np
-
+import importlib_resources
 from logging import Logger
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_cal_polyfit")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "calibration", "vis_cal_polyfit"
+    )
 
 
 @pytest.fixture(
@@ -82,14 +83,6 @@ def before_file(tag, run, data_dir):
         except KeyError:
             pyfhd_config[config_key] = None
 
-    pyfhd_config["cable_reflection_coefficients"] = str(
-        importlib_resources.files("PyFHD.templates").joinpath(
-            "mwa_cable_reflection_coefficients.txt"
-        )
-    )
-    pyfhd_config["cable_lengths"] = str(
-        importlib_resources.files("PyFHD.templates").joinpath("mwa_cable_length.txt")
-    )
     if "digital_gain_jump_polyfit" in sav_dict:
         pyfhd_config["digital_gain_jump_polyfit"] = sav_dict[
             "digital_gain_jump_polyfit"
@@ -201,6 +194,7 @@ def after_file(tag, run, data_dir):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_vis_cal_polyfit(before_file, after_file):
     """Runs the test on `vis_cal_polyfit` - reads in the data in before_file and after_file,
     and then calls `vis_cal_polyfit`, checking the outputs match expectations"""
@@ -218,13 +212,9 @@ def test_vis_cal_polyfit(before_file, after_file):
 
     pyfhd_config = h5_before["pyfhd_config"]
     pyfhd_config["instrument"] = "mwa"
-    pyfhd_config["cable_reflection_coefficients"] = Path(
-        pyfhd_config["cable_reflection_coefficients"]
-    )
-    pyfhd_config["cable_lengths"] = Path(pyfhd_config["cable_lengths"])
     logger = Logger(1)
 
-    cal_polyfit = vis_cal_polyfit(obs, cal, auto_ratio, pyfhd_config, logger)
+    cal_polyfit, _ = vis_cal_polyfit(obs, cal, auto_ratio, pyfhd_config, logger)
     npt.assert_allclose(
         cal_polyfit["amp_params"], expected_cal_return["amp_params"], atol=2e-7
     )

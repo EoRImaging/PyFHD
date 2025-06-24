@@ -4,14 +4,17 @@ from os import environ as env
 from pathlib import Path
 from PyFHD.pyfhd_tools.test_utils import get_data_items
 from PyFHD.pyfhd_tools.pyfhd_utils import meshgrid
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    # This assumes you have used the splitter.py and have done a general format of **/FHD/PyFHD/tests/test_fhd_*/data/<function_name_being_tested>/*.npy
-    return Path(env.get("PYFHD_TEST_PATH"), "meshgrid/")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "pyfhd_tools", "meshgrid"
+    )
 
 
+@pytest.mark.github_actions
 def test_meshgrid_one(data_dir):
     axis, dimension, elements, integer, expected = get_data_items(
         data_dir,
@@ -25,6 +28,7 @@ def test_meshgrid_one(data_dir):
     assert np.array_equal(result, expected)
 
 
+@pytest.mark.github_actions
 def test_meshgrid_two(data_dir):
     dimension, elements, expected = get_data_items(
         data_dir, "input_dimension_2.npy", "input_elements_2.npy", "output_result_2.npy"
@@ -33,6 +37,7 @@ def test_meshgrid_two(data_dir):
     assert np.array_equal(result, expected)
 
 
+@pytest.mark.github_actions
 def test_meshgrid_three(data_dir):
     axis, dimension, elements, expected = get_data_items(
         data_dir,

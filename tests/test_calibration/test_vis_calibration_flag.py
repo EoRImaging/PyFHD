@@ -5,19 +5,20 @@ from pathlib import Path
 from PyFHD.pyfhd_tools.test_utils import get_data_items, get_data_sav
 from PyFHD.calibration.calibration_utils import (
     vis_calibration_flag,
-    vis_calibration_flag,
 )
 from PyFHD.io.pyfhd_io import convert_sav_to_dict
 from PyFHD.pyfhd_tools.test_utils import sav_file_vis_arr_swap_axes
 import numpy as np
 from PyFHD.io.pyfhd_io import save, load
-
 from logging import Logger
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_calibration_flag")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "calibration", "vis_calibration_flag"
+    )
 
 
 @pytest.fixture(
@@ -95,6 +96,7 @@ def after_file(tag, run, data_dir):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_vis_calibration_flag(before_file, after_file):
     """Runs the test on `vis_calibration_flag` - reads in the data in before_file and after_file,
     and then calls `vis_calibration_flag`, checking the outputs match expectations"""

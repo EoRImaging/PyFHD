@@ -6,11 +6,14 @@ from PyFHD.calibration.calibration_utils import calculate_adaptive_gain
 from PyFHD.io.pyfhd_io import convert_sav_to_dict
 from PyFHD.io.pyfhd_io import save, load
 import numpy.testing as npt
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "calculate_adaptive_gain")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "calibration", "calculate_adaptive_gain"
+    )
 
 
 @pytest.fixture(scope="function", params=["point_zenith", "point_offzenith"])
@@ -116,6 +119,7 @@ def calc_test_after(data_dir, calc_test):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_point_offzenith_and_zenith(before_file, after_file):
     if before_file == None or after_file == None:
         pytest.skip(
@@ -136,6 +140,7 @@ def test_point_offzenith_and_zenith(before_file, after_file):
     npt.assert_almost_equal(h5_after["gain"], result_gain)
 
 
+@pytest.mark.github_actions
 def test_calc_test_1_and_2(calc_test_before, calc_test_after):
 
     h5_before = load(calc_test_before)

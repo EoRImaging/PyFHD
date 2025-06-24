@@ -8,11 +8,12 @@ from PyFHD.pyfhd_tools.test_utils import sav_file_vis_arr_swap_axes
 from PyFHD.flagging.flagging import vis_flag_basic
 from PyFHD.io.pyfhd_io import save, load
 import numpy.testing as npt
+import numpy as np
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_flag_basic")
+    return Path(env.get("PYFHD_TEST_PATH"), "flagging", "vis_flag_basic")
 
 
 @pytest.fixture(
@@ -90,10 +91,14 @@ def test_many_points(before_file, after_file):
         "flag_freq_start": None,
         "flag_freq_end": None,
         "flag_tiles": [],
+        "flag_frequencies": True,
     }
 
+    # Ran out of time to implement the flag_frequencies being false test case
+    faked_vis_arr = np.zeros(vis_weight_arr.shape, dtype=vis_weight_arr.dtype)
+
     vis_weights_result, obs_result = vis_flag_basic(
-        vis_weight_arr, obs, pyfhd_config, logger
+        vis_weight_arr, faked_vis_arr, obs, pyfhd_config, logger
     )
 
     npt.assert_allclose(vis_weights_result, h5_after["vis_weights"])

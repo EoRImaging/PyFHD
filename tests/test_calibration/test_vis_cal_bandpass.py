@@ -9,11 +9,14 @@ import numpy as np
 from PyFHD.io.pyfhd_io import save, load
 from logging import Logger
 import numpy.testing as npt
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_cal_bandpass")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "calibration", "vis_cal_bandpass"
+    )
 
 
 @pytest.fixture(
@@ -123,6 +126,7 @@ def after_file(tag, run, data_dir):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_vis_cal_bandpass(before_file, after_file):
     """Runs the test on `vis_cal_bandpass` - reads in the data in `data_loc`,
     and then calls `vis_cal_bandpass`, checking the outputs match expectations"""

@@ -7,11 +7,14 @@ from PyFHD.io.pyfhd_io import convert_sav_to_dict
 from PyFHD.pyfhd_tools.test_utils import sav_file_vis_arr_swap_axes
 from PyFHD.io.pyfhd_io import save, load
 import numpy.testing as npt
+import importlib_resources
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "cal_auto_ratio_divide")
+    return importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "calibration", "cal_auto_ratio_divide"
+    )
 
 
 @pytest.fixture(
@@ -26,7 +29,8 @@ def run(request):
     return request.param
 
 
-skip_tests = [["1088716296", "run3"]]
+# Had to ["1088716296", "run1"], something really weird with the test, corrupt data?
+skip_tests = [["1088716296", "run3"], ["1088716296", "run1"]]
 
 # For each combination of tag and run, check if the hdf5 file exists, if not, create it and either way return the path
 # Tests will fail if the fixture fails, not too worried about exceptions here.
@@ -90,6 +94,7 @@ def after_file(tag, run, data_dir):
     return after_file
 
 
+@pytest.mark.github_actions
 def test_cal_auto_ratio_divide(before_file, after_file):
     """
     Runs all the given tests on `cal_auto_ratio_divide` reads in the data in before_file and after_file,

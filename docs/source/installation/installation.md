@@ -1,130 +1,90 @@
 # Installation
 
-The dependencies on PyFHD to run with FHD have been removed, this makes installing and `PyFHD` much easier than FHD. `PyFHD` is currently supported for Python 3.10 and 3.11, support for newer Python versions of these should be simple once the dependencies that `PyFHD` relies on have support for newer versions.
+The dependencies on PyFHD to run with FHD have been removed, this makes installing and `PyFHD` much easier than FHD. `PyFHD` is currently supported for Python 3.10+.
+
+## Installing to do some development on PyFHD?
+
+Please follow the [contribution guide](../develop/contribution_guide.md).
 
 ## pip
 
-PyFHD is not on [PyPi](https://pypi.org/) yet, so you'll need to clone the repository and install from the repository. The pip installation assumes you have already created a `venv` as per best practice.
+PyFHD is on [PyPi](https://pypi.org/) and is installable via pip. Typically you'll create a virtual environment using `venv`, `mamba/conda` or `uv` to ensure you're not installing things into any other Python
+Installations you may have. Typically `venv` is best in places where you are restricted by what you can and can't install (HPC environments). `uv` is best used for development as it supports a lot of features
+that Python developers of packages will appreciate (oh, and by the way, _it's fast_, like _really fast_ at installing packages). `mamba` is best used where you need to use more than just Python, but perhaps a combination
+of languages and tools, `mamba` has the ability to manage any compilers, CUDA versions, system tools etc.
 
-1. Clone and change directory into the `PyFHD` repo:
-    ```bash
-    git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
-    ```
-2. Install everything from the `requirements.txt`
-    ```bash
-    pip install -r requirements.txt
-    ```
-3. Install PyFHD
-    ```bash
-    pip install .
-    ```
-    ```{note}
-    `PyFHD` will eventually be available via PyPi meaning this step will be no longer required
-    ```
-4. Verify the installation using the version command
-    ```bash
-    pyfhd -v
-       ________________________________________________________________________
-       |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
-       |    8888   `Y88.             8888       8 8888    888   888     Y8b    |
-       |    888   .d88' oooo    ooo  888          888     888   888      888   |
-       |    888ooo88P'   `88.  .8'   888oooo8     888ooooo888   888      888   |
-       |    888           `88..8'    888          888     888   888      888   |
-       |    888            `888'     888          888     888   888     d88'   |
-       |    o888o            .8'     o888o        o888o   o888o o888bood8P'    |
-       |                 .o..P'                                                |
-       |                `Y8P'                                                  |
-       |_______________________________________________________________________|
-       
-       Python Fast Holographic Deconvolution 
+### Make a venv environment
+This assumes you have python installed.
 
-       Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS)
-       and the Epoch of Reionisation (EoR) Team.
+```bash
+# Make a virtual environment in the current directory, using the name pyfhd
+python -m venv pyfhd
+# Activate the environment
+source pyfhd/bin/activate
+```
 
-       Repository: https://github.com/ADACS-Australia/PyFHD
+You should now notice some brackets `(pyfhd)` present in the terminal. You can deactivate the environment at any time by putting `deactivate` in the terminal.
 
-       Documentation: https://pyfhd.readthedocs.io/en/latest/
+### Make a venv via uv
 
-       Version: 1.0
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-       Git Commit Hash: b77d18d0ef640297264ce700696d75aa4ff5ea82
-    ```
+```bash
+uv venv
+source .venv/bin/activate
+```
 
-## conda/mamba
+Since `uv` just uses `venv` under the hood, you can get out of the environment by calling `deactivate` at any time.
 
-PyFHD is not on [conda-forge](https://conda-forge.org/) yet, so you'll need to clone the code repository and install from the repository. The below commands will be shown using `conda`, however I heavily recommend using `mamba` instead of conda as it's generally faster and more reliable than `conda` in most cases and requires no learning to use it as`mamba` wraps around `conda`.
+### Make a mamba environment
 
-1. Clone and change directory into the `PyFHD` repo:
-    ```bash
-    git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
-    ```
-2. Create a `pyfhd` virtual environment and automatically install the required dependencies
-   ```bash
-   conda env create --file environment.yml
-   ```
-3. Install PyFHD
-    ```bash
-    pip install .
-    ```
-    ```{note}
-    `PyFHD` will eventually be available via conda-forge meaning this step will be no longer required
-    ```
+Install [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html)
+
+```bash
+mamba env create -n pyfhd python=3.10 # You can make it 3.10, 3.11 or 3.12
+mamba activate pyfhd
+```
+
+You can deactivate the environment anytime by using `mamba deactivate`
+
+### Installing PyFHD
+
+Inside your virtual environment, run
+
+```bash
+pip install pyfhd
+```
+
+You can Verify the installation using the version command
     
-4. Verify the installation using the version command
-    ```bash
-    pyfhd -v
-       ________________________________________________________________________
-       |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
-       |    8888   `Y88.             8888       8 8888    888   888     Y8b    |
-       |    888   .d88' oooo    ooo  888          888     888   888      888   |
-       |    888ooo88P'   `88.  .8'   888oooo8     888ooooo888   888      888   |
-       |    888           `88..8'    888          888     888   888      888   |
-       |    888            `888'     888          888     888   888     d88'   |
-       |    o888o            .8'     o888o        o888o   o888o o888bood8P'    |
-       |                 .o..P'                                                |
-       |                `Y8P'                                                  |
-       |_______________________________________________________________________|
-       
-       Python Fast Holographic Deconvolution 
+```bash
+pyfhd -v
+```
 
-       Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS)
-       and the Epoch of Reionisation (EoR) Team.
+It should give you output that looks like this:
 
-       Repository: https://github.com/ADACS-Australia/PyFHD
+```
+    ________________________________________________________________________
+    |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
+    |    8888   `Y88.             8888       8 8888    888   888     Y8b    |
+    |    888   .d88' oooo    ooo  888          888     888   888      888   |
+    |    888ooo88P'   `88.  .8'   888oooo8     888ooooo888   888      888   |
+    |    888           `88..8'    888          888     888   888      888   |
+    |    888            `888'     888          888     888   888     d88'   |
+    |    o888o            .8'     o888o        o888o   o888o o888bood8P'    |
+    |                 .o..P'                                                |
+    |                `Y8P'                                                  |
+    |_______________________________________________________________________|
+    
+    Python Fast Holographic Deconvolution 
 
-       Documentation: https://pyfhd.readthedocs.io/en/latest/
+    Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-       Version: 1.0
+    Repository: https://github.com/EoRImaging/PyFHD
 
-       Git Commit Hash: b77d18d0ef640297264ce700696d75aa4ff5ea82
-    ```
+    Documentation: https://pyfhd.readthedocs.io/en/latest/
 
-## Updating Depedencies and PyFHD
+    Version: 1.0
 
-If you wish to update the existing packages in your repositories, it's mostly a case of re-running steps 2 and 3 with slight alterations to their commands.
-
-### pip
-
-1. Change Directory to your PyFHD install
-   ```bash
-   cd /path/to/PyFHD
-   ```
-2. Install the requirements from the `requirements.txt` and install PyFHD
-    ```bash
-    pip install -r requirements.txt --upgrade && pip install .
-    ```
-
-### conda/mamba
-
-1. Change Directory to your PyFHD install
-   ```bash
-   cd /path/to/PyFHD
-   ```
-2. Update the environment from the `environment.yml` and install PyFHD
-    ```bash
-    conda env update --file environment.yml && pip install .
-    ```
-
-## Installing for additional development?
-
-Please follow the contribution guide.
+    Git Commit Hash: 176fa3aaf9aeca44b38f00ac4745d9b3a9eefe9c (tutorial_adjustments)
+```

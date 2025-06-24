@@ -32,14 +32,14 @@ def vis_extract_autocorr(
         Uncalibrated data visiblities
     pyfhd_config : dict
         PyFHD's configuration dictionary containing all the options set for a PyFHD run
-    auto_tile_i : NDArray[np.int\_] | None, optional
+    auto_tile_i : NDArray[np.integer] | None, optional
         Index array for auto-correlation visibilities, by default None
 
     Returns
     -------
     autocorr: NDArray[np.float64]
         The auto-correlation visibilities
-    auto_tile_i : NDArray[np.int\_]
+    auto_tile_i : NDArray[np.integer]
         The index array for auto-correlation visibilities
     """
 
@@ -131,7 +131,7 @@ def vis_cal_auto_init(
         Data auto-correlations
     vis_auto_model : NDArray[np.float64]
         Simulated model auto-correlations
-    auto_tile_i : NDArray[np.int\_]
+    auto_tile_i : NDArray[np.integer]
         Index array for auto-correlation visibilities
 
     Returns
@@ -738,9 +738,9 @@ def vis_cal_bandpass(
     if pyfhd_config["cable_bandpass_fit"]:
         # Using preexisting file to extract information about which tiles have which cable length
         # cable_len = np.loadtxt(Path(pyfhd_config["input"], pyfhd_config["cable-reflection-coefficients"]), skiprows=1)[:, 2].flatten()
-        cable_len_filepath = importlib_resources.files("PyFHD.templates").joinpath(
-            f"{pyfhd_config['instrument']}_cable_reflection_coefficients.txt"
-        )
+        cable_len_filepath = importlib_resources.files(
+            "PyFHD.resources.instrument_config"
+        ).joinpath(f"{pyfhd_config['instrument']}_cable_reflection_coefficients.txt")
         cable_len = np.loadtxt(cable_len_filepath, skiprows=1)[:, 2].flatten()
 
         # Taking tile information and cross-matching it with the nonflagged tiles array, resulting in nonflagged tile arrays grouped by cable length
@@ -891,6 +891,9 @@ def vis_cal_polyfit(
     -------
     cal : dict
         Calibration dictionary with polynomial gain fits
+    pyfhd_config : dict
+        PyFHD's configuration dictionary containing all the options set for a PyFHD run
+        Is returned in case the digital_gain_jump_polyfit was set here.
     """
     # Keep the og_gain_arr for calculations later
     og_gain_arr = np.copy(cal["gain"])
@@ -911,6 +914,30 @@ def vis_cal_polyfit(
         cal_mode_fit = False
     freq_use = np.where(obs["baseline_info"]["freq_use"])[0]
     tile_use = np.where(obs["baseline_info"]["tile_use"])[0]
+
+    pre_dig_inds = np.where(obs["baseline_info"]["freq"][freq_use] < 187.515e6)
+    if pre_dig_inds[0].size == 0:
+        logger.warning(
+            "No frequencies below 187.515MHz, using full band polyfit, digital gain jump polyfit disabled."
+        )
+        pyfhd_config["digital_gain_jump_polyfit"] = False
+    else:
+        f_d = np.max(pre_dig_inds[0])
+        f_end = freq_use.size
+
+    if ((f_d + 1) == f_end) and pyfhd_config["digital_gain_jump_polyfit"]:
+        logger.warning(
+            "No frequency found above 187.515MHz, using full band polyfit, digital gain jump polyfit disabled."
+        )
+        pyfhd_config["digital_gain_jump_polyfit"] = False
+
+    # If the observation date is beyond the date where digital gain jump polyfit is required, disable it
+    # Date is 2014-07-23 (23rd July 2014) or Julian Day 2456861.5000000
+    if obs["jd0"] > 2456861.5000000 and pyfhd_config["digital_gain_jump_polyfit"]:
+        logger.warning(
+            "Observation date is beyond the date where digital gain jump polyfit is required, using full band polyfit, digital gain jump polyfit disabled."
+        )
+        pyfhd_config["digital_gain_jump_polyfit"] = False
 
     # If the amp_degree or phase_degree weren't used, then apply the defaults
     if not pyfhd_config["cal_amp_degree_fit"]:
@@ -950,12 +977,7 @@ def vis_cal_polyfit(
             gain_fit = np.zeros(obs["n_freq"])
             # Pre and post digital gain jump separately for highband MWA data
             if pyfhd_config["digital_gain_jump_polyfit"]:
-                pre_dig_inds = np.where(
-                    obs["baseline_info"]["freq"][freq_use] < 187.515e6
-                )
                 if pre_dig_inds[0].size > 0:
-                    f_d = np.max(pre_dig_inds[0])
-                    f_end = freq_use.size
                     fit_params1 = (
                         np.polynomial.Polynomial.fit(
                             freq_use[0 : f_d + 1],
@@ -976,7 +998,11 @@ def vis_cal_polyfit(
                     )
                     for di in range(pyfhd_config["cal_amp_degree_fit"]):
                         gain_fit[freq_use[0] : freq_use[f_d] + 1] += fit_params1[di] * (
-                            np.arange(freq_use[f_d]) ** di
+                            # Had to use the size as use freq_use[f_d] could cause
+                            # off by one indexing errors (due to freq_use[0] potentially being
+                            # 1 or 0 which throws off the np.arange indexing)
+                            np.arange(gain_fit[freq_use[0] : freq_use[f_d] + 1].size)
+                            ** di
                         )
                         gain_fit[freq_use[f_d + 1] : freq_use[f_end - 1] + 1] += (
                             fit_params2[di]
@@ -1030,7 +1056,9 @@ def vis_cal_polyfit(
             logger.info(
                 "Using mwa calibration reflections fits from instrument_config/mwa_cable_reflection_coefficients.txt."
             )
-            cable_len_filepath = importlib_resources.files("PyFHD.templates").joinpath(
+            cable_len_filepath = importlib_resources.files(
+                "PyFHD.resources.instrument_config"
+            ).joinpath(
                 f"{pyfhd_config['instrument']}_cable_reflection_coefficients.txt"
             )
             cable_reflections = np.loadtxt(cable_len_filepath, skiprows=1).transpose()
@@ -1059,9 +1087,9 @@ def vis_cal_polyfit(
                 "Using theory calculation in nominal reflection mode calibration."
             )
             # Get the nominal tile lengths and velocity factors
-            cable_len_filepath = importlib_resources.files("PyFHD.templates").joinpath(
-                f"{pyfhd_config['instrument']}_cable_length.txt"
-            )
+            cable_len_filepath = importlib_resources.files(
+                "PyFHD.resources.instrument_config"
+            ).joinpath(f"{pyfhd_config['instrument']}_cable_length.txt")
             cable_length_data = np.loadtxt(cable_len_filepath, skiprows=1).transpose()
             cable_length = cable_length_data[2]
             cable_vf = cable_length_data[3]
@@ -1253,7 +1281,7 @@ def vis_cal_polyfit(
                     cal["mode_params"][pol_i, tile_i] = np.array(
                         [mode_i, amp_use, phase_use]
                     )
-    return cal
+    return cal, pyfhd_config
 
 
 def vis_cal_auto_fit(
@@ -1280,7 +1308,7 @@ def vis_cal_auto_fit(
         Data autocorrelations
     vis_auto_model : NDArray[np.float64]
         Simulated model autocorrelations
-    auto_tile_i : NDArray[np.int\_]
+    auto_tile_i : NDArray[np.integer]
         Index array of the tile array that have defined autocorrelations
 
     Returns
@@ -1572,7 +1600,7 @@ def cal_auto_ratio_divide(
         Calibration dictionary
     vis_auto : NDArray[np.float64]
         Data autocorrelations
-    auto_tile_i : NDArray[np.int\_]
+    auto_tile_i : NDArray[np.integer]
         Index array of the tile array that have defined autocorrelations
 
     Returns
@@ -1612,7 +1640,7 @@ def cal_auto_ratio_remultiply(
         Calibration dictionary
     auto_ratio : NDArray[np.float64]
         Square root of the autocorrelation visibilities normalized via a reference tile
-    auto_tile_i : NDArray[np.int\_]
+    auto_tile_i : NDArray[np.integer]
         Index array of the tile array that have defined autocorrelations
 
     Returns

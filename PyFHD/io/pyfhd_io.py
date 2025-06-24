@@ -405,6 +405,9 @@ def save(
                         h5_file, key, to_save[key], to_chunk, variable_lengths, logger
                     )
             case _:
+                h5_file.attrs[dataset_name] = save_dataset(
+                    h5_file, dataset_name, to_save, to_chunk, variable_lengths, logger
+                )
                 if logger:
                     logger.warning(
                         "Not a dict or numpy array, PyFHD won't write other types at this time, refer to PyFHD.io.pyfhd_io.save to see what is supported"
@@ -448,7 +451,7 @@ def load_dataset(
             value = dataset[()]
         else:
             value = dataset[:]
-        if value.dtype.kind == "S":
+        if isinstance(value, np.ndarray) and value.dtype.kind == "S":
             value = _decode_byte_arr(value)
         if isinstance(value, bytes):
             value = value.decode()
@@ -522,7 +525,7 @@ def load(
             key = list(h5_file.keys())[0]
             if logger:
                 logger.info(f"Loading {key} from {file_name} into an array")
-            array = h5_file[key][:]
+            array = load_dataset(h5_file, key, h5_file[key])
             return array
         else:
             return_dict = {}

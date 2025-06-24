@@ -9,20 +9,39 @@ from PyFHD.pyfhd_tools.test_utils import get_savs
 from PyFHD.io.pyfhd_io import save, load
 from logging import Logger
 from scipy.io import readsav
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "visibility_grid")
+    if env.get("PYFHD_TEST_PATH"):
+        return Path(env.get("PYFHD_TEST_PATH"), "gridding", "visibility_grid")
+    else:
+        return None
 
 
-@pytest.fixture(scope="function", params=[1, 2, 3, 4, 5, 6, 7])
+@pytest.fixture(
+    scope="function",
+    params=[
+        1,
+        pytest.param(2, marks=pytest.mark.github_actions),
+        pytest.param(3, marks=pytest.mark.github_actions),
+        pytest.param(4, marks=pytest.mark.github_actions),
+        pytest.param(5, marks=pytest.mark.github_actions),
+        pytest.param(6, marks=pytest.mark.github_actions),
+        pytest.param(7, marks=pytest.mark.github_actions),
+    ],
+)
 def number(request: pytest.FixtureRequest):
     return request.param
 
 
 @pytest.fixture
-def before_gridding(data_dir: Path, number: int):
+def before_gridding(data_dir: Path, number: int, request: pytest.FixtureRequest):
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "gridding", "visibility_grid"
+        )
     before_gridding = Path(data_dir, f"test_{number}_before_{data_dir.name}.h5")
 
     if before_gridding.exists():
@@ -97,7 +116,11 @@ def before_gridding(data_dir: Path, number: int):
 
 
 @pytest.fixture
-def after_gridding(data_dir: Path, number: int):
+def after_gridding(data_dir: Path, number: int, request: pytest.FixtureRequest):
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "gridding", "visibility_grid"
+        )
     after_gridding = Path(data_dir, f"test_{number}_after_{data_dir.name}.h5")
 
     if after_gridding.exists():
@@ -126,7 +149,16 @@ def after_gridding(data_dir: Path, number: int):
     return after_gridding
 
 
-def test_visibility_grid(before_gridding: Path, after_gridding: Path):
+def test_visibility_grid(
+    before_gridding: Path, after_gridding: Path, request: pytest.FixtureRequest
+):
+    # This was done here to make it work in GitHub Actions
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "gridding", "visibility_grid"
+        )
+        before_gridding = Path(data_dir, before_gridding.name)
+        after_gridding = Path(data_dir, after_gridding.name)
     h5_before = load(before_gridding)
     h5_after = load(after_gridding)
 
@@ -143,11 +175,14 @@ def test_visibility_grid(before_gridding: Path, after_gridding: Path):
         new_arr[0] = h5_before["bi_use"]
         h5_before["bi_use"] = new_arr
 
+    obs = recarray_to_dict(h5_before["obs"])
+    psf = recarray_to_dict(h5_before["psf"])
+
     gridding_dict = visibility_grid(
         h5_before["visibility_ptr"],
         h5_before["vis_weight_ptr"],
-        h5_before["obs"],
-        h5_before["psf"],
+        obs,
+        psf,
         h5_before["params"],
         h5_before["polarization"],
         h5_before["pyfhd_config"],

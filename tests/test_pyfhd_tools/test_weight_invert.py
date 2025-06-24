@@ -4,14 +4,19 @@ from os import environ as env
 from pathlib import Path
 from PyFHD.pyfhd_tools.test_utils import get_data_items, get_data_sav
 from PyFHD.pyfhd_tools.pyfhd_utils import weight_invert
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "weight_invert")
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "weight_invert")
 
 
-def test_weight_invert_one(data_dir):
+@pytest.mark.github_actions
+def test_weight_invert_one():
+    data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+        "pyfhd_tools", "weight_invert"
+    )
     threshold, weights, expected_result = get_data_items(
         data_dir,
         "visibility_grid_input_threshold_1.npy",

@@ -6,10 +6,32 @@ import subprocess
 import logging
 from typing import Tuple
 import os
-from PyFHD.pyfhd_tools.git_helper import retrieve_gitdict
 from importlib.metadata import version
 from glob import glob
 import re
+import sys
+import importlib_resources
+
+
+class OrderedBooleanOptionalAction(argparse.BooleanOptionalAction):
+    """
+    OrderedBooleanOptionalAction is a custom action based on BooleanOptionalAction
+    that ensures that the long options are always first in the list of options. More specifically,
+    it ensures the the positive long form is first (i.e. --foo), and the negative (i.e. --no-foo) is second.
+    This was needed as configargparse when using checking the config file and the action set in the argparse,
+    set the arg passed into PyFHD by either option[0] or option[1] if the value in the config file was set to True or False
+    respectively. This also allows easy negation of values from the configuration file with the command line if we need to.
+    For example we can now set silent: true in the configuration file, but then set --no-silent in the command line to override the config file.
+
+    This is also still ensures that short switches are available in PyFHD with the BooleanOptionalAction.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        longs = [o for o in self.option_strings if o.startswith("--")]
+        shorts = [o for o in self.option_strings if not o.startswith("--")]
+        # put “--foo”, “--no-foo” first, then any shorts like “-s”
+        self.option_strings = longs + shorts
 
 
 def pyfhd_parser():
@@ -21,21 +43,21 @@ def pyfhd_parser():
     configargparse.ArgumentParser
         The parser for PyFHD which contains the help strings for the terminal and Usage section of the docs.
     """
-    # TODO: Cleanup all the options at some point remove unused options
 
     parser = configargparse.ArgumentParser(
-        # default_config_files=["./pyfhd.yaml"],
         prog="PyFHD",
-        description="This is the Python Fast Holographic Deconvolution package, only the observation ID (obs_id) is required to start your run, but you should need to modify these arguments below to get something useful.",
+        description="This is the Python Fast Holographic Deconvolution package, only the observation ID (obs_id) and configuration (-c, --config) is required to start your run, but you should need to modify these arguments below to get something useful. If you don't supply a configuration file, PyFHD will use the default configuration file in the resources/config directory from the PyFHD install.",
         config_file_parser_class=configargparse.YAMLConfigFileParser,
         formatter_class=configargparse.RawTextHelpFormatter,
     )
     parser.add_argument(
         "-c",
         "--config",
-        default="./pyfhd.yaml",
+        default=importlib_resources.files("PyFHD.resources.config").joinpath(
+            "pyfhd.yaml"
+        ),
         is_config_file=True,
-        help="Configuration File Path for PyFHD",
+        help="Configuration File Path for PyFHD (By default will find PyFHD in the Python Path and use the default config file PyFHD/resources/config/pyfhd.yaml).",
     )
     # Add All the Groups
     checkpoints = parser.add_argument_group(
@@ -52,7 +74,8 @@ def pyfhd_parser():
         "Beam Setup", "Adjust Parameters for the Beam Setup"
     )
     gridding = parser.add_argument_group("Gridding", "Tune the Gridding in PyFHD")
-    deconv = parser.add_argument_group("Deconvolution", "Tune the Degridding in PyFHD")
+    # Ready for deconvolution translation
+    # deconv = parser.add_argument_group("Deconvolution", "Tune the Degridding in PyFHD")
     export = parser.add_argument_group(
         "Export", "Adjust the outputs of the PyFHD pipeline"
     )
@@ -60,28 +83,21 @@ def pyfhd_parser():
         "Plotting", "Adjust the plotting of the PyFHD pipeline"
     )
     model = parser.add_argument_group("Model", "Tune the modelling in PyFHD")
-    sim = parser.add_argument_group(
-        "Simulation", "Turn On Simulation and Tune the simulation"
-    )
+    # Ready for simulation translation
+    # sim = parser.add_argument_group(
+    #     "Simulation", "Turn On Simulation and Tune the simulation"
+    # )
     healpix = parser.add_argument_group("HEALPIX", "Adjust the HEALPIX output")
-    pyIDL = parser.add_argument_group(
-        "PyIDL",
-        "Keywords for running hybrid python and IDL pipeline. As the conversion from IDL into python progresses, these options should shrink and eventually disappear. Using ANY of these options sidesteps the regular python-only pipeline to run sections on the hybrid pipeline",
-    )
 
     # Version Argument
-    commit = "Could not find git info"
-    # Try and get git_information from the pip install method
-    git_dict = retrieve_gitdict()
-    if git_dict:
-        commit = git_dict["describe"]
-    # If that doesn't exist, try directly find the information (we might be
-    # running from within the git repo)
-    else:
-        commit = subprocess.run(
-            ["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE, text=True
-        ).stdout
-        commit.replace("\n", "")
+    try:
+        from PyFHD.__git__ import __git_commit__, __git_branch__
+
+        commit = __git_commit__
+        branch = __git_branch__
+    except ImportError:
+        # If the git commit is not available, set it to unknown
+        commit = "Unknown"
     version_string = f"""\
     ________________________________________________________________________
     |    ooooooooo.               oooooooooooo ooooo   ooooo oooooooooo.    |
@@ -99,13 +115,13 @@ def pyfhd_parser():
 
     Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-    Repository: https://github.com/ADACS-Australia/PyFHD
+    Repository: https://github.com/EoRImaging/PyFHD
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 
     Version: {version('PyFHD')}
 
-    Git Commit Hash: {commit}
+    Git Commit Hash: {commit} ({branch})
     """
     parser.add_argument("-v", "--version", action="version", version=version_string)
 
@@ -122,29 +138,33 @@ def pyfhd_parser():
         default="./input/",
     )
     parser.add_argument(
+        "--get-sample-data",
+        action="store_true",
+        help="Copy sample data from PyFHD package directory to the current working directory. Will copy to an 'input' directory.",
+    )
+    parser.add_argument(
         "-r",
         "--recalculate-all",
-        action="store_true",
-        help="Forces PyFHD to recalculate all values. This will ignore values set for recalculate-grid, recalculate-beam, recalculate-mapfn as it will set all of them to True",
+        action=OrderedBooleanOptionalAction,
+        help="Forces PyFHD to recalculate all values. This will ignore values set for recalculate-grid, recalculate-beam, as it will set all of them to True",
     )
     parser.add_argument(
         "-s",
         "--silent",
-        default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="This PyFHD stops all output to the terminal except in the case of an error and/or exception",
     )
     parser.add_argument(
         "-l",
         "--log-file",
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Logging in a log file is enabled by default, set to False in the config to disable logging to a file.",
     )
     parser.add_argument(
         "--instrument",
         type=str,
         default="mwa",
-        choices=["mwa"],
+        choices=["mwa", "lwa", "hera", "other"],
         help="Set the instrument used for the FHD run, currently only MWA is supported",
     )
     parser.add_argument(
@@ -181,13 +201,13 @@ def pyfhd_parser():
     parser.add_argument(
         "--conserve-memory",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Optionally split many loops into chunks in the case of high memory usage.",
     )
     parser.add_argument(
         "--memory-threshold",
         type=int,
-        default=1e8,
+        default=1e9,
         help="Set a memory threshold for each chunk in set in bytes. By default it is set at ~100MB",
     )
     parser.add_argument(
@@ -208,7 +228,7 @@ def pyfhd_parser():
     checkpoints.add_argument(
         "--save-checkpoints",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Activates PyFHD's checkpointing system and saves them into the output directory",
     )
     checkpoints.add_argument(
@@ -249,13 +269,8 @@ def pyfhd_parser():
         "-cv",
         "--calibrate-visibilities",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Turn on the calibration of the visibilities. If turned on, calibration of the dirty, modelling, and subtraction to make a residual occurs. Otherwise, none of these occur and an uncalibrated dirty cube is output.",
-    )
-    calibration.add_argument(
-        "--diffuse-calibrate",
-        type=Path,
-        help="Path to a file containing a map/model of the diffuse in which to calibrate on.\nThe map/model undergoes a DFT for every pixel, and the contribution from every pixel is added to the model visibilities from which to calibrate on.\nIf no diffuse_model is specified, then this map/model is used for the subtraction model as well. See diffuse_model for information about the formatting of the file.",
     )
     calibration.add_argument(
         "--transfer-calibration",
@@ -263,28 +278,10 @@ def pyfhd_parser():
         help="The file path of a calibration to be read-in, if you give a directory PyFHD expects there to be a file called <obs_id>_cal.hdf5 using the same observation as you plan to process.",
     )
     calibration.add_argument(
-        "--calibration_catalog-file-path",
-        type=Path,
-        default=None,
-        help="The file path to the desired source catalog to be used for calibration",
-    )
-    calibration.add_argument(
-        "--return-cal-visibilities",
-        default=False,
-        action="store_true",
-        help="Saves the visibilities created for calibration for use in the model.\nIf model_visibilities is set to False, then the calibration model visibilities and the model visibilities will be the same if return_cal_visibilities is set.\nIf model_visibilities is set to True, then any new modelling (of more sources, diffuse, etc.) will take place and the visibilities created for the calibration model will be added.\nIf n_pol = 4 (full pol mode), return_cal_visibilites must be set because the visibilites are required for calculating the mixing angle between Q and U.",
-    )
-    calibration.add_argument(
         "--cal-stop",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Stops the code right after calibration, and saves unflagged model visibilities along with the obs structure in a folder called cal_prerun in the PyFHD file structure.\nThis allows for post-processing calibration steps like multi-day averaging, but still has all of the needed information for minimal reprocessing to get to the calibration step.\nTo run a post-processing run, see keywords model_transfer and transfer_psf",
-    )
-    calibration.add_argument(
-        "--transfer-model-uv",
-        type=Path,
-        default=None,
-        help="A path to save a model uv array.\nIf it's a file that doesnt exist then vis_calibrate will create one for this run, otherwise if the file exists PyFHD will read it in for this run.\nReplaces model_uv_transfer",
     )
     calibration.add_argument(
         "--cal-convergence-threshold",
@@ -295,7 +292,7 @@ def pyfhd_parser():
     calibration.add_argument(
         "--cal-adaptive-calibration-gain",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Controls whether to use a Kalman Filter to adjust the gain to use for each iteration of calculating calibration.",
     )
     calibration.add_argument(
@@ -317,15 +314,9 @@ def pyfhd_parser():
         help="The maximum baseline length in wavelengths to be used in calibration. If max_baseline is smaller, it will be used instead.",
     )
     calibration.add_argument(
-        "--allow-sidelobe-cal-sources",
-        default=False,
-        action="store_true",
-        help="Allows PyFHD to calibrate on sources in the sidelobes.\nForces the beam_threshold to 0.01 in order to go down to 1%% of the beam to capture sidelobe sources during the generation of a calibration source catalog for the particular observation.",
-    )
-    calibration.add_argument(
         "--cable-bandpass-fit",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Average the calibration solutions across tiles within a cable grouping for the particular instrument.\nDependency: instrument_config/<instrument>_cable_length.txt",
     )
     calibration.add_argument(
@@ -337,7 +328,7 @@ def pyfhd_parser():
     calibration.add_argument(
         "--calibration-polyfit",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Calculates a polynomial fit across the frequency band for the gain, and allows a cable reflection to be fit.\nThe orders of the polynomial fit are determined by cal_phase_degree_fit and cal_amp_degree_fit.\nIf unset, no polynomial fit or cable reflection fit are used.",
     )
     calibration.add_argument(
@@ -355,7 +346,7 @@ def pyfhd_parser():
     calibration.add_argument(
         "--cal-reflection-hyperresolve",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Hyperresolve and fit residual gains using nominal reflection modes (calculated from cal_reflection_mode_delay or cal_reflection_mode_theory),\nproducing a finetuned mode fit, amplitude, and phase.\nWill be ignored if cal_reflection_mode_file is set because it is assumed that a file read-in contains mode/amp/phase to use.",
     )
     calibration.add_argument(
@@ -367,25 +358,25 @@ def pyfhd_parser():
     calibration.add_argument(
         "--cal-reflection-mode-delay",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Calculate cable reflection modes by Fourier transforming the residual gains, removing modes contaminated by frequency flagging, and choosing the maximum mode.",
     )
     calibration.add_argument(
         "--cal-reflection-mode-file",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Use predetermined cable reflection parameters (mode, amplitude, and phase) in the calibration solutions from a file.\nThe specified format of the text file must have one header line and eleven columns:\ntile index\ntile name\ncable length\ncable velocity factor\nlogic on whether to fit (1) or not (0)\nmode for X\namplitude for X\nphase for X\nmode for Y\namplitude for Y\nphase for Y. The file will be instrument_config of the input directory",
     )
     calibration.add_argument(
         "--calibration-auto-fit",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Use the autocorrelations to calibrate. This will suffer from increased, correlated noise and bit statistic errors. However, this will save the autos as the gain in the cal structure, which can be a useful diagnostic.",
     )
     calibration.add_argument(
         "--calibration-auto-initialize",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="initialize gain values for calibration with the autocorrelations. If unset, gains will initialize to 1 or the value supplied by cal_gain_init",
     )
     calibration.add_argument(
@@ -397,38 +388,32 @@ def pyfhd_parser():
     calibration.add_argument(
         "--vis-baseline-hist",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Calculates the vis_baseline_hist dictionary containing the visibility resolution ratio average and standard deviation",
     )
     calibration.add_argument(
         "--bandpass-calibrate",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Calculates a bandpass.\nThis is an average of tiles by frequency by polarization (default), beamformer-to-LNA cable types by frequency by polarization (see cable_bandpass_fit),\nor over the whole season by pointing by by cable type by frequency by polarization via a read-in file (see saved_run_bp).\nIf unset, no by-frequency bandpass is used",
     )
     calibration.add_argument(
         "--cal-time-average",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Performs a time average of the model/data visibilities over the time steps in the observation to reduce the number of equations that are used in the linear-least squares solver. This improves computation time, but will downweight longer baseline visibilities due to their faster phase variation.",
     )
     calibration.add_argument(
         "--auto-ratio-calibration",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Calculates the auto ratios for cable reflections and enables global bandpass",
     )
     calibration.add_argument(
         "--digital-gain-jump-polyfit",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Perform polynomial fitting for the amplitude separately before and after the highband digital gain jump at 187.515E6.",
-    )
-    calibration.add_argument(
-        "--calibration-flag-iterate",
-        default=0,
-        type=int,
-        help="Number of times to repeat calibration in order to better identify and flag bad antennas so as to exclude them from the final result.",
     )
     calibration.add_argument(
         "--cal-phase-fit-iter",
@@ -448,35 +433,35 @@ def pyfhd_parser():
         "-fm",
         "--flag-model",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Flag the imported model based on time offsets and the tiles. Turn off if you're dealing with an already flagged model or simulation.",
     )
     flag.add_argument(
         "-fv",
         "--flag-visibilities",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Flag visibilities based on calculations in vis_flag",
     )
     flag.add_argument(
         "-fc",
         "--flag-calibration",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Flags antennas based on calculations in vis_calibration_flag",
     )
     flag.add_argument(
         "-fcf",
         "--flag-calibration-frequencies",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="If True, flags frequencies based off 0 calibration gain, if False, ignores the calibration gain for frequencies",
     )
     flag.add_argument(
         "-fb",
         "--flag-basic",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Flags Frequencies and Tiles based on your configuration, params and the visibility weights.\nThe freq_use, tile_use arrays of obs will be adjusted and the vis_weights_arr adjusted to be in line with the freq_use and tile_use arrays.\nThis should be True always, the only time you should consider turning off basic flagging is when you're dealing with a simulated visibilities and weights in PyFHD",
     )
     flag.add_argument(
@@ -491,7 +476,7 @@ def pyfhd_parser():
         "-ff",
         "--flag-frequencies",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="When set to False, PyFHD will not flag any frequencies inside of `vis_flag_basic`, `vis_weights_update` or `vis_calibration_flag`.",
     )
     flag.add_argument(
@@ -505,12 +490,6 @@ def pyfhd_parser():
         default=None,
         type=float,
         help="Frequency in MHz to end the observation. Flags frequencies greater than it. Replaces freq_end from FHD",
-    )
-    flag.add_argument(
-        "--transfer-weights",
-        type=Path,
-        default=None,
-        help="Transfer weights information from another PyFHD run.",
     )
     flag.add_argument(
         "--time-cut",
@@ -530,13 +509,13 @@ def pyfhd_parser():
         "-ll",
         "--lazy-load-beam",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="PyFHD will lazy load the beam HDF5 file, allowing PyFHD to be run on much smaller systems with much less memory than FHD",
     )
     beam.add_argument(
         "--recalculate-beam",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Forces PyFHD to redo the beam setup using PyFHD's beam setup.",
     )
     beam.add_argument(
@@ -572,25 +551,25 @@ def pyfhd_parser():
     beam.add_argument(
         "--beam-clip-floor",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Set to subtract the minimum non-zero value of the beam model from all pixels.",
     )
     beam.add_argument(
         "--interpolate-kernel",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Use interpolation of the gridding kernel while gridding and degridding, rather than selecting the closest super-resolution kernel.",
     )
     beam.add_argument(
         "--beam-per-baseline",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Set to true if the beams were made with corrective phases given the baseline location, which then enables the gridding to be done per baseline",
     )
     beam.add_argument(
         "--dipole-mutual-coupling-factor",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Allows a modification to the beam as a result of mutual coupling between dipoles calculated in mwa_dipole_mutual_coupling (See Sutinjo 2015 for more details).",
     )
     beam.add_argument(
@@ -605,7 +584,7 @@ def pyfhd_parser():
         "-g",
         "--recalculate-grid",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Forces PyFHD to recalculate the gridding function. Replaces grid_recalculate from FHD",
     )
     gridding.add_argument(
@@ -625,92 +604,86 @@ def pyfhd_parser():
     gridding.add_argument(
         "--mask-mirror-indices",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Inside baseline_grid_location optionally exclude v-axis mirrored baselines",
     )
     gridding.add_argument(
         "--grid-weights",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Grid the weights for the uv plane",
     )
     gridding.add_argument(
         "--grid-variance",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Grid the variance for the uv plane",
     ),
     gridding.add_argument(
         "--grid-uniform",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Grid uniformally by applying a uniform weighted filter to all uv-planes",
     ),
     gridding.add_argument(
         "--grid-spectral",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Optionally use the spectral index information to scale the uv-plane in gridding",
-    )
-    gridding.add_argument(
-        "--grid_psf_file",
-        nargs="*",
-        default=[],
-        help='Path(s) to an FHD "psf" object. If running python gridding, this should be n .npz file, as converted from a .sav file. This should contain a gridding kernel matching the pointing of the observation being processed, e.g. for a +1 pointing, --grid-psf-file=/path/to/gauss_beam_pointing1.npz. If only/also running imaging/healpix projection in IDL, a path to the original .sav file should also be included, e.g. --grid-psf-file /path/to/gauss_beam_pointing1.npz /path/to/gauss_beam_pointing1.sav',
     )
 
     # Deconvolution Group
-    deconv.add_argument(
-        "-d",
-        "--deconvolve",
-        default=False,
-        action="store_true",
-        help="Run Fast Holographic Deconvolution",
-    )
-    deconv.add_argument(
-        "--max-deconvolution-components",
-        type=int,
-        default=20000,
-        help="The number of source components allowed to be found in fast holographic deconvolution.",
-    )
-    deconv.add_argument(
+    # deconv.add_argument(
+    #     "-d",
+    #     "--deconvolve",
+    #     default=False,
+    #     action=OrderedBooleanOptionalAction,
+    #     help="Run Fast Holographic Deconvolution",
+    # )
+    # deconv.add_argument(
+    #     "--max-deconvolution-components",
+    #     type=int,
+    #     default=20000,
+    #     help="The number of source components allowed to be found in fast holographic deconvolution.",
+    # )
+    parser.add_argument(
         "--dft-threshold",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Set to True to use the DFT approximation. When set equal to 0 the true DFT is calculated for each source.\nIt can also be explicitly set to a value that determines the accuracy of the approximation.",
     )
-    deconv.add_argument(
-        "--return-decon-visibilities",
-        default=False,
-        action="store_true",
-        help="When activated degrid and export the visibilities formed from the deconvolution model",
-    )
-    deconv.add_argument(
-        "--deconvolution-filter",
-        default="filter_uv_uniform",
-        type=str,
-        choices=[
-            "filter_uv_uniform",
-            "filter_uv_hanning",
-            "filter_uv_natural",
-            "filter_uv_radial",
-            "filter_uv_tapered_uniform",
-            "filter_uv_optimal",
-        ],
-        help="Filter applied to images from deconvolution.",
-    )
-    deconv.add_argument(
-        "--smooth-width",
-        default=32,
-        type=int,
-        help="Integer equal to the size of the region to smooth when filtering out large-scale background fluctuations.",
-    )
-    deconv.add_argument(
-        "--filter-background",
-        default=False,
-        action="store_true",
-        help="Filters out large-scale background fluctuations before deconvolving point sources.",
-    )
+    # deconv.add_argument(
+    #     "--return-decon-visibilities",
+    #     default=False,
+    #     action=OrderedBooleanOptionalAction,
+    #     help="When activated degrid and export the visibilities formed from the deconvolution model",
+    # )
+    # deconv.add_argument(
+    #     "--deconvolution-filter",
+    #     default="filter_uv_uniform",
+    #     type=str,
+    #     choices=[
+    #         "filter_uv_uniform",
+    #         "filter_uv_hanning",
+    #         "filter_uv_natural",
+    #         "filter_uv_radial",
+    #         "filter_uv_tapered_uniform",
+    #         "filter_uv_optimal",
+    #     ],
+    #     help="Filter applied to images from deconvolution.",
+    # )
+    # deconv.add_argument(
+    #     "--smooth-width",
+    #     default=32,
+    #     type=int,
+    #     help="Integer equal to the size of the region to smooth when filtering out large-scale background fluctuations.",
+    # )
+    # deconv.add_argument(
+    #     "--filter-background",
+    #     default=False,
+    #     action=OrderedBooleanOptionalAction,
+    #     help="Filters out large-scale background fluctuations before deconvolving point sources.",
+    # )
 
     # Export Group
     export.add_argument(
@@ -729,19 +702,13 @@ def pyfhd_parser():
     export.add_argument(
         "--export-images",
         help="Export fits files and images of the sky.",
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         default=True,
-    )
-    export.add_argument(
-        "--cleanup",
-        help="Deletes some intermediate data products that are easy to recalculate in order to save disk space",
-        default=False,
-        action="store_true",
     )
     export.add_argument(
         "--snapshot-healpix-export",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Save model/dirty/residual/weights/variance cubes as healpix arrays, split into even and odd time samples, in preparation for epsilon.",
     )
     export.add_argument(
@@ -759,46 +726,64 @@ def pyfhd_parser():
     export.add_argument(
         "--save-obs",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Save the obs dictionary created during PyFHD's run",
     )
     export.add_argument(
         "--save-params",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Save the params dictionary created during PyFHD's run",
     )
     export.add_argument(
         "--save-cal",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Save the calibration dictionary created during PyFHD's run",
     )
     export.add_argument(
         "--save-visibilities",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Save the raw visibilities, calibrated data visibilities, the model visibilities, and the gridded uv planes",
     )
     export.add_argument(
         "--save-weights",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Save the raw and calibrated weights from PyFHD's run",
     )
     export.add_argument(
         "--save-healpix-fits",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Create Healpix fits files. Healpix fits maps are in units Jy/sr. Replaces write_healpix_fits",
+    )
+    export.add_argument(
+        "--save-model",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Save the model visibilities created transferred in during PyFHD's run as HDF5.",
     )
 
     # Plotting Group
     plotting.add_argument(
         "--calibration-plots",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Turns on the plotting of calibration solutions",
+    )
+    plotting.add_argument(
+        "--gridding-plots",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Turns on the plotting of the continuum gridding outputs",
+    )
+    plotting.add_argument(
+        "--image-plots",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Turns on the plotting of the continuum fits images",
     )
 
     # Model Group
@@ -816,72 +801,61 @@ def pyfhd_parser():
         help='In the case you chose sav for model-file-type then this will be a directory containing all the <obs_id>_params and <obs_id>_vis_model_<pol_name> sav files.\nIn the case you chose uvfits, then the path is to a uvfits file, in which case make sure the phase centre of model data must match the "RA" and "DEC" values in the metafits file (NOT the "RAPHASE" and "DECPHASE").',
     )
     model.add_argument(
-        "--diffuse-model",
-        type=Path,
-        help="""File path to the diffuse model file.The file should contain the following: \nMODEL_ARR = A healpix map with the diffuse model. Diffuse model has units Jy/pixel unless keyword diffuse_units_kelvin is set.\n            The model can be an array of pixels, a pointer to an array of pixels, or an array of four pointers corresponding to I, Q, U, and V Stokes polarized maps.\n    NSIDE = The corresponding NSIDE parameter of the healpix map.\n HPX_INDS = The corresponding healpix indices of the model_arr.\nCOORD_SYS = (Optional) 'galactic' or 'celestial'. Specifies the coordinate system of the healpix map. GSM is in galactic coordinates, for instance. If missing, defaults to equatorial.""",
-    )
-    model.add_argument(
-        "--model-catalog-file-path",
-        type=Path,
-        default=None,
-        help="A file containing a catalog of sources to be used to make model visibilities for subtraction.",
-    )
-    model.add_argument(
         "--allow-sidelobe-model-sources",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Allows PyFHD to model sources in the sidelobes for subtraction.\nForces the beam_threshold to 0.01 in order to go down to 1%% of the beam to capture sidelobe sources during the generation of a model calibration source catalog for the particular observation.",
     )
 
     # Simultation Group
-    sim.add_argument(
-        "-sim",
-        "--run-simulation",
-        default=False,
-        action="store_true",
-        help="Run an in situ simulation, where model visibilities are made and input as the dirty visibilities (see Barry et. al. 2016 for more information on use-cases).\nIn the case where in-situ-sim-input is not provided visibilities will be made within the current PyFHD run.",
-    )
-    sim.add_argument(
-        "--in-situ-sim-input",
-        type=Path,
-        default=None,
-        help="Inputs model visibilities from a previous run, which is the preferred method since that run is independently documented.",
-    )
-    sim.add_argument(
-        "--eor-vis-filepath",
-        type=Path,
-        default=None,
-        help="A path to a file of EoR visibilities to include the EoR in the dirty input visibilities. in-situ-sim-input must be used in order to use this parameter. Replaces eor_savefile from FHD",
-    )
-    sim.add_argument(
-        "--enhance-eor",
-        type=float,
-        default=1.0,
-        help="Input a multiplicative factor to boost the signal of the EoR in the dirty input visibilities. in-situ-sim-input must be used in order to use this parameter.",
-    )
-    sim.add_argument(
-        "--sim-noise",
-        type=Path,
-        default=None,
-        help="Add a uncorrelated thermal noise to the input dirty visibilities from a file, or create them for the run. in-situ-sim-input must be used in order to use this parameter.",
-    )
-    sim.add_argument(
-        "--tile-flag-list",
-        type=list,
-        help="A string array of tile names to manually flag tiles. Note that this is an array of tile names, not tile indices!",
-    )
-    sim.add_argument(
-        "--remove-sim-flags",
-        default=False,
-        action="store_true",
-        help="Bypass main flagging for in situ simulations and remove all weighting to remove pfb effects and flagged channels.",
-    )
-    sim.add_argument(
-        "--extra-vis-filepath",
-        type=Path,
-        default=None,
-        help="Optionally add general visibilities to the simulation, must be a uvfits file.",
-    )
+    # sim.add_argument(
+    #     "-sim",
+    #     "--run-simulation",
+    #     default=False,
+    #     action=OrderedBooleanOptionalAction,
+    #     help="Run an in situ simulation, where model visibilities are made and input as the dirty visibilities (see Barry et. al. 2016 for more information on use-cases).\nIn the case where in-situ-sim-input is not provided visibilities will be made within the current PyFHD run.",
+    # )
+    # sim.add_argument(
+    #     "--in-situ-sim-input",
+    #     type=Path,
+    #     default=None,
+    #     help="Inputs model visibilities from a previous run, which is the preferred method since that run is independently documented.",
+    # )
+    # sim.add_argument(
+    #     "--eor-vis-filepath",
+    #     type=Path,
+    #     default=None,
+    #     help="A path to a file of EoR visibilities to include the EoR in the dirty input visibilities. in-situ-sim-input must be used in order to use this parameter. Replaces eor_savefile from FHD",
+    # )
+    # sim.add_argument(
+    #     "--enhance-eor",
+    #     type=float,
+    #     default=1.0,
+    #     help="Input a multiplicative factor to boost the signal of the EoR in the dirty input visibilities. in-situ-sim-input must be used in order to use this parameter.",
+    # )
+    # sim.add_argument(
+    #     "--sim-noise",
+    #     type=Path,
+    #     default=None,
+    #     help="Add a uncorrelated thermal noise to the input dirty visibilities from a file, or create them for the run. in-situ-sim-input must be used in order to use this parameter.",
+    # )
+    # sim.add_argument(
+    #     "--tile-flag-list",
+    #     type=list,
+    #     help="A string array of tile names to manually flag tiles. Note that this is an array of tile names, not tile indices!",
+    # )
+    # sim.add_argument(
+    #     "--remove-sim-flags",
+    #     default=False,
+    #     action=OrderedBooleanOptionalAction,
+    #     help="Bypass main flagging for in situ simulations and remove all weighting to remove pfb effects and flagged channels.",
+    # )
+    # sim.add_argument(
+    #     "--extra-vis-filepath",
+    #     type=Path,
+    #     default=None,
+    #     help="Optionally add general visibilities to the simulation, must be a uvfits file.",
+    # )
 
     # HEALPIX Group
     healpix.add_argument(
@@ -942,13 +916,13 @@ def pyfhd_parser():
     healpix.add_argument(
         "--rephase-weights",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="If turned off, target phase center is the pointing center (as defined by Cotter). Setting to False overrides override_target_phasera and override_target_phasedec",
     )
     healpix.add_argument(
         "--restrict-healpix-inds",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Only allow gridding of the output healpix cubes to include the healpix pixels specified in a file.\nThis is useful for restricting many observations to have consistent healpix pixels during integration, and saves on memory and walltime.",
     )
     healpix.add_argument(
@@ -960,52 +934,9 @@ def pyfhd_parser():
     healpix.add_argument(
         "--split-ps-export",
         default=False,
-        action="store_true",
+        action=OrderedBooleanOptionalAction,
         help="Split up the Healpix outputs into even and odd time samples.\nThis is essential to propogating errors in εppsilon.\nRequires more than one time sample.",
     )
-
-    # Temporary options to run IDL or use IDL outputs.
-    pyIDL.add_argument(
-        "--IDL_calibrate",
-        default=False,
-        action="store_true",
-        help="Add to run the calibration stage, using IDL under the hood",
-    )
-    pyIDL.add_argument(
-        "--grid_IDL_outputs",
-        default=False,
-        action="store_true",
-        help="Add to run the python gridding code on calibrated IDL outputs",
-    )
-    pyIDL.add_argument(
-        "--IDL_healpix_gridded_outputs",
-        default=False,
-        action="store_true",
-        help="Add to image gridded python outputs into a healpix projection, using IDL code",
-    )
-    pyIDL.add_argument(
-        "--IDL_output_dir",
-        default=None,
-        help="If running on IDL outputs stored in a directory other than where the outputs of this run will be written, supply the path to the parent directory.",
-    )
-    pyIDL.add_argument(
-        "--IDL_dry_run",
-        default=False,
-        action="store_true",
-        help="Run all data checks and write .pro files, but don't actually run the IDL code. Good for checking the .pro files.",
-    )
-    pyIDL.add_argument(
-        "--IDL_variables_file",
-        default=None,
-        help="Path to a file containing variables to feed directly into `FHD`. Each line should be as would appear in a `.pro` file used to run `FHD`. These lines will be written verbatim into the top-level `.pro` file used to call `FHD`. This means they will supercede duplicate keywords that might be defaults within `PyFHD`.",
-    )
-
-    # Secret things we want to use internally but don't want the user to see
-    # This is needed because we use nargs='*' for the `--grid_psf_file`
-    # option. Writing that back into a yaml config file for multiple is
-    # difficult, so just have two arguments that could be added instead
-    parser.add_argument("--grid_psf_file_sav", default=False, help=argparse.SUPPRESS)
-    parser.add_argument("--grid_psf_file_npz", default=False, help=argparse.SUPPRESS)
 
     return parser
 
@@ -1080,8 +1011,6 @@ def write_collated_yaml_config(
                 "commit",
                 "obs_id",
                 "config_file",
-                "grid_psf_file_sav",
-                "grid_psf_file_npz",
             ]:
                 pass
             else:
@@ -1135,25 +1064,22 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
     stdout_time = time.strftime("%c", run_time)
     log_time = time.strftime("%Y_%m_%d_%H_%M_%S", run_time)
 
-    commit = "Could not find git info"
-    # Try and get git_information from the pip install method
-    git_dict = retrieve_gitdict()
-    if git_dict:
-        commit = git_dict["describe"]
-    # If that doesn't exist, try directly find the information (we might be
-    # running from within the git repo)
-    else:
-        commit = subprocess.run(
-            ["git", "rev-parse", "HEAD"], stdout=subprocess.PIPE, text=True
-        ).stdout
-        commit.replace("\n", "")
-
     if pyfhd_config["description"] is None:
         log_name = "pyfhd_" + log_time
     else:
         log_name = (
             "pyfhd_" + pyfhd_config["description"].replace(" ", "_") + "_" + log_time
         )
+
+    try:
+        from PyFHD.__git__ import __git_commit__, __git_branch__, __git_commit_date__
+
+        commit = __git_commit__
+        branch = __git_branch__
+    except ImportError:
+        # If the git commit is not available, set it to unknown
+        commit = "Unknown"
+
     pyfhd_config["commit"] = commit
     pyfhd_config["log_name"] = log_name
     pyfhd_config["log_time"] = log_time
@@ -1174,11 +1100,13 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
 
         Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-        Repository: https://github.com/ADACS-Australia/PyFHD
+        Repository: https://github.com/EoRImaging/PyFHD
 
         Documentation: https://pyfhd.readthedocs.io/en/latest/
 
-        Git Commit Hash: {commit}
+        Version: {version('PyFHD')}
+
+        Git Commit Hash: {commit} ({branch})
 
         PyFHD Run Started At: {stdout_time}
 
@@ -1205,29 +1133,21 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
         log_terminal.setFormatter(logging.Formatter("%(message)s"))
         logger.addHandler(log_terminal)
 
-    # Check the output_path exists, and create if not
-
-    if not os.path.isdir(pyfhd_config["output_path"]):
-        print(
-            f"Output path specified by `--output-path={pyfhd_config['output_path']}` does not exist. Attempting to create now."
-        )
-        output_dir = Path(pyfhd_config["output_path"])
-        Path.mkdir(output_dir)
-        print(f"Successfully created directory: {pyfhd_config['output_path']}")
-
     # Create the output directory path. If the user has selected a description,
     # don't use the time in the name - that gets used for the log
     if pyfhd_config["description"] is None:
         dir_name = "pyfhd_" + log_time
     else:
         dir_name = "pyfhd_" + pyfhd_config["description"].replace(" ", "_")
-
-    output_dir = Path(pyfhd_config["output_path"], dir_name)
+    if pyfhd_config["get_sample_data"]:
+        output_dir = Path(pyfhd_config["output_path"])
+    else:
+        output_dir = Path(pyfhd_config["output_path"], dir_name)
     if Path.is_dir(output_dir):
         output_dir_exists = True
     else:
         output_dir_exists = False
-        Path.mkdir(output_dir)
+        Path.mkdir(output_dir, parents=True, exist_ok=True)
 
     # Create the logger for the file
     if pyfhd_config["log_file"]:
@@ -1351,12 +1271,29 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
         )
         pyfhd_config["interpolate_kernel"] = False
 
-    # If cable_bandpass_fit has been enabled an instrument text file should also exist. (Error)
-    # TODO get this as a template file during pip install
-    # if pyfhd_config['cable_bandpass_fit']:
-    #     if not Path(pyfhd_config['input_path'], 'instrument_config', 'mwa_cable_length' + '.txt').exists():
-    #         logging.error('Cable bandpass fit has been enabled but the required text file is missing')
-    #         errors += 1
+    # If the user has set a beam file, check it exists (Error)
+    if (
+        pyfhd_config["beam_file_path"] is not None
+        and not Path(pyfhd_config["beam_file_path"]).exists()
+    ):
+        logger.error(
+            f"Beam file {pyfhd_config['beam_file_path']} does not exist, please check your input path"
+        )
+        errors += 1
+
+    if pyfhd_config["beam_file_path"] is None:
+        logger.info("No beam file was set, PyFHD will calculate the beam.")
+
+    if (
+        pyfhd_config["instrument"] == "mwa"
+        and pyfhd_config["beam_file_path"] is None
+        and not pyfhd_config["dipole_mutual_coupling_factor"]
+    ):
+        logger.warning(
+            "Since the instrument is MWA and we're calculating the beam, it's recommended to set the dipole mutual coupling factor to True."
+        )
+        pyfhd_config["dipole_mutual_coupling_factor"] = True
+        warnings += 1
 
     # cal_bp_transfer when enabled should point to a file with a saved bandpass (Error)
     errors += _check_file_exists(pyfhd_config, "cal_bp_transfer")
@@ -1421,33 +1358,18 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
         """
         pyfhd_config["cal_base_gain"] = 0.75
 
-    # diffuse_calibrate depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "diffuse_calibrate")
-
     # calibration_catalog_file_path depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "calibration_catalog_file_path")
+    # errors += _check_file_exists(pyfhd_config, "calibration_catalog_file_path")
 
     # transfer_calibration depends on a file (Error)
     errors += _check_file_exists(pyfhd_config, "transfer_calibration")
 
-    # transfer_model_uv depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "transfer_model_uv")
-
-    # transfer-weights depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "transfer_weights")
-
     # smooth-width depends on filter_background (Warning)
-    if not pyfhd_config["filter_background"] and pyfhd_config["smooth_width"]:
-        logger.warning(
-            "filter_background must be True for smooth_width to have any effect"
-        )
-        warnings += 1
-
-    # diffuse-model depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "diffuse_model")
-
-    # model_catalog_file_path depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "model_catalog_file_path")
+    # if not pyfhd_config["filter_background"] and pyfhd_config["smooth_width"]:
+    #     logger.warning(
+    #         "filter_background must be True for smooth_width to have any effect"
+    #     )
+    #     warnings += 1
 
     # allow_sidelobe_model_sources depends on model_visibilities (Error)
     if (
@@ -1503,31 +1425,31 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
             )
 
     # Entirety of Simulation Group depends on run-simulation (Error)
-    if not pyfhd_config["run_simulation"] and (
-        pyfhd_config["in_situ_sim_input"]
-        or pyfhd_config["eor_vis_filepath"]
-        or pyfhd_config["sim_noise"]
-    ):
-        logger.error(
-            "run_simulation should be True if you're planning on running any type of simulation and therefore using in_situ_sim_input, eor_vis_filepath or sim_noise shouldn't be used when run_simulation is False"
-        )
-        errors += 1
+    # if not pyfhd_config["run_simulation"] and (
+    #     pyfhd_config["in_situ_sim_input"]
+    #     or pyfhd_config["eor_vis_filepath"]
+    #     or pyfhd_config["sim_noise"]
+    # ):
+    #     logger.error(
+    #         "run_simulation should be True if you're planning on running any type of simulation and therefore using in_situ_sim_input, eor_vis_filepath or sim_noise shouldn't be used when run_simulation is False"
+    #     )
+    #     errors += 1
 
     # in-situ-sim-input depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "in_situ_sim_input")
+    # errors += _check_file_exists(pyfhd_config, "in_situ_sim_input")
 
     # eor_vis_filepath depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "eor_vis_filepath")
+    # errors += _check_file_exists(pyfhd_config, "eor_vis_filepath")
 
     # enhance_eor depends on eor_vis_filepath when its not 1
-    if pyfhd_config["enhance_eor"] > 1 and pyfhd_config["eor_vis_filepath"]:
-        logger.error(
-            "enhance_eor is only used when importing general visibilities for a simulation, it should stay as 1 when eor_vis_filepath is not being used"
-        )
-        errors += 1
+    # if pyfhd_config["enhance_eor"] > 1 and pyfhd_config["eor_vis_filepath"]:
+    #     logger.error(
+    #         "enhance_eor is only used when importing general visibilities for a simulation, it should stay as 1 when eor_vis_filepath is not being used"
+    #     )
+    #     errors += 1
 
     # sim_noise depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "sim_noise")
+    # errors += _check_file_exists(pyfhd_config, "sim_noise")
 
     # restrict_healpix_inds depends on a file (Error)
     if (
@@ -1540,39 +1462,8 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
         pyfhd_config["pad_uv_image"] * pyfhd_config["ring_radius_multi"]
     )
 
-    # TODO need better checks on other arguments as to whether we require
-    # the .sav, .npz, or both files here
-    for psf_file in pyfhd_config["grid_psf_file"]:
-        if psf_file[-4:] == ".sav":
-            pyfhd_config["grid_psf_file_sav"] = psf_file
-            errors += _check_file_exists(pyfhd_config, "grid_psf_file_sav")
-        elif psf_file[-4:] == ".npz":
-            pyfhd_config["grid_psf_file_npz"] = psf_file
-            errors += _check_file_exists(pyfhd_config, "grid_psf_file_npz")
-        else:
-            logger.error(
-                f"--grid_psf_file must either be a numpy save file (.npz) or IDL binary (.sav) file. You entered {psf_file}."
-            )
-            errors += 1
-
-    # if
-    # restrict_healpix_inds depends on a file (Error)
-    errors += _check_file_exists(pyfhd_config, "IDL_variables_file")
-
-    # TODO see lines 41-43 of fhd_core/HEALPix/healpix_snapshot_cube_generate.pro
-    # for other options in setting the dimesion/elements parameters
-    # If ks_span is included, resize the dimension and elements as the user
-    # is specifying how large the 2D gridding array should be
-    # This should affect ps_dimension or ps_elements not the dimension and elements
-    # used for gridding, may use again later modified, leaving commented for now.
-    # If you see this in the year 2025 and don't know what it does, please delete it
-    # if pyfhd_config['ps_kspan']:
-    #     dimension_use = int(pyfhd_config['ps_kspan']/pyfhd_config['kbinsize'])
-    #     pyfhd_config['dimension'] = dimension_use
-    #     pyfhd_config['elements'] = dimension_use
-
     # --------------------------------------------------------------------------
-    # Checks are finished, report any errors or warings
+    # Checks are finished, report any errors or warnings
     # --------------------------------------------------------------------------
     # If there are any errors exit the program.
     if errors:
@@ -1584,7 +1475,7 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
         # Close the handlers in the log
         for handler in logger.handlers:
             handler.close()
-        exit()
+        sys.exit()
 
     if warnings:
         logger.warning(
@@ -1595,8 +1486,9 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     logger.info("Input validated, starting PyFHD run now")
 
     # Create the config directory
-    config_path = Path(output_dir, "config")
-    config_path.mkdir(exist_ok=True)
-    write_collated_yaml_config(pyfhd_config, config_path)
+    if not pyfhd_config["get_sample_data"]:
+        config_path = Path(output_dir, "config")
+        config_path.mkdir(exist_ok=True)
+        write_collated_yaml_config(pyfhd_config, config_path)
 
     return pyfhd_config, logger

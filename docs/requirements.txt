@@ -9,3 +9,6 @@ ConfigArgParse
 myst-parser
 h5py
 healpy
+importlib_resources
+matplotlib
+sphinx_reports

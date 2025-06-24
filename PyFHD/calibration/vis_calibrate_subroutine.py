@@ -121,6 +121,7 @@ def vis_calibrate_subroutine(
     cal["convergence"] = np.zeros([n_pol, n_freq, n_tile])
     cal["conv_iter"] = np.zeros([n_pol, n_freq, n_tile])
     cal["n_converged"] = np.zeros(n_pol)
+    cal["tile_flag"] = np.zeros([n_tile], dtype=np.bool)
     for pol_i in range(n_pol):
         logger.info(
             f"Beginning Calibration for polarization {pol_i} ({obs['pol_names'][pol_i]})"
@@ -426,9 +427,12 @@ def vis_calibrate_subroutine(
                 conv_iter_arr[fi, tile_use] = i
             if i == max_cal_iter:
                 logger.info(
-                    f"Calibration reach max iterations before converging for pol_i: {pol_i} and freq_i: {fi}. Convergence was: {conv_test[i - 1, fii]} and the threshold was: {conv_thresh}"
+                    f"Calibration reach max iterations before converging for pol_i: {pol_i} and freq_i: {fi}. Convergence was: {conv_test[fii, i - 1]} and the threshold was: {conv_thresh}"
                 )
             del A_ind_arr
+            logger.info(
+                f"Convergence was reached for polarization: {obs['pol_names'][pol_i]} ({pol_i}) and frequency: {fi}, with a convergence of: {conv_test[fii, i]} and the threshold was: {conv_thresh}"
+            )
             gain_arr[fi, tile_use] = gain_curr
         nan_i = np.where(np.isnan(gain_curr))[0]
         if nan_i.size > 0:
@@ -441,6 +445,8 @@ def vis_calibrate_subroutine(
         if tile_flag.size > 0:
             # set flagged tiles to NAN to remove from calculations
             gain_arr[:, tile_flag] = np.nan
+
+        cal["tile_flag"][tile_flag] = True
         cal["gain"][pol_i] = gain_arr
         cal["convergence"][pol_i] = convergence
         cal["n_converged"][pol_i] = n_converged

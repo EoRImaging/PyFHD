@@ -10,16 +10,12 @@ from PyFHD.pyfhd_tools.test_utils import get_data_items, sav_file_vis_arr_swap_a
 from PyFHD.io.pyfhd_io import convert_sav_to_dict
 from numpy.testing import assert_allclose
 from PyFHD.io.pyfhd_io import save, load
+import importlib_resources
 
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "vis_calibrate_subroutine")
-
-
-@pytest.fixture
-def full_data_dir():
-    return glob("../**/full_size_vis_calibrate_subroutine/", recursive=True)[0]
+    return Path(env.get("PYFHD_TEST_PATH"), "calibration", "vis_calibrate_subroutine")
 
 
 @pytest.fixture(
@@ -39,10 +35,19 @@ skip_tests = [["1088716296", "run3"], ["1088285600", "run3"]]
 
 
 @pytest.fixture()
-def before_file(tag, run, data_dir):
+def before_file(tag, run, data_dir, request: pytest.FixtureRequest):
     if [tag, run] in skip_tests:
         return None
-    before_file = Path(data_dir, f"{tag}_{run}_before_{data_dir.name}.h5")
+    if tag == "point_zenith" and run == "run1":
+        request.node.add_marker(pytest.mark.github_actions)
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "calibration", "vis_calibrate_subroutine"
+        )
+        # Use the one of the files that has been created as before file
+        before_file = Path(data_dir, f"{tag}_{run}_before_{data_dir.name}_cal.h5")
+    else:
+        before_file = Path(data_dir, f"{tag}_{run}_before_{data_dir.name}.h5")
     # If the h5 file already exists and has been created, return the path to it
     if before_file.exists():
         return before_file
@@ -78,6 +83,7 @@ def before_file(tag, run, data_dir):
     pyfhd_config["cal_convergence_threshold"] = h5_save_dict["cal"]["conv_thresh"]
     pyfhd_config["cal_base_gain"] = h5_save_dict["cal"]["base_gain"]
     pyfhd_config["cal_phase_fit_iter"] = h5_save_dict["cal"]["phase_iter"]
+    pyfhd_config["max_cal_iter"] = h5_save_dict["cal"]["max_iter"]
     h5_save_dict["pyfhd_config"] = pyfhd_config
 
     save(before_file, h5_save_dict, "before_file")
@@ -86,9 +92,15 @@ def before_file(tag, run, data_dir):
 
 
 @pytest.fixture()
-def after_file(tag, run, data_dir):
+def after_file(tag, run, data_dir, request: pytest.FixtureRequest):
     if [tag, run] in skip_tests:
         return None
+    if tag == "point_zenith" and run == "run1":
+        request.node.add_marker(pytest.mark.github_actions)
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "calibration", "vis_calibrate_subroutine"
+        )
     after_file = Path(data_dir, f"{tag}_{run}_after_{data_dir.name}.h5")
     # If the h5 file already exists and has been created, return the path to it
     if after_file.exists():
@@ -110,8 +122,36 @@ def test_points(before_file, after_file):
         pytest.skip(
             f"This test has been skipped because the test was listed in the skipped tests due to FHD not outputting them: {skip_tests}"
         )
-
-    h5_before = load(before_file)
+    if "point_zenith_run1" in str(before_file):
+        cal = load(before_file)
+        obs = load(str(before_file).replace("_cal.h5", "_obs.h5"))
+        params = load(str(before_file).replace("_cal.h5", "_params.h5"))
+        pyfhd_config = load(str(before_file).replace("_cal.h5", "_pyfhd_config.h5"))
+        vis_ptr_xx = load(str(before_file).replace("_cal.h5", "_vis_ptr_XX.h5"))
+        vis_ptr_yy = load(str(before_file).replace("_cal.h5", "_vis_ptr_YY.h5"))
+        vis_model_ptr_xx = load(
+            str(before_file).replace("_cal.h5", "_vis_model_ptr_XX.h5")
+        )
+        vis_model_ptr_yy = load(
+            str(before_file).replace("_cal.h5", "_vis_model_ptr_YY.h5")
+        )
+        vis_weight_ptr_xx = load(
+            str(before_file).replace("_cal.h5", "_vis_weight_ptr_XX.h5")
+        )
+        vis_weight_ptr_yy = load(
+            str(before_file).replace("_cal.h5", "_vis_weight_ptr_YY.h5")
+        )
+        h5_before = {
+            "vis_ptr": np.array([vis_ptr_xx, vis_ptr_yy]),
+            "vis_model_ptr": np.array([vis_model_ptr_xx, vis_model_ptr_yy]),
+            "vis_weight_ptr": np.array([vis_weight_ptr_xx, vis_weight_ptr_yy]),
+            "obs": obs,
+            "cal": cal,
+            "params": params,
+            "pyfhd_config": pyfhd_config,
+        }
+    else:
+        h5_before = load(before_file)
     expected_cal = load(after_file)
 
     vis_ptr = h5_before["vis_ptr"]
@@ -130,7 +170,13 @@ def test_points(before_file, after_file):
     )
 
     assert expected_cal["n_vis_cal"] == cal_return["n_vis_cal"]
-    assert_allclose(cal_return["gain"], expected_cal["gain"], atol=4e-05)
+    # Code was added that flagged the gain based on tiles, making them NaN, FHD doesn't do this
+    # So to compare we need to remove the NaN values
+    assert_allclose(
+        cal_return["gain"][:, :, ~cal_return["tile_flag"]],
+        expected_cal["gain"][:, :, ~cal_return["tile_flag"]],
+        atol=4e-05,
+    )
 
 
 @pytest.fixture(scope="function", params=[1, 2, 3])
@@ -182,6 +228,7 @@ def subroutine_before(data_dir, subroutine_test):
     pyfhd_config["cal_convergence_threshold"] = h5_save_dict["cal"]["conv_thresh"]
     pyfhd_config["cal_base_gain"] = h5_save_dict["cal"]["base_gain"]
     pyfhd_config["cal_phase_fit_iter"] = h5_save_dict["cal"]["phase_iter"]
+    pyfhd_config["max_cal_iter"] = h5_save_dict["cal"]["max_iter"]
     h5_save_dict["pyfhd_config"] = pyfhd_config
 
     save(subroutine_before, h5_save_dict, "before_file")
@@ -239,4 +286,8 @@ def test_vis_calibration_x(subroutine_before, subroutine_after):
 
     assert expected_cal_return["n_vis_cal"] == cal_return["n_vis_cal"]
 
-    assert_allclose(cal_return["gain"], expected_cal_return["gain"], atol=1.02e-03)
+    assert_allclose(
+        cal_return["gain"][:, :, ~cal_return["tile_flag"]],
+        expected_cal_return["gain"][:, :, ~cal_return["tile_flag"]],
+        atol=1.02e-03,
+    )

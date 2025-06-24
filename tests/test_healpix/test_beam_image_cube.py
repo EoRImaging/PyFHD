@@ -10,7 +10,7 @@ from PyFHD.healpix.healpix_utils import beam_image_cube
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "beam_image_cube")
+    return Path(env.get("PYFHD_TEST_PATH"), "healpix", "beam_image_cube")
 
 
 @pytest.fixture(

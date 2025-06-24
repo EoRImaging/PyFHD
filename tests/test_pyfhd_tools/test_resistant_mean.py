@@ -10,7 +10,7 @@ from PyFHD.io.pyfhd_io import convert_sav_to_dict
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "resistant_mean")
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "resistant_mean")
 
 
 @pytest.fixture(
@@ -109,11 +109,13 @@ def test_points_zenith_offzenith_and_1088716296(before_file, after_file):
     assert np.allclose(result_res_mean, expected_res_mean, atol=1e-4)
 
 
+@pytest.mark.github_actions
 def test_res_mean_int():
     input = np.concatenate([np.arange(20), np.array([100, 200, 300, 400])])
     assert resistant_mean(input, 2) == 9.5
 
 
+@pytest.mark.github_actions
 def test_res_mean_float():
     input = np.concatenate(
         [np.arange(0, 20, 0.75), np.array([25.0, -10.75, -30.0, 50])]
@@ -121,11 +123,13 @@ def test_res_mean_float():
     assert resistant_mean(input, 2) == 9.75
 
 
+@pytest.mark.github_actions
 def test_res_mean_complex_int():
     input = np.linspace(0 + 2j, 20 + 42j, 21)
     npt.assert_allclose(resistant_mean(input, 2), 7 + 16j)
 
 
+@pytest.mark.github_actions
 def test_res_mean_complex_float():
     input = np.linspace(0 + 10j, 10 + 30j, 20)
     npt.assert_allclose(
@@ -133,6 +137,7 @@ def test_res_mean_complex_float():
     )
 
 
+@pytest.mark.github_actions
 def test_res_mean_complex_large_i():
     input = np.concatenate(
         [np.linspace(0, 19 + 19j, 20), np.array([1 + 100j, 3 + 400j, 5 + 500j])]
@@ -140,6 +145,7 @@ def test_res_mean_complex_large_i():
     npt.assert_allclose(resistant_mean(input, 3), 9.5 + 9.5j)
 
 
+@pytest.mark.github_actions
 def test_res_mean_random_large():
     input = np.concatenate(
         [np.linspace(0, 10, 100_000), np.arange(-1_000_000, 1_000_000, 1000)]

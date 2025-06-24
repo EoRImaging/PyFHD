@@ -1,7 +1,9 @@
 PRO convert_model_arr_to_sav
 
+    compile_opt idl2
+
     ;read in args
-    args = COMMAND_LINE_ARGS(COUNT=argc)
+    args = COMMAND_LINE_ARGS()
     save_dir = args[0]
     obs_id = args[1]
     n_pol = FIX(args[2])
