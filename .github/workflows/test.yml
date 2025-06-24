@@ -25,9 +25,21 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
 
+      - name: Cache test data
+        id: cache-test-data
+        uses: actions/cache@v4
+        with:
+          path: PyFHD/resources/test_data/pyfhd_test_data.zip
+          key: test-data-${{ hashFiles('**/pyfhd_test_data.zip') }}
+
       - name: Download the test data from Zenodo
+        if: steps.cache-test-data.outputs.cache-hit != 'true'
         run: |
+          mkdir -p PyFHD/resources/test_data
           wget -O PyFHD/resources/test_data/pyfhd_test_data.zip https://zenodo.org/records/15687722/files/pyfhd_test_data.zip?download=1
+
+      - name: Unzip the test data
+        run: |
           unzip PyFHD/resources/test_data/pyfhd_test_data.zip -d PyFHD/resources/test_data
     
       - name: Run tests
