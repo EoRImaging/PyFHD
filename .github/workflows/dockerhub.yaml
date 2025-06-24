@@ -68,7 +68,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.tag.outputs.LIST }}
+          tags: skywa7ch3r/pyfhd:${{ steps.tag.outputs.LIST }}
           labels: ${{ steps.meta.outputs.labels }}
         
       - name: Generate artifact attestation

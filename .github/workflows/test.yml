@@ -84,7 +84,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-html-report
-          path: reports/coverage
+          path: reports/coverage_html_report
 
       - name: Prepare pages content
         run: |
