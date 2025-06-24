@@ -35,7 +35,6 @@ jobs:
       - name: Download the test data from Zenodo
         if: steps.cache-test-data.outputs.cache-hit != 'true'
         run: |
-          mkdir -p PyFHD/resources/test_data
           wget -O PyFHD/resources/test_data/pyfhd_test_data.zip https://zenodo.org/records/15687722/files/pyfhd_test_data.zip?download=1
 
       - name: Unzip the test data
