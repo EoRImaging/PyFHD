@@ -23,7 +23,7 @@ Now, FHD has been translated to Python, giving us **PyFHD**, free to use and fre
 
 An image displaying the progress of PyFHD translation is shown below:
 
-.. image:: ../_static/FHD_flow_color.png
+.. image:: _static/FHD_flow_color.png
    :alt: PyFHD-Translaton Progress
    :align: center
    :width: 300px
