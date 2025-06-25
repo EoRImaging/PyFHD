@@ -26,7 +26,7 @@ An image displaying the progress of PyFHD translation is shown below:
 .. image:: _static/FHD_flow_color.png
    :alt: PyFHD-Translaton Progress
    :align: center
-   :width: 300px
+   :width: 1000px
 
 Boxes that are greyed out, have not been translated. In the case of the Beam kernel generation and the Jones Matrix Calculation,
 these have been translated but are in an alpha state and need testing. Degridding has also been translated also, but hasn't been tested
