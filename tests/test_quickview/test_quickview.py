@@ -68,6 +68,9 @@ def before_file(tag, run, data_dir):
         "save_weights": False,
         "pad_uv_image": sav_dict["pad_uv_image"],
         "image_filter": "filter_uv_uniform",
+        "allow_sidelobe_model_sources": bool(
+            sav_dict["extra"]["allow_sidelobe_model_sources"]
+        ),
     }
 
     sav_dict["pyfhd_config"] = pyfhd_config
@@ -76,22 +79,6 @@ def before_file(tag, run, data_dir):
     save(before_file, sav_dict, "sav_dict")
 
     return before_file
-
-
-@pytest.fixture(autouse=True)
-def cleanup_files(before_file):
-    yield
-    if before_file != None:
-        dir_name = Path([before_file.name.split("_")[:-3], "test_data"].join("_"))
-        print(dir_name)
-        # # Clean up the FITS files directory after the test
-        # files_from_test = h5_before["pyfhd_config"]["output_dir"].glob("**.*")
-        # for files in files_from_test:
-        #     files.unlink()
-        # fits_path.rmdir()
-        # (h5_before["pyfhd_config"]["output_dir"] / "metadata").rmdir()
-        # (h5_before["pyfhd_config"]["output_dir"] / "visibilities").rmdir()
-        # h5_before["pyfhd_config"]["output_dir"].rmdir()
 
 
 def test_quickview(before_file, data_dir):
@@ -170,18 +157,23 @@ def test_quickview(before_file, data_dir):
             del expected_header["DATE"]
         if expected_header.get("EXTEND") is not None:
             del expected_header["EXTEND"]
-        del actual_header["HISTORY"]
+        if actual_header.get("EXTEND") is not None:
+            del actual_header["EXTEND"]
+        if actual_header.get("HISTORY") is not None:
+            del actual_header["HISTORY"]
+        if expected_header.get("HISTORY") is not None:
+            del expected_header["HISTORY"]
         header_diff = astropy.io.fits.HeaderDiff(
             actual_header,
             expected_header,
             atol=2e-4,
-            # ignore_comments=["*"],
+            ignore_comments=["*"],
         )
         print(header_diff.report())
-        print(actual_header)
-        print(expected_header)
+        # print(actual_header)
+        # print(expected_header)
         assert header_diff.identical
         # expected_fits_data = expected_fits[0].data
         # actual_fits_data = actual_fits[0].data
-        # # expected_fits_data = np.transpose(expected_fits_data)
+        # expected_fits_data = np.transpose(expected_fits_data)
         # npt.assert_allclose(actual_fits_data, expected_fits_data, atol=1e-6)

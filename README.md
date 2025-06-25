@@ -80,7 +80,15 @@ We are an open-source community that interacts and discusses issues via GitHub. 
 
 If you wish to contribute to PyFHD, first of all thank you, second please read the contribution guide which can be found here, [Contribution Guide](https://pyfhd.readthedocs.io/en/latest/develop/contribution_guide.html). The contribution will cover all you need to know for developing in PyFHD from adding features, formatting adding tests and some advice in translating IDL to Python.
 
-TODO: Add citation details for PyFHD
+### Citing PyFHD
+
+If you use PyFHD for a paper, the way to cite PyFHD is using the DOI link:
+
+[https://doi.org/10.5281/zenodo.15720184](https://doi.org/10.5281/zenodo.15720184)
+
+From the Zenodo site, you can either copy or export the citation type you need (e.g. BibTeX).
+
+TODO: A JOSS Paper is being done and will be submitted soon, put pre-print or JOSS paper itself here to also cite
 
 ## Maintainers
 FHD was built by Ian Sullivan and the University of Washington radio astronomy team. Maintainance is a group effort split across University of Washington and Brown University, with contributions from University of Melbourne and Arizona State University. 
