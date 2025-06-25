@@ -10,7 +10,6 @@ dependencies:
   - numba
   - numpy
   - pytest
-  - pytest-cov
   - scipy
   - setuptools
   - sphinx
@@ -20,9 +19,14 @@ dependencies:
   - pre-commit
   - black
   - pip
+  - pyinstrument
   - pip:
     - sphinx-rtd-theme
     - sphinx-argparse
+    - sphinx-reports
+    - pytest-cov
+    - pytest-html
+    - pytest-html-merger
     - myst-parser
     - healpy
     
