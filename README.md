@@ -6,6 +6,7 @@
 ![GitHub License](https://img.shields.io/github/license/EoRImaging/PyFHD)
 
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/EoRImaging/PyFHD/main)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/EoRImaging/PyFHD/test.yml?logo=python&logoColor=white&label=tests&link=https%3A%2F%2Feorimaging.github.io%2FPyFHD%2Fpyfhd_report.html%3Fsort%3Dresult)
 [![Documentation Status](https://readthedocs.org/projects/pyfhd/badge/?version=latest)](https://pyfhd.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -13,9 +14,9 @@
 ![Static Badge](https://img.shields.io/badge/DockerHub-skywa7ch3r%2Fpyfhd%3Alatest-blue?logo=docker&logoColor=white)
 
 
-
 [![Static Badge](https://img.shields.io/badge/Test%20Data%20DOI-10.5281%2Fzenodo.15687722-grey?labelColor=blue)](https://doi.org/10.5281/zenodo.15687722)
 [![Static Badge](https://img.shields.io/badge/PyFHD%20Repository%20DOI-10.5281%2Fzenodo.15720184-blue)](https://doi.org/10.5281/zenodo.15720184)
+
 
 
 
