@@ -8,15 +8,15 @@ tags:
   - IDL
 authors:
   - name: Joel Dunstan
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0004-0120-3464
     equal-contrib: true
     affiliation: "1, 2"
   - name: Nichole Barry
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0003-2064-6979
     equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
     affiliation: 2
   - name: Jack Line
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-9130-5920
     equal-contrib: true # (This is how to denote the corresponding author)
     affiliation: 2
 affiliations:
@@ -40,8 +40,16 @@ Python Fast Holographic Deconvolution (PyFHD), is an open source, a python trans
 # Statement of need
 The most successful open-source Epoch of Reionisation (EoR) pipeline, Fast Holographic Deconvolution (FHD) [@Sullivan_2012; @Barry_2019] was built using the Interactive Data Language (IDL), a proprietary
 language which has significant limitations in regards to it's cost, terms of use, and licensing thereby preventing those in the EoR community from using and/or contributing to FHD, while also preventing the EoR community from growing. 
-The use of IDL for FHD has also made it difficult to utilise FHD results in other packages and in other languages as the resulting save files that IDL produces can be difficult to read, while also being very slow to read into languages like Python when utilising using SciPy's `readsav` function [@2020SciPy-NMeth]. To remove the limitations of IDL, attaining better integration with other packages, and to best support the training of a new generation of EoR astronomers, FHD has been translated to Python, 
+The use of IDL for FHD has also made it difficult to utilise FHD results in other packages and in other languages as the resulting save files that IDL produces can be difficult to read, while also being very slow to read into languages like Python when utilising using SciPy's `readsav` function [@2020SciPy-NMeth]. To remove the limitations of IDL, attaining better integration with other packages, and to best support the training of a new generation of EoR astronomers, FHD has been translated to Python, this translation has been called PyFHD [@dunstan_2025_15720184]. The translation PyFHD, covers the most used parts of the FHD pipeline, which are:
 
+1. Extraction of visibilities and observation metadata from a UVFITS file
+2. Creation of the beam kernel in UV space and the Jones Matrix (though this part of the pipeline is in an alpha stage and requires more work)
+3. Flagging for frequencies and Tiles
+4. Basic Calibration against a skymodel, and advanced calibration taking into account instrument specific calibration such as calibration for each cable length per tile for example.
+5. Gridding
+6. Generating the output continuum FITS images and HEALPIX files required for spectral imaging with $\epsilon$ppsilon
+
+PyFHD has also been developed with longevity in mind, ensuring existing an d future EoR astronomers have a great foundation to test new EoR theories, support additional instruments both existing (LWA, LOFAR, HERA, etc.) and upcoming (SKA, MWA Phase III). 
 
 # Testing of the Translation
 
