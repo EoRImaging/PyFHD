@@ -1,6 +1,6 @@
 [project]
 name = "PyFHD"
-version = "1.0.1"
+version = "1.0.2"
 readme = "README.md"
 license = { file = "LICENSE" }
 description = "Python Fast Holograhic Deconvolution: A Python package that does fast-mode Epoch of Reionization analysis."

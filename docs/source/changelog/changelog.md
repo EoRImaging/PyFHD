@@ -16,6 +16,21 @@
 
 ### Translation Changes
 
+## 1.0.2
+
+### New Features
+* Docs point to github pages for the github action results
+
+### Bug Fixes
+* vis_baseline_hist option actually used
+
+### Test Changes
+* Quickview tests have issues not previously present with HEALPIX fits files
+
+### Version Changes
+* Bump to 1.0.2
+
+
 ## Version 1.0
 
 PyFHD 1.0.1 🎉
