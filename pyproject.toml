@@ -1,6 +1,6 @@
 [project]
 name = "PyFHD"
-version = "1.0.1"
+version = "1.0.2"
 readme = "README.md"
 license = { file = "LICENSE" }
 description = "Python Fast Holograhic Deconvolution: A Python package that does fast-mode Epoch of Reionization analysis."
@@ -9,7 +9,7 @@ authors = [
     { name = "Jack Line (JLBLine)", email = "jack.line@curtin.edu.au"},
     { name = "Nichole Barry (nicholebarry)", email = "nichole.barry@unsw.edu.au"}
 ]
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -40,9 +40,9 @@ dependencies = [
 pyfhd = "PyFHD.pyfhd:main"
 
 [project.urls]
-"Repository" = "https://github.com/ADACS-Australia/PyFHD"
+"Repository" = "https://github.com/EoRImaging/PyFHD"
 "Documentation" = "https://pyfhd.readthedocs.io/en/latest/"
-"Bug Tracker" = "https://github.com/ADACS-Australia/PyFHD/issues"
+"Bug Tracker" = "https://github.com/EoRImaging/PyFHD/issues"
 "Changelog" = "https://pyfhd.readthedocs.io/en/latest/changelog/changelog.html"
 
 [dependency-groups]
@@ -52,6 +52,7 @@ dev = [
     "myst-parser>=4.0.1",
     "pip>=25.1.1",
     "pre-commit>=4.2.0",
+    "pyinstrument>=5.0.2",
     "pytest>=8.3.5",
     "pytest-cov>=6.1.1",
     "pytest-html>=4.1.1",

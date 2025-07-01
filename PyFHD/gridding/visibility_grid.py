@@ -499,7 +499,7 @@ def visibility_grid(
             or (bi in np.arange(n_bin_use // 10, n_bin_use, n_bin_use // 10))
         ):
             logger.info(
-                f"Gridding  visibilities for baseline {bi} of {n_bin_use} for polarization {obs['pol_names'][polarization]}"
+                f"Gridding visibilities for baseline {bi} of {n_bin_use} for polarization {obs['pol_names'][polarization]}"
             )
 
     # Free Up Memory

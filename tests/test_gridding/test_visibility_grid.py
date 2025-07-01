@@ -14,7 +14,10 @@ import importlib_resources
 
 @pytest.fixture
 def data_dir():
-    return Path(env.get("PYFHD_TEST_PATH"), "gridding", "visibility_grid")
+    if env.get("PYFHD_TEST_PATH"):
+        return Path(env.get("PYFHD_TEST_PATH"), "gridding", "visibility_grid")
+    else:
+        return None
 
 
 @pytest.fixture(
@@ -146,7 +149,16 @@ def after_gridding(data_dir: Path, number: int, request: pytest.FixtureRequest):
     return after_gridding
 
 
-def test_visibility_grid(before_gridding: Path, after_gridding: Path):
+def test_visibility_grid(
+    before_gridding: Path, after_gridding: Path, request: pytest.FixtureRequest
+):
+    # This was done here to make it work in GitHub Actions
+    if request.node.get_closest_marker("github_actions"):
+        data_dir = importlib_resources.files("PyFHD.resources.test_data").joinpath(
+            "gridding", "visibility_grid"
+        )
+        before_gridding = Path(data_dir, before_gridding.name)
+        after_gridding = Path(data_dir, after_gridding.name)
     h5_before = load(before_gridding)
     h5_after = load(after_gridding)
 

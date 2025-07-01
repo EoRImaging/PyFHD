@@ -229,7 +229,7 @@ def quickview(
             beam_mask_test = beam_base_out[pol_i]
             if pyfhd_config["allow_sidelobe_model_sources"]:
                 beam_i = np.where(
-                    beam_mask_test >= 0.025
+                    beam_mask_test.flat >= 0.025
                 )  # This is beam_threshold/2 in FHD
             else:
                 beam_i = region_grow(

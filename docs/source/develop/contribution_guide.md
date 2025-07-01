@@ -14,7 +14,7 @@ Here's how you install `PyFHD` for development purposes using uv:
 
 1. Clone and change directory into the `PyFHD` repo:
     ```bash
-    git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
+    git clone https://github.com/EoRImaging/PyFHD && cd PyFHD
     ```
 
 2. Create `.venv` virtual environment using uv
@@ -51,7 +51,7 @@ Here's how you install `PyFHD` for development purposes using uv:
 
     Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-    Repository: https://github.com/ADACS-Australia/PyFHD
+    Repository: https://github.com/EoRImaging/PyFHD
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -65,7 +65,7 @@ Here's how you install `PyFHD` for development purposes using mamba:
 
 1. Clone and change directory into the `PyFHD` repo:
     ```bash
-    git clone https://github.com/ADACS-Australia/PyFHD && cd PyFHD
+    git clone https://github.com/EoRImaging/PyFHD && cd PyFHD
     ```
 2. Create a `pyfhd` virtual environment and automatically install the required dependencies
    ```bash
@@ -105,7 +105,7 @@ Here's how you install `PyFHD` for development purposes using mamba:
 
        Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-       Repository: https://github.com/ADACS-Australia/PyFHD
+       Repository: https://github.com/EoRImaging/PyFHD
 
        Documentation: https://pyfhd.readthedocs.io/en/latest/
 

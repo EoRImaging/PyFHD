@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "PyFHD"
-copyright = "2024, Joel Dunstan, Jack Line and Nichole Barry"
+copyright = "2025, Joel Dunstan, Jack Line and Nichole Barry"
 author = "Joel Dunstan, Jack Line and Nichole Barry"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0"
+release = "1.0.1"
 
 
 # -- General configuration ---------------------------------------------------
@@ -78,13 +78,16 @@ source_suffix = {
     ".md": "markdown",
 }
 
+# --- LaTEX options
+latex_engine = "xelatex"
+
 # ==============================================================================
 # Sphinx-reports - DocCov
 # ==============================================================================
 report_doccov_packages = {
     "src": {
         "name": "PyFHD",
-        "directory": "../PyFHD",
+        "directory": "../../PyFHD",
         "fail_below": 80,
         "levels": "default",
     }

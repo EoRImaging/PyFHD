@@ -1,22 +1,24 @@
 # PyFHD
 **Py**thon **F**ast **H**olographic **D**econvolution
 
-[![Python](https://img.shields.io/badge/Python-3.10--3.12-%231475b3?logo=python&logoColor=%23fff)](https://www.python.org/)
-![GitHub last commit](https://img.shields.io/github/last-commit/ADACS-Australia/PyFHD?logo=github&color=blue&link=https%3A%2F%2Fgithub.com%2FADACS-Australia%2FPyFHD%2Fcommits%2Fmain%2F)
-![GitHub License](https://img.shields.io/github/license/ADACS-Australia/PyFHD)
+[![Python](https://img.shields.io/badge/Python-3.10--3.13-%231475b3?logo=python&logoColor=%23fff)](https://www.python.org/)
+![GitHub last commit](https://img.shields.io/github/last-commit/EoRImaging/PyFHD?logo=github&color=blue&link=https%3A%2F%2Fgithub.com%2FEoRImaging%2FPyFHD%2Fcommits%2Fmain%2F)
+![GitHub License](https://img.shields.io/github/license/EoRImaging/PyFHD)
 
-![GitHub branch check runs](https://img.shields.io/github/check-runs/ADACS-Australia/PyFHD/main)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/EoRImaging/PyFHD/main)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/EoRImaging/PyFHD/test.yml?logo=python&logoColor=white&label=tests&link=https%3A%2F%2Feorimaging.github.io%2FPyFHD%2Fpyfhd_report.html%3Fsort%3Dresult)
 [![Documentation Status](https://readthedocs.org/projects/pyfhd/badge/?version=latest)](https://pyfhd.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ![PyPI - Version](https://img.shields.io/pypi/v/pyfhd)
+![Static Badge](https://img.shields.io/badge/DockerHub-skywa7ch3r%2Fpyfhd%3Alatest-blue?logo=docker&logoColor=white)
 
 
 [![Static Badge](https://img.shields.io/badge/Test%20Data%20DOI-10.5281%2Fzenodo.15687722-grey?labelColor=blue)](https://doi.org/10.5281/zenodo.15687722)
+[![Static Badge](https://img.shields.io/badge/PyFHD%20Repository%20DOI-10.5281%2Fzenodo.15720184-blue)](https://doi.org/10.5281/zenodo.15720184)
 
 
 
-TODO: Add Testing Results and Testing coverage
 
 ## FHD
 FHD is an open-source imaging algorithm for radio interferometers, specifically tested on MWA Phase I, MWA Phase II, PAPER, and HERA. There are three main use-cases for FHD: efficient image deconvolution for general radio astronomy, fast-mode Epoch of Reionization analysis, and simulation.
@@ -55,7 +57,7 @@ You should see output that resembles something like this:
 
     Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-    Repository: https://github.com/ADACS-Australia/PyFHD
+    Repository: https://github.com/EoRImaging/PyFHD
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -78,7 +80,15 @@ We are an open-source community that interacts and discusses issues via GitHub. 
 
 If you wish to contribute to PyFHD, first of all thank you, second please read the contribution guide which can be found here, [Contribution Guide](https://pyfhd.readthedocs.io/en/latest/develop/contribution_guide.html). The contribution will cover all you need to know for developing in PyFHD from adding features, formatting adding tests and some advice in translating IDL to Python.
 
-TODO: Add citation details for PyFHD
+### Citing PyFHD
+
+If you use PyFHD for a paper, the way to cite PyFHD is using the DOI link:
+
+[https://doi.org/10.5281/zenodo.15720184](https://doi.org/10.5281/zenodo.15720184)
+
+From the Zenodo site, you can either copy or export the citation type you need (e.g. BibTeX).
+
+TODO: A JOSS Paper is being done and will be submitted soon, put pre-print or JOSS paper itself here to also cite
 
 ## Maintainers
 FHD was built by Ian Sullivan and the University of Washington radio astronomy team. Maintainance is a group effort split across University of Washington and Brown University, with contributions from University of Melbourne and Arizona State University. 

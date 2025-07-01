@@ -25,7 +25,7 @@ To run the example data, you'll need to get the sample data first, to do this ru
 
 .. code-block:: bash
 
-  pyfhd --copy-sample-data 1088285600
+  pyfhd --get-sample-data 1088285600
 
 Which will copy the sample data built into the PyFHD package to your current working directory, inside a directory and sub-directory called ``input/1088285600_example``.
 
@@ -41,16 +41,27 @@ From there in that directory, you should be able to run the following command to
 The command on most machines takes 1-2 minutes to run, and the output is stored in the ``output`` directory. 
 
 This will run the entire PyFHD pipeline in this order: 
+
 1. Setting up the run with logs and outputs 
+
 2. Extracting visibilities
+
 3. Creating the observation metadata dictionary (and other metadata dictionaries)
+
 4. Import the beam
+
 5. Importing the skymodel
-6. Running calibration 
-7. Flagging 
-8. Gridding 
+
+6. Running calibration
+
+7. Flagging
+
+8. Gridding
+
 9. Exporting the results
+
 10. Generating HEALPIX fits and HEALPIX files (in HDF5 format)
+
 11. Finishing the run and cleaning up
 
 If the command runs successfully you should get a log to your terminal (stdout) that looks something like this:
@@ -77,7 +88,7 @@ If the command runs successfully you should get a log to your terminal (stdout) 
 
   Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-  Repository: https://github.com/ADACS-Australia/PyFHD
+  Repository: https://github.com/EoRImaging/PyFHD
 
   Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -475,6 +486,10 @@ Take note of the line:
 
 More details about the output of the PyFHD pipeline and the required inputs is clarified in the next section. 
 
+.. important::
+  The configuration used for the sample is very different to a full MWA run due to limited use of frequencies and times used in the sample data
+  to keep it small. For a better template to base your configuration on go to :ref:`_pyfhd-config-file`.
+
 The Required Inputs and the outputs of ``PyFHD``
 ----------------------------------------------------------
 
@@ -484,11 +499,13 @@ the observation ID, it will use the default configuration file. The default conf
 likely you'll need to adjust the default configuration file to suit your needs. Some validation is performed before and during runtime of 
 ``PyFHD`` to check for incompatibilities though it is not exhaustive.
 
+.. _pyfhd-config-file:
+
 .. note::
   If you wish to use the default configuration file to do your own configurations, from inside the repository, you can find the configuration file
   in the resources directory of PyFHD, ``PyFHD/PyFHD/resources/config/pyfhd.yaml``. You can also find the default configuration file at this link here:
 
-  `pyfhd.yaml <https://raw.githubusercontent.com/ADACS-Australia/PyFHD/refs/heads/main/PyFHD/resources/config/pyfhd.yaml>`_
+  `pyfhd.yaml <https://raw.githubusercontent.com/EoRImaging/PyFHD/refs/heads/main/PyFHD/resources/config/pyfhd.yaml>`_
 
 Some files can be discovered automatically through the ``input-path`` option of ``PyFHD`` so read through the usage help text to work 
 out how you wish to configure your input. ``PyFHD`` is rather flexible on how you do your input
@@ -619,8 +636,12 @@ In the below example we will run ``PyFHD`` with the ``--calibrate-checkpoint`` o
 
 Within the logs of the ``PyFHD`` you should see the following message::
 
+.. code-block:: text
   yyyy-mm-dd HH:MM:SS - INFO:
         Checkpoint Loaded: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary loaded from output/pyfhd_1088285600_example/calibrate_checkpoint.h5
+
+Do note if you wish to use the ``gridding-checkpoint`` then you also need ``calibrate-checkpoint``.
+
 
 Configuration
 -------------
@@ -746,7 +767,6 @@ Running calibration on the sample data
     --no-calibration-auto-initialize \
     --no-vis-baseline-hist \
     --no-digital-gain-jump-polyfit \
-    --no-return-cal-visibilities \
     --cal-stop \
     --no-flag-frequencies \
     --description "1088285600_example_cal_stop" \
@@ -776,7 +796,7 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
 
     pyfhd \
         1091128160 \
-        --input_path=/place/for/input/uvfits/1091128160 \
+        --input-path=/path/to/input/uvfits/1091128160 \
         --calibrate-visibilities \
         --cable-bandpass-fit \
         --calibration-polyfit \
@@ -794,12 +814,14 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
         --auto-ratio-calibration \
         --no-cal-time-average \
         --no-digital-gain-jump-polyfit \
-        --calibration-plots
+        --calibration-plots \
         --cal-stop \
-        --output_path "/path/to/outputs/" \
+        --output-path "/path/to/output/" \
         --description 1091128160 \
-        --model_file_type "uvfits" \
-        --model_file_path "./path/to/model/1091128160/puma_LoBES_2s_80kHz_hbeam_1091128160.uvfits" 
+        --model-file-type "uvfits" \
+        --model-file-path "/path/to/input/models/1091128160/puma_LoBES_2s_80kHz_hbeam_1091128160.uvfits" \
+        --beam-file-path "/path/to/beams/decomp_beam_pointing0.h5" \
+        --lazy-load-beam
 
 .. tip::
 
@@ -841,7 +863,7 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
     override-target-phasedec: ~
 
     # Beam Setup
-    beam-file-path: ~
+    beam-file-path: /path/to/beams/decomp_beam_pointing0.h5
     lazy-load-beam: true
     recalculate-beam : true
     beam-clip-floor : true
@@ -912,18 +934,17 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
     grid-uniform: false
 
     # Deconvolution
-    deconvolve : false
-    max-deconvolution-components : 20000
-    filter-background : true
-    smooth-width : 32
+    # deconvolve : false
+    # max-deconvolution-components : 20000
+    # filter-background : true
+    # smooth-width : 32
     dft-threshold : true
-    return-decon-visibilities : false
-    deconvolution-filter : 'filter_uv_uniform'
+    # return-decon-visibilities : false
+    # deconvolution-filter : 'filter_uv_uniform'
 
     # Export
     output-path : '/path/to/output'
     export-images : true
-    cleanup : false
     save-obs: true
     save-params: true
     save-cal: true
@@ -951,13 +972,13 @@ the beam is inside the ``beams`` directory (not that we need it for this run, as
     allow-sidelobe-model-sources : false
 
     # Simulation
-    run-simulation : false
-    in-situ-sim-input : ~
-    eor-vis-filepath : ~
-    enhance-eor : 1
-    sim-noise : ~
-    tile-flag-list : ~
-    remove-sim-flags : false
+    # run-simulation : false
+    # in-situ-sim-input : ~
+    # eor-vis-filepath : ~
+    # enhance-eor : 1
+    # sim-noise : ~
+    # tile-flag-list : ~
+    # remove-sim-flags : false
 
     # HEALPIX
     ps-kbinsize : 0.5
@@ -1099,10 +1120,9 @@ This would be the same as runnning the command below:
 .. code-block:: bash
 
   pyfhd \
-    --config "./pyfhd.yaml" \
     --input-path "./input/1088285600_example/" \
-    --description "1088285600_example"
-    --beam-file-path "./input/1088285600_example/gauss_beam_pointing0_167635008Hz.h5" 
+    --description "1088285600_gridding_example" \
+    --beam-file-path "./input/1088285600_example/gauss_beam_pointing0_167635008Hz.h5" \
     --calibrate-checkpoint "./output/pyfhd_1088285600_example/checkpoints/1088285600_example_calibrate_checkpoint.h5" \
     --recalculate-grid \
     --image-filter 'filter_uv_uniform' \
@@ -1111,7 +1131,9 @@ This would be the same as runnning the command below:
     --grid-weights \
     --grid-variance \
     --no-grid-uniform \
-    --gridding-plots
+    --gridding-plots \
+    --no-snapshot-healpix-export \
+    1088285600
 
 Below we have the example plots of the gridded continuum data for the two polarizations, XX and YY, for the sample data.
 
@@ -1126,7 +1148,7 @@ Running Gridding with a full MWA observation
 
 In this observation we will run calibration and then use the results for gridding, you'll notice some more advanced options
 being used here. Such options like ``--digital-gain-jump-polyfit`` should only be used if you know that it's needed (although
-``PyFHD`` will warn you if you try to use it in the wrong conditions). Also take notice that the beam is being loaded here, through
+``PyFHD`` will warn you if you try to use it on the wrong data). Also take notice that the beam is being loaded here, through
 the use of the ``--beam-file-path`` option, this is required for gridding to work. If you wish to learn more about the ``--lazy-load-beam``
 option refer to :ref:`lazy-loading` section below.
 
@@ -1550,12 +1572,17 @@ To run the docker image of PyFHD, you can use the following commands:
 .. code-block:: bash
 
   # To see the PyFHD version of latest
-  docker run -it skywa7ch3r/pyfhd:latest pyfhd -v
+  docker run skywa7ch3r/pyfhd:latest pyfhd -v
+
+.. code-block:: bash
+  
+  # grab the sample data into your machine
+  docker run --volume .:/pyfhd/input --user $(id -u):$(id -g) skywa7ch3r/pyfhd:latest pyfhd --get-sample-data 1088285600
 
 .. code-block:: bash
   
   # To run PyFHD with the sample data (with the output going to the current directory)
-  docker run -it --volume /path/to/output:/pyfhd/output --user $(id -u):$(id -g) skywa7ch3r/pyfhd:latest  \
+  docker run --volume /path/to/output:/pyfhd/output --volume /path/to/1088285600_example:/pyfhd/input/1088285600_example --user $(id -u):$(id -g) skywa7ch3r/pyfhd:latest  \
     pyfhd -c ./input/1088285600_example/1088285600_example.yaml \
     --description 108825600_docker_example \
     1088285600
@@ -1631,8 +1658,9 @@ HEALPIX
 The HEALPIX outputs from ``PyFHD`` are stored in the ``healpix`` directory. The translated parts of ``healpix_snapshot_cube_generate.pro`` from ``FHD`` have precision errors and potential bugs and they have caused differences
 in the resulting ``obs_id_hpx_even/odd_XX/YY.h5`` files the translation that exist in ``FHD``. So the ``obs_id_hpx_even/odd_XX/YY.h5`` files generated from ``PyFHD`` as the ``obs_id_even/odd_cubeXX/YY.sav`` files that exist in ``FHD``.
 However I'm not sure if they should be given that the differentces could just precision in which case there might be a problem at all. Furthermore the size of the files that get generated and the format, is not easy to create in 
-Python and takes a long time to create with regards to the rest of the ``PyFHD`` pipeline (and the resulting files are also large in when compared to other outputs). 
-With that said, by default healpix files are generated, the entirety of ``PyFHD`` runs in full. If you want to ensure that HEALPIX files are generated then adjust a config of your choice with the followng options:
+Python and takes a long time to create with regards to the rest of the ``PyFHD`` pipeline (and the resulting files are also large in when compared to other outputs). Recent tests also show issues with the fits files produced for 
+HEALPIX as well.
+With that said, by default healpix files are generated, the entirety of ``PyFHD`` runs in full. If you want to ensure that HEALPIX files are generated then adjust a config of your choice with the following options:
 
 .. code-block:: yaml
 
@@ -1656,7 +1684,7 @@ With that said, by default healpix files are generated, the entirety of ``PyFHD`
   healpix-inds: ~
   split-ps-export : true
   
-The most important options are the ``save-healpix-fits`` and the ``snapshot-healpix-export`` options, which are set to ``true`` by default and are the toggles which allow the HEALPIX functions to be called. 
+The most important options are the ``save-healpix-fits`` and the ``snapshot-healpix-export`` options, which are set to ``true`` by default and are the toggles which allow the HEALPIX functions to be called.
 
 Beam Setup
 ++++++++++

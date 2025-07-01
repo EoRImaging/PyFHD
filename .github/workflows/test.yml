@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.10, 3.11, 3.12]
+        python-version: [3.10.17, 3.11.12, 3.12.7, 3.13.3]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6.3
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
@@ -25,9 +25,20 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
 
+      - name: Cache test data
+        id: cache-test-data
+        uses: actions/cache@v4
+        with:
+          path: PyFHD/resources/test_data/pyfhd_test_data.zip
+          key: test-data-${{ hashFiles('**/pyfhd_test_data.zip') }}
+
       - name: Download the test data from Zenodo
+        if: steps.cache-test-data.outputs.cache-hit != 'true'
         run: |
           wget -O PyFHD/resources/test_data/pyfhd_test_data.zip https://zenodo.org/records/15687722/files/pyfhd_test_data.zip?download=1
+
+      - name: Unzip the test data
+        run: |
           unzip PyFHD/resources/test_data/pyfhd_test_data.zip -d PyFHD/resources/test_data
     
       - name: Run tests
@@ -42,15 +53,15 @@ jobs:
           sed -i 's/<title id="head-title">pyfhd_report.html<\/title>/<title id="head-title">PyFHD GitHub Actions Unit Test Report<\/title>/' pyfhd_report.html
     
       - name: Upload Unit Test HTML Report
-        if: ${{ matrix.python-version == '3.12' }}
-        uses: actions/upload-artifact@v3
+        if: ${{ matrix.python-version == '3.13.3' }}
+        uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
           path: pyfhd_report.html
 
       - name: Upload Coverage HTML Report Directory
-        if: ${{ matrix.python-version == '3.12' }}
-        uses: actions/upload-artifact@v3
+        if: ${{ matrix.python-version == '3.13.3' }}
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-html-report
           path: coverage_html_report/
@@ -64,16 +75,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download unit test report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: unit-test-report
           path: reports
 
       - name: Download coverage HTML report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage-html-report
-          path: reports/coverage
+          path: reports/coverage_html_report
 
       - name: Prepare pages content
         run: |

@@ -204,6 +204,9 @@ def vis_flag_basic(
     obs["n_tile_flag"] = np.count_nonzero(obs["baseline_info"]["tile_use"] == 0)
     obs["n_freq_flag"] = np.count_nonzero(obs["baseline_info"]["freq_use"] == 0)
 
+    if np.max(vis_weight_arr) == 0:
+        raise ValueError("All data has been flagged, check your flagging parameters")
+
     return vis_weight_arr, obs
 
 

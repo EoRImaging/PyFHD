@@ -17,9 +17,7 @@ def data_dir():
 
 @pytest.fixture
 def full_data_dir():
-    return Path(
-        env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram", "full_size_histogram"
-    )
+    return Path(env.get("PYFHD_TEST_PATH"), "pyfhd_tools", "histogram")
 
 
 @pytest.mark.github_actions
@@ -221,10 +219,10 @@ def test_normals_times_10(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
-def test_billion(data_dir: Path):
+def test_billion(full_data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
-        data_dir, "one_billion.npy", "one_billion_hist.npy", "one_billion_inds.npy"
+        full_data_dir, "one_billion.npy", "one_billion_hist.npy", "one_billion_inds.npy"
     )
     # Now that we're using numba it doesn't support every type, set it to more standard NumPy or Python types
     data = data.astype(int)
@@ -233,10 +231,10 @@ def test_billion(data_dir: Path):
     assert np.array_equal(indices, expected_indices)
 
 
-def test_billion_floats(data_dir: Path):
+def test_billion_floats(full_data_dir: Path):
     # Read the histogram file
     data, expected_hist, expected_indices = get_data(
-        data_dir,
+        full_data_dir,
         "one_billion_floats.npy",
         "one_billion_floats_hist.npy",
         "one_billion_floats_inds.npy",

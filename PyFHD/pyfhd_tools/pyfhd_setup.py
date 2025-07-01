@@ -115,7 +115,7 @@ def pyfhd_parser():
 
     Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-    Repository: https://github.com/ADACS-Australia/PyFHD
+    Repository: https://github.com/EoRImaging/PyFHD
 
     Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -138,7 +138,7 @@ def pyfhd_parser():
         default="./input/",
     )
     parser.add_argument(
-        "--copy-sample-data",
+        "--get-sample-data",
         action="store_true",
         help="Copy sample data from PyFHD package directory to the current working directory. Will copy to an 'input' directory.",
     )
@@ -146,7 +146,7 @@ def pyfhd_parser():
         "-r",
         "--recalculate-all",
         action=OrderedBooleanOptionalAction,
-        help="Forces PyFHD to recalculate all values. This will ignore values set for recalculate-grid, recalculate-beam, recalculate-mapfn as it will set all of them to True",
+        help="Forces PyFHD to recalculate all values. This will ignore values set for recalculate-grid, recalculate-beam, as it will set all of them to True",
     )
     parser.add_argument(
         "-s",
@@ -646,12 +646,12 @@ def pyfhd_parser():
     #     default=20000,
     #     help="The number of source components allowed to be found in fast holographic deconvolution.",
     # )
-    # deconv.add_argument(
-    #     "--dft-threshold",
-    #     default=False,
-    #     action=OrderedBooleanOptionalAction,
-    #     help="Set to True to use the DFT approximation. When set equal to 0 the true DFT is calculated for each source.\nIt can also be explicitly set to a value that determines the accuracy of the approximation.",
-    # )
+    parser.add_argument(
+        "--dft-threshold",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Set to True to use the DFT approximation. When set equal to 0 the true DFT is calculated for each source.\nIt can also be explicitly set to a value that determines the accuracy of the approximation.",
+    )
     # deconv.add_argument(
     #     "--return-decon-visibilities",
     #     default=False,
@@ -1100,7 +1100,7 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
 
         Translated from IDL to Python as a collaboration between Astronomy Data and Computing Services (ADACS) and the Epoch of Reionisation (EoR) Team.
 
-        Repository: https://github.com/ADACS-Australia/PyFHD
+        Repository: https://github.com/EoRImaging/PyFHD
 
         Documentation: https://pyfhd.readthedocs.io/en/latest/
 
@@ -1139,7 +1139,7 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
         dir_name = "pyfhd_" + log_time
     else:
         dir_name = "pyfhd_" + pyfhd_config["description"].replace(" ", "_")
-    if pyfhd_config["copy_sample_data"]:
+    if pyfhd_config["get_sample_data"]:
         output_dir = Path(pyfhd_config["output_path"])
     else:
         output_dir = Path(pyfhd_config["output_path"], dir_name)
@@ -1486,7 +1486,7 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     logger.info("Input validated, starting PyFHD run now")
 
     # Create the config directory
-    if not pyfhd_config["copy_sample_data"]:
+    if not pyfhd_config["get_sample_data"]:
         config_path = Path(output_dir, "config")
         config_path.mkdir(exist_ok=True)
         write_collated_yaml_config(pyfhd_config, config_path)

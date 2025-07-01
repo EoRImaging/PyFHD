@@ -23,7 +23,7 @@ ENV XDG_CACHE_HOME="/pyfhd/.cache"
 RUN mkdir -p /pyfhd/.cache/astropy /pyfhd/.config
 
 # Install the dependencies and project (This also creates the __git__.py file)
-RUN uv sync --locked --no-dev
+RUN uv sync --frozen --no-dev
 
 # Remove the cache directory for uv to reduce image size
 RUN rm -rf /pyfhd/.cache/uv

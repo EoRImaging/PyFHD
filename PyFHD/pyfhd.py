@@ -72,7 +72,7 @@ def finish_pyfhd(
     # Close all open h5 files
     if isinstance(psf, h5py.File):
         psf.close()
-    if not pyfhd_config["copy_sample_data"]:
+    if not pyfhd_config["get_sample_data"]:
         # Write a final collated yaml for the final pyfhd_config
         write_collated_yaml_config(
             pyfhd_config, Path(pyfhd_config["output_dir"], "config"), "-final"
@@ -91,13 +91,15 @@ def finish_pyfhd(
     for handler in logger.handlers:
         handler.close()
 
+    return
+
 
 def main():
     pyfhd_start = time.time()
     configargparser = pyfhd_parser()
     options = configargparser.parse_args()
 
-    if options.copy_sample_data:
+    if options.get_sample_data:
         options.input_path = importlib_resources.files("PyFHD").joinpath(
             "resources/1088285600_example"
         )
@@ -106,7 +108,7 @@ def main():
     # Validate options and Create the Logger
     pyfhd_config, logger = pyfhd_setup(options)
 
-    if pyfhd_config["copy_sample_data"]:
+    if pyfhd_config["get_sample_data"]:
         sample_path = Path(importlib_resources.files("PyFHD")).joinpath(
             "resources/1088285600_example"
         )
@@ -128,8 +130,9 @@ def main():
                     shutil.copyfile(file, dest_file)
                     logger.info(f"Copied sample data file: {file.name} to {dest_file}")
         finish_pyfhd(pyfhd_start, logger, None, pyfhd_config)
-        sys.exit(0)
+        return
 
+    pyfhd_successful = False
     try:
         checkpoint_name = pyfhd_config["description"]
         if pyfhd_config["description"] is None or pyfhd_config["description"] == "":
@@ -369,6 +372,10 @@ def main():
                     _print_time_diff(
                         flag_start, flag_end, "Visibilities Flagged", logger
                     )
+                    if np.max(vis_weights) == 0:
+                        raise ValueError(
+                            "All visibilities were flagged during the flagging step, exiting PyFHD."
+                        )
 
                 noise_start = time.time()
                 obs["vis_noise"] = vis_noise_calc(obs, vis_arr, vis_weights)
@@ -451,7 +458,8 @@ def main():
                 "The cal_stop option was used, calibration was finished, exiting PyFHD"
             )
             finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
-            exit(0)
+            pyfhd_successful = True
+            sys.exit(0)
 
         if (
             psf["image_info"]["image_power_beam_arr"] is not None
@@ -611,9 +619,8 @@ def main():
                 pyfhd_config,
                 logger,
             )
-
-        finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
         pyfhd_successful = True
+        finish_pyfhd(pyfhd_start, logger, psf, pyfhd_config)
     except Exception as e:
         logger.exception(
             f"An error occurred in PyFHD: {e}\n\tExiting PyFHD.",
@@ -622,7 +629,7 @@ def main():
         pyfhd_successful = False
     finally:
         if pyfhd_successful:
-            sys.exit(0)
+            return
         else:
             pyfhd_end = time.time()
             runtime = timedelta(seconds=pyfhd_end - pyfhd_start)
