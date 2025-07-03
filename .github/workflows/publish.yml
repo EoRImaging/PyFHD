@@ -3,6 +3,9 @@ name: Publish PyFHD
 on:
     release:
         types: [published]
+    workflow_dispatch:
+      # Only use workflow dispatch if the release failed for some reason
+      # and you want to retry the publishing process manually.
 
 jobs:
     publish-pypi:
