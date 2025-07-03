@@ -7,6 +7,9 @@ on:
 jobs:
     publish-pypi:
         runs-on: ubuntu-latest
+        permissions:
+          id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+          contents: read        # so actions/checkout can pull your code
         steps:
             - name: Check out repository
               uses: actions/checkout@v4
