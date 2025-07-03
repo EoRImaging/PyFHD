@@ -41,16 +41,27 @@ From there in that directory, you should be able to run the following command to
 The command on most machines takes 1-2 minutes to run, and the output is stored in the ``output`` directory. 
 
 This will run the entire PyFHD pipeline in this order: 
+
 1. Setting up the run with logs and outputs 
+
 2. Extracting visibilities
+
 3. Creating the observation metadata dictionary (and other metadata dictionaries)
+
 4. Import the beam
+
 5. Importing the skymodel
-6. Running calibration 
-7. Flagging 
-8. Gridding 
+
+6. Running calibration
+
+7. Flagging
+
+8. Gridding
+
 9. Exporting the results
+
 10. Generating HEALPIX fits and HEALPIX files (in HDF5 format)
+
 11. Finishing the run and cleaning up
 
 If the command runs successfully you should get a log to your terminal (stdout) that looks something like this:
@@ -475,6 +486,10 @@ Take note of the line:
 
 More details about the output of the PyFHD pipeline and the required inputs is clarified in the next section. 
 
+.. important::
+  The configuration used for the sample is very different to a full MWA run due to limited use of frequencies and times used in the sample data
+  to keep it small. For a better template to base your configuration on go to :ref:`_pyfhd-config-file`.
+
 The Required Inputs and the outputs of ``PyFHD``
 ----------------------------------------------------------
 
@@ -483,6 +498,8 @@ The Required Inputs and the outputs of ``PyFHD``
 the observation ID, it will use the default configuration file. The default configuration is not suitable for every observation, so it's
 likely you'll need to adjust the default configuration file to suit your needs. Some validation is performed before and during runtime of 
 ``PyFHD`` to check for incompatibilities though it is not exhaustive.
+
+.. _pyfhd-config-file:
 
 .. note::
   If you wish to use the default configuration file to do your own configurations, from inside the repository, you can find the configuration file
@@ -1641,8 +1658,9 @@ HEALPIX
 The HEALPIX outputs from ``PyFHD`` are stored in the ``healpix`` directory. The translated parts of ``healpix_snapshot_cube_generate.pro`` from ``FHD`` have precision errors and potential bugs and they have caused differences
 in the resulting ``obs_id_hpx_even/odd_XX/YY.h5`` files the translation that exist in ``FHD``. So the ``obs_id_hpx_even/odd_XX/YY.h5`` files generated from ``PyFHD`` as the ``obs_id_even/odd_cubeXX/YY.sav`` files that exist in ``FHD``.
 However I'm not sure if they should be given that the differentces could just precision in which case there might be a problem at all. Furthermore the size of the files that get generated and the format, is not easy to create in 
-Python and takes a long time to create with regards to the rest of the ``PyFHD`` pipeline (and the resulting files are also large in when compared to other outputs). 
-With that said, by default healpix files are generated, the entirety of ``PyFHD`` runs in full. If you want to ensure that HEALPIX files are generated then adjust a config of your choice with the followng options:
+Python and takes a long time to create with regards to the rest of the ``PyFHD`` pipeline (and the resulting files are also large in when compared to other outputs). Recent tests also show issues with the fits files produced for 
+HEALPIX as well.
+With that said, by default healpix files are generated, the entirety of ``PyFHD`` runs in full. If you want to ensure that HEALPIX files are generated then adjust a config of your choice with the following options:
 
 .. code-block:: yaml
 
@@ -1666,7 +1684,7 @@ With that said, by default healpix files are generated, the entirety of ``PyFHD`
   healpix-inds: ~
   split-ps-export : true
   
-The most important options are the ``save-healpix-fits`` and the ``snapshot-healpix-export`` options, which are set to ``true`` by default and are the toggles which allow the HEALPIX functions to be called. 
+The most important options are the ``save-healpix-fits`` and the ``snapshot-healpix-export`` options, which are set to ``true`` by default and are the toggles which allow the HEALPIX functions to be called.
 
 Beam Setup
 ++++++++++
