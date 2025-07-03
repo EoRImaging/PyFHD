@@ -3,10 +3,16 @@ name: Publish PyFHD
 on:
     release:
         types: [published]
+    workflow_dispatch:
+      # Only use workflow dispatch if the release failed for some reason
+      # and you want to retry the publishing process manually.
 
 jobs:
     publish-pypi:
         runs-on: ubuntu-latest
+        permissions:
+          id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+          contents: read        # so actions/checkout can pull your code
         steps:
             - name: Check out repository
               uses: actions/checkout@v4
@@ -25,4 +31,6 @@ jobs:
                 uv build -v
 
             - name: Publish to PyPI
+              env:
+                UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }}
               run: uv publish --trusted-publishing automatic
