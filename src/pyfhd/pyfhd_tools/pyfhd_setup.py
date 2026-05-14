@@ -3,7 +3,6 @@ import importlib_resources
 import logging
 import os
 import re
-import subprocess
 import sys
 import time
 from glob import glob
@@ -43,50 +42,39 @@ class OrderedBooleanOptionalAction(argparse.BooleanOptionalAction):
 def git_info():
     version_str = version("pyfhd")
     parts = version_str.split(".")
+
+    if ".dev" not in version_str:
+        tag = version_str
+        return tag, None, None, False
+
     dirty_flag = False
-    branch_flag = False
+    commit = None
+    branch = None
+
+    dev_loc = version_str.find(".dev")
+    tag = version_str[:dev_loc]
     if parts[-1] == "dirty":
         dirty_flag = True
-    if "+g" in version_str:
-        commit_part = 0
-        for part_num, part in enumerate(parts):
-            if "+g" in part:
-                commit_part = part_num
-                commit = part.split("+g")[-1]
-        branch_part = commit_part + 1
-        if not dirty_flag:
-            if len(parts) > commit_part + 1:
-                branch_flag = True
-        else:
-            if len(parts) > commit_part + 2:
-                branch_flag = True
-        if branch_flag:
-            branch = parts[branch_part]
-        else:
-            branch = None
+
+    # get commit
+    for part_num, part in enumerate(parts):
+        if "+g" in part:
+            commit_part = part_num
+            commit = part.split("+g")[-1]
+            break
+    branch_part = commit_part + 1
+    if not dirty_flag:
+        if len(parts) > commit_part + 1:
+            branch_flag = True
     else:
-        commit = None
+        if len(parts) > commit_part + 2:
+            branch_flag = True
+    if branch_flag:
+        branch = parts[branch_part]
+    else:
+        branch = None
 
-    if commit is None:
-        # try getting it from git (only works for editable installs)
-        commit = (
-            subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL
-            )
-            .decode()
-            .strip()
-        )
-        if branch is None:
-            branch = (
-                subprocess.check_output(
-                    ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                    stderr=subprocess.DEVNULL,
-                )
-                .decode()
-                .strip()
-            )
-
-    return commit, branch, dirty_flag
+    return tag, commit, branch, dirty_flag
 
 
 def pyfhd_parser():
@@ -152,16 +140,16 @@ def pyfhd_parser():
     healpix = parser.add_argument_group("HEALPIX", "Adjust the HEALPIX output")
 
     # Version Argument
-    commit, branch, dirty_flag = git_info()
+    tag, commit, branch, dirty_flag = git_info()
     commit_str = ""
     if commit is not None:
         commit_str += f" {commit}"
         if branch is not None:
             commit_str += f" (branch: {branch})"
+        if dirty_flag:
+            commit_str += " DIRTY (uncommitted changes)"
     else:
-        commit_str = " unknown"
-    if dirty_flag:
-        commit_str += " DIRTY (uncommitted changes)"
+        commit_str = tag
 
     version_string = f"""\
     ________________________________________________________________________
@@ -1443,16 +1431,16 @@ def pyfhd_logger(pyfhd_config: dict) -> Tuple[logging.Logger, Path]:
             "pyfhd_" + pyfhd_config["description"].replace(" ", "_") + "_" + log_time
         )
 
-    commit, branch, dirty_flag = git_info()
+    tag, commit, branch, dirty_flag = git_info()
     commit_str = ""
     if commit is not None:
         commit_str += f" {commit}"
         if branch is not None:
             commit_str += f" (branch: {branch})"
+        if dirty_flag:
+            commit_str += " DIRTY (uncommitted changes)"
     else:
-        commit_str = " unknown"
-    if dirty_flag:
-        commit_str += " DIRTY (uncommitted changes)"
+        commit_str = tag
 
     pyfhd_config["version"] = version("pyfhd")
     pyfhd_config["commit"] = commit
