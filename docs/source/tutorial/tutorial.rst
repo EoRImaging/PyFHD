@@ -674,7 +674,7 @@ gridding.
 
 .. code-block:: bash
 
-  pyfhd -c ./input/1088285600_example/1088285600_example.yaml --calibrate-checkpoint ./output/pyfhd_1088285600_example/checkpoints/1088285600_example_calibrate_checkpoint.h5 1088285600
+  pyfhd -c ./input/1088285600_example/1088285600_example.yaml --calibrate-checkpoint 1088285600
 
 Within the logs of the ``pyfhd`` you should see the following message::
 
