@@ -774,24 +774,24 @@ tab as shown below:
   :width: 800px
 
 In this download we are using an observation with Observation ID
-(which is the GPS time) 1091128160. We set the Time Resolution(s) to ``2``,
+(which is the GPS time) 1091128160. We set the Time Resolution (s) to ``2``,
 Frequency Resolution and Edge Width to ``80 kHz``, Phase Centre to
 ``Centre on pointing centre`` and swap the 'Output' format to ``UVFITS``.
 Click Submit to launch the job.
 
 .. tip::
 
-  If you change these values for time resolution, frequency resolution and/or
+  If you change these values for time resolution, frequency resolution, and/or
   edge width, double check your skymodel is using the same parameters.
 
 We also need a metafits file, which we can access via the 'Visibility Download Job' tab.
 Input the Obs ID, and be sure to click the 'PPD, Metafits, and Flags' option
-like below (otherwise you download the raw data as well, which we don't need):
+as shown below (otherwise you download the raw data as well, which we don't need):
 
 .. image:: meta_job_form.png
   :width: 800px
 
-You can check the status of your download by clicking 'My Jobs' in the top left.Once they are ready to download, you'll see something like:
+You can check the status of your download by clicking 'My Jobs' in the top left. Once they are ready to download, you'll see something like:
 
 .. image:: jobs_ready.png
   :width: 800px
@@ -799,7 +799,7 @@ You can check the status of your download by clicking 'My Jobs' in the top left.
 Getting the tutorial data
 -------------------------
 
-For the data we use for the full MWA observations you can download the required
+For the data we use for the full MWA observations, you can download the required
 files from here:
 
 `pyfhd Tutorial Data <https://tinyurl.com/pyfhd-tutorial-data>`_
@@ -823,7 +823,7 @@ Calibration is fully available in ``pyfhd`` and can be enabled using the
 ``--calibrate-visibilities`` option being set to true. Most of the options for
 calibration are found under the
 `Calibration <../documentation/documentation.html#pyfhd.pyfhd_tools.pyfhd_setup-pyfhd_parser-calibration>`_ group in the argument parser.
-The first example we'll do is the a calibration of the sample data using only
+The first example we'll do is the calibration of the sample data using only
 the command line interface to show the options that changed
 in comparison to the template in the root of the repository (which will be used
 by default here).
@@ -833,7 +833,7 @@ Running calibration on the sample data
 
 .. tip::
 
-  This assumes you have retrieved the sample data and have it the directory
+  This assumes you have retrieved the sample data and have it in the directory
   ``input/1088285600_example/``. If you haven't retrieved the sample data,
   please refer to the section above on how to get the :ref:`sample-data`.
 
@@ -860,7 +860,7 @@ Running calibration on the sample data
     --image-plots \
     1088285600
 
-Here you some some solutions from the calibration of the sample data:
+Here you have some solutions from the calibration of the sample data:
 
 .. image:: 1088285600_cal_amp.png
   :width: 800px
