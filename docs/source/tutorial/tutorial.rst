@@ -729,8 +729,8 @@ to temporarily negate the options set in the configuration file via the command 
   code overrides the YAML or command line options, either add the warning to
   the code yourself and do a Pull request or open an issue on the repository.
 
-If you wish to see all the options ``pyfhd`` has available, find them in one of
-the following places:
+If you wish to see all the options ``pyfhd`` has available, you can find them 
+in one of the following places:
 
 CLI
 +++
