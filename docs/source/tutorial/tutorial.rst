@@ -702,7 +702,7 @@ the options are new and specific to ``pyfhd``. Some have been renamed from `FHD`
 and, in the case of being renamed, the old name is referenced inside the help
 text of the option.
 
-Most of the options are numbers, lists of numbers, strings or list of strings,
+Most of the options are numbers, lists of numbers, strings, or list of strings,
 however some of the options are booleans. These booleans will have at minimum
 two arguments that target the one option, one is the option itself, for example,
 ``--silent`` which when used will set the ``silent`` option to ``True``, and
