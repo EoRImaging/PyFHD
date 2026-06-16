@@ -764,7 +764,7 @@ Data can be obtained via the `MWA ASVO`_ service (head to the webpage to get an
 account setup). There are multiple ways to download data (please refer to the
 `MWA ASVO`_ to learn more); here we will use the Web Dashboard as an example.
 
-``pyfhd`` uses a UVFITS file as input. The raw data out of the MWA telescope
+``pyfhd`` uses a UVFITS file as the input. The raw data out of the MWA telescope
 comes in a bespoke format, so we must convert the data into a UVFITS file. On
 the `MWA ASVO`_, login with your credentials, then head to 'My Jobs' in the top
 right corner, and click "New Data Job". Select the 'Visibility Conversion Job'
