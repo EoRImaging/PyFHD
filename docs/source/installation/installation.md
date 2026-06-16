@@ -70,7 +70,7 @@ You can Verify the installation using the version command
 pyfhd -v
 ```
 
-It should give you output that looks like this:
+It should give you an output that looks like this:
 
 ```
     ________________________________________________________________________

@@ -654,10 +654,10 @@ stored in the ``checkpoints`` directory and they are saved at the following poin
 - ``obs_checkpoint`` - ``obs`` dict creation, reading of visibilities and weights,
   creation of the ``params`` dict
 - ``calibrate_checkpoint`` - End of calibration, creation of the ``cal`` dict
-  which holds the calculated gains, metadata etc, the skymodel after being imported
-  and the weights which have been updated after calibration.
+   which saves the observations, params, calibrated visibilities, model visibilities,
+   and visivility weights.
 - ``gridding_checkpoint`` - End of gridding, creation of the ``gridding`` dict
-  which holds the gridded visibilities and associated weights, variances, models, etc
+  which holds the gridded visibilities, associated weights, variances, models, etc.
 
 In the case that you wish to skip a step in the pipeline, you can use the
 ``--calibrate-checkpoint`` or ``--grid-checkpoint`` options to skip the calibration
