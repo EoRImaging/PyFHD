@@ -697,7 +697,7 @@ Alternatively, you can use the example configuration file ``1088285600_example.y
 in the ``input/1088285600_example`` directory to build your configuration file.
 All of these options replace the
 `dictionary.md <https://github.com/EoRImaging/FHD/blob/master/dictionary.md>`_
-file that used in `FHD`_, most of the options come from `FHD`_, however some of
+file that is used in `FHD`_, most of the options come from `FHD`_, however some of
 the options are new specific to ``pyfhd`` and some have been renamed from `FHD`_
 and in the case of being renamed, the old name is referenced inside the help
 text of the option.
