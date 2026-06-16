@@ -784,7 +784,7 @@ Click Submit to launch the job.
   If you change these values for time resolution, frequency resolution and/or
   edge width, double check your skymodel is using the same parameters.
 
-We also need a metafits tile, which we can access via the 'Visibility Download Job' tab.
+We also need a metafits file, which we can access via the 'Visibility Download Job' tab.
 Input the Obs ID, and be sure to click the 'PPD, Metafits, and Flags' option
 like below (otherwise you download the raw data as well, which we don't need):
 
