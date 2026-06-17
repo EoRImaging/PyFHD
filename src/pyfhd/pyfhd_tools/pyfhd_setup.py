@@ -369,7 +369,7 @@ def pyfhd_parser():
         default=False,
         action=OrderedBooleanOptionalAction,
         help="Turn on the calibration of the visibilities. If turned on, "
-        "calibration of the dirty, modelling, and subtraction to make a residual "
+        "calibration of the dirty, modeling, and subtraction to make a residual "
         "occurs. Otherwise, none of these occur and an uncalibrated dirty cube "
         "is output.",
     )
@@ -446,7 +446,7 @@ def pyfhd_parser():
         type=Path,
         default=None,
         help="Use a saved bandpass for bandpass calibration. Read in the "
-        "specified file with calfits format greatly preferred.",
+        "specified file with calfits, preferred format.",
     )
     calibration.add_argument(
         "--calibration-polyfit",
@@ -488,9 +488,9 @@ def pyfhd_parser():
         action=OrderedBooleanOptionalAction,
         help="Hyperresolve and fit residual gains using nominal reflection modes "
         "(calculated from cal_reflection_mode_delay or cal_reflection_mode_theory),\n"
-        "producing a finetuned mode fit, amplitude, and phase.\n"
+        "producing a fine tuned mode fit, amplitude, and phase.\n"
         "Will be ignored if cal_reflection_mode_file is set because it is assumed "
-        "that a file read-in contains mode/amp/phase to use.",
+        "that a file read-in contains mode, amp, and phase to use.",
     )
     calibration.add_argument(
         "--cal-reflection-mode-theory",
@@ -518,17 +518,17 @@ def pyfhd_parser():
         help="Use predetermined cable reflection parameters (mode, amplitude, "
         "and phase) in the calibration solutions from a file.\n"
         "The specified format of the text file must have one header line and eleven columns:\n"
-        "tile index\n"
-        "tile name\n"
-        "cable length\n"
-        "cable velocity factor\n"
-        "logic on whether to fit (1) or not (0)\n"
-        "mode for X\n"
-        "amplitude for X\n"
-        "phase for X\n"
-        "mode for Y\n"
-        "amplitude for Y\n"
-        "phase for Y. The file will be instrument_config of the input directory",
+        "tile index,\n"
+        "tile name,\n"
+        "cable length,\n"
+        "cable velocity factor,\n"
+        "logic on whether to fit (1) or not (0),\n"
+        "mode for X,\n"
+        "amplitude for X,\n"
+        "phase for X,\n"
+        "mode for Y,\n"
+        "amplitude for Y,\n"
+        "and phase for Y. The file will be instrument_config in the input directory.",
     )
     calibration.add_argument(
         "--calibration-auto-fit",
@@ -543,8 +543,8 @@ def pyfhd_parser():
         "--calibration-auto-initialize",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="initialize gain values for calibration with the autocorrelations. "
-        "If unset, gains will initialize to 1 or the value supplied by cal_gain_init",
+        help="Using autocorrelations, initialize gain values for calibration. "
+        "If not set, gains will initialize to 1 or the value supplied by cal_gain_init.",
     )
     calibration.add_argument(
         "--cal-gain-init",
