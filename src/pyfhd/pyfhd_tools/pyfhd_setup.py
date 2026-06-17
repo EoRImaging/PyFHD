@@ -104,7 +104,7 @@ def pyfhd_parser():
         prog="pyfhd",
         description="This is the Python Fast Holographic Deconvolution package, "
         "only the observation ID (obs_id) and configuration (-c, --config) is "
-        "required to start your run, but you should need to modify these arguments "
+        "required to start your run, but you will need to modify these arguments "
         "below to get something useful. If you don't supply a configuration file, "
         "pyfhd will use the default configuration file in the resources/config "
         "directory from the pyfhd install.",
@@ -202,7 +202,7 @@ def pyfhd_parser():
         "-i",
         "--input-path",
         type=Path,
-        help="Directory for the uvfits files and other inputs, by default it "
+        help="Directory for the uvfits files and other inputs. By default it "
         "looks for a directory called input in the working directory",
         default="./input/",
     )
@@ -270,7 +270,7 @@ def pyfhd_parser():
         "determine kbinsize, which will be set to !RaDeg/FoV.\n"
         "This means that the pixel size at phase center times dimension is "
         "approximately equal to FoV, which is not equal to the actual field of "
-        "view owing to larger pixel sizes away from phase center.\n"
+        "view because pixels further from the phase center are larger.\n"
         "If set to 0, then kbinsize determines the UV resolution.",
     )
     parser.add_argument(
@@ -290,7 +290,7 @@ def pyfhd_parser():
         "--memory-threshold",
         type=int,
         default=1e9,
-        help="Set a memory threshold for each chunk in set in bytes. By default "
+        help="Set a memory threshold for each chunk in bytes. By default "
         "it is set at ~100MB",
     )
     parser.add_argument(
@@ -318,28 +318,28 @@ def pyfhd_parser():
         "--obs-checkpoint",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Load the checkpoint just after creating the observation metadata "
-        "dictionary, should contain the observation metadata dictionary, "
-        "uncalibrated visibility parameters, array and weights. If "
-        "calibrate-checkpoint has been set, then obs-checkpoint will be ignored",
+        help="Load the checkpoint just after the creation of observation metadata "
+        "dictionary. It should contain the observation metadata dictionary "
+        "and the uncalibrated visibility parameters, arrays, and weights. If "
+        "calibrate-checkpoint has been set, then obs-checkpoint will be ignored.",
     )
     checkpoints.add_argument(
         "--calibrate-checkpoint",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Load the checkpoint after calibration containing the observation "
-        "metadata dictionary with flagged tiles and frequencies, the calibration "
-        "dictionary containing the gains and the calibrated visibility "
-        "parameters, model, array and weights.",
+        help="Load the checkpoint after calibration. This contains the flagged "
+        "observation metadata dictionary and the calibration dictionary, as well "
+        "as the calibrated and flagged visibility parameters, arrays, and weights.",
     )
     checkpoints.add_argument(
         "--gridding-checkpoint",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Load the checkpoint after gridding containing the gridded uv "
-        "planes for the image, weights, variance and filter, with an updated "
-        "observation metadata dictionary. Should be used in conjunction with the "
-        "calibrate-checkpoint option",
+        help="Load the checkpoint after gridding. This contains the gridded uv "
+        "planes for the image, weights, variance, and uniform filter. Additionally, "
+        "if a model has been provided, its visibility array will gridded on the "
+        "uv plane and saved in this checkpoint. This must be used with the "
+        "calibrate-checkpoint option.",
     )
 
     # Instrument Group
