@@ -376,9 +376,9 @@ def pyfhd_parser():
     calibration.add_argument(
         "--transfer-calibration",
         type=Path,
-        help="The file path of a calibration to be read-in, if you give a "
-        "directory pyfhd expects there to be a file called <obs_id>_cal.hdf5 "
-        "using the same observation as you plan to process.",
+        help="The file path of the calibration that is to be read-in. If you "
+        "give a directory, pyfhd expects there to be a file called "
+        "<obs_id>_cal.hdf5 for the same observation you plan to process.",
     )
     calibration.add_argument(
         "--cal-stop",
@@ -405,20 +405,20 @@ def pyfhd_parser():
         "--cal-adaptive-calibration-gain",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Controls whether to use a Kalman Filter to adjust the gain to use "
-        "for each iteration of calculating calibration.",
+        help="Controls whether to use a Kalman Filter is used to adjust the "
+        "gain used in each iteration of the calibration process.",
     )
     calibration.add_argument(
         "--cal-base-gain",
         type=float,
         default=None,
-        help="The relative weight to give the old calibration solution when "
-        "averaging with the new. Set to 1. to give equal weight, to 2. to give "
-        "more weight to the old solution and slow down convergence, or to 0.5 to "
-        "give greater weight to the new solution and attempt to speed up "
-        "convergence. If use_adaptive_calibration_gain is set, the weight of the "
-        "new calibration solutions will be calculated in the range "
-        "cal_base_gain/2. to 1.0",
+        help="The relative weight to give the old calibration solution "
+        "when averaging it with the new solution. Set to 1 to give equal weight. "
+        "Set to 2 to give more weight to the old solution and slow down "
+        "convergence. Conversely, set to 0.5 to give less weight to the old "
+        "solution and speed up convergence. If use_adaptive_calibration_gain "
+        "is set, the weight of the new calibration solutions will be calculated "
+        "in the range cal_base_gain/2. to 1.0.",
     )
     calibration.add_argument(
         "--min-cal-baseline",
@@ -608,9 +608,8 @@ def pyfhd_parser():
         type=int,
         help="Sets the maximum number of iterations allowed for the linear "
         "least-squares solver to converge during vis_calibrate_subroutine. "
-        "Ideally do not set this number unless you notice some of the frequencies "
-        "not reaching convergence within 100 iterations and do not set this "
-        "number to 5 or less.",
+        "Ideally, this value should be left as default unless some frequencies "
+        "fail to converge within 100 iterations. Do not set this value to 5 or less.",
     )
 
     # Flagging Group
@@ -641,21 +640,21 @@ def pyfhd_parser():
         "--flag-calibration-frequencies",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="If True, flags frequencies based off 0 calibration gain, if False, "
-        "ignores the calibration gain for frequencies",
+        help="If True, frequencies are flagged based on a calibration gain of 0. "
+        "If False, calibration gain for frequencies is ignored.",
     )
     flag.add_argument(
         "-fb",
         "--flag-basic",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Flags Frequencies and Tiles based on your configuration, params "
-        "and the visibility weights.\n"
-        "The freq_use, tile_use arrays of obs will be adjusted and the "
-        "vis_weights_arr adjusted to be in line with the freq_use and tile_use arrays.\n"
-        "This should be True always, the only time you should consider turning "
-        "off basic flagging is when you're dealing with a simulated visibilities "
-        "and weights in pyfhd",
+        help="Flags Frequencies and Tiles based on your configuration, params, "
+        "and visibility weights.\n"
+        "The freq_use and tile_use arrays of obs will be adjusted, and the "
+        "vis_weights_arr will be put in line with the freq_use and tile_use arrays.\n"
+        "This should always be True; the only time you should consider turning "
+        "off basic flagging is when you're dealing with simulated visibilities "
+        "and weights in pyfhd.",
     )
     flag.add_argument(
         "-ft",
@@ -664,7 +663,7 @@ def pyfhd_parser():
         type=list,
         action="append",
         help="A list of tile names to manually flag. I repeat, a list of tile "
-        "names, NOT tile indices",
+        "names, NOT tile indices.",
     )
     flag.add_argument(
         "-ff",
@@ -672,7 +671,7 @@ def pyfhd_parser():
         default=False,
         action=OrderedBooleanOptionalAction,
         help="When set to False, pyfhd will not flag any frequencies inside of "
-        "`vis_flag_basic`, `vis_weights_update` or `vis_calibration_flag`.",
+        "`vis_flag_basic`, `vis_weights_update`, or `vis_calibration_flag`.",
     )
     flag.add_argument(
         "--flag-freq-start",
@@ -873,7 +872,7 @@ def pyfhd_parser():
         "--mask-mirror-indices",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Inside baseline_grid_location optionally exclude v-axis mirrored baselines",
+        help="Inside baseline_grid_location, optionally exclude v-axis mirrored baselines",
     )
     gridding.add_argument(
         "--grid-weights",
@@ -972,9 +971,9 @@ def pyfhd_parser():
         "--description",
         type=str,
         default=None,
-        help="A more detailed description of the current task, will get applied "
-        "to the output directory and logging where all output will be stored.\n"
-        "By default the date and time is used",
+        help="A more detailed description of the current task is applied "
+        "to the output directory and logs where the output will be stored.\n"
+        "By default, the date and time is used.",
     )
     export.add_argument(
         "--export-images",
@@ -986,15 +985,15 @@ def pyfhd_parser():
         "--snapshot-healpix-export",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Save model/dirty/residual/weights/variance cubes as healpix arrays, "
-        "split into even and odd time samples, in preparation for epsilon.",
+        help="Save model, dirty, residual, weights, and variance cubes as healpix "
+        "arrays, which are split into even and odd time samples, in preparation for epsilon.",
     )
     export.add_argument(
         "--pad-uv-image",
         type=float,
         default=1.0,
         help="Pad the UV image by this factor with 0's along the outside so that "
-        "output images are at a higher resolution.",
+        "output images have a higher resolution.",
     )
     export.add_argument(
         "--ring-radius-multi",
@@ -1021,13 +1020,13 @@ def pyfhd_parser():
         "--save-cal",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Save the calibration dictionary created during pyfhd's run",
+        help="Save the cal dictionary created during pyfhd's run",
     )
     export.add_argument(
         "--save-visibilities",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Save the raw visibilities, calibrated data visibilities, the model "
+        help="Save the raw visibilities, the calibrated data visibilities, the model "
         "visibilities, and the gridded uv planes",
     )
     export.add_argument(
@@ -1047,7 +1046,7 @@ def pyfhd_parser():
         "--save-model",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Save the model visibilities created transferred in during pyfhd's run as HDF5.",
+        help="Save the model visibilities created/transferred in during pyfhd's run as HDF5.",
     )
 
     # Plotting Group
@@ -1055,7 +1054,7 @@ def pyfhd_parser():
         "--calibration-plots",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Turns on the plotting of calibration solutions",
+        help="Turns on the plotting of the calibration solutions",
     )
     plotting.add_argument(
         "--gridding-plots",
@@ -1115,9 +1114,9 @@ def pyfhd_parser():
         default=False,
         action=OrderedBooleanOptionalAction,
         help="Allows pyfhd to model sources in the sidelobes for subtraction.\n"
-        "Forces the beam_threshold to 0.01 in order to go down to 1%% of the "
-        "beam to capture sidelobe sources during the generation of a model "
-        "calibration source catalog for the particular observation.",
+        "In order to capture the sidelobe sources during the generation "
+        "of a model calibration source catalog, 1 %% of the beam must be used, "
+        "which is done by setting the beam_threshold to 0.01.",
     )
 
     # Simultation Group
@@ -1188,14 +1187,14 @@ def pyfhd_parser():
         "--ps-kbinsize",
         type=float,
         default=0.5,
-        help="UV pixel size in wavelengths to grid for Healpix cube generation. "
+        help="UV pixel size in wavelengths to grid for HEALPix cube generation. "
         "Overrides ps_fov and the kpix in the obs structure if set.",
     )
     healpix.add_argument(
         "--ps-kspan",
         type=int,
         default=0,
-        help="UV plane dimension in wavelengths for Healpix cube generation.\n"
+        help="UV plane dimension in wavelengths for HEALPix cube generation.\n"
         "Overrides ps_dimension and ps_degpix if set.\n"
         "If ps_kspan, ps_dimension, or ps_degpix are not set, the UV plane dimension "
         "is calculated from the FoV and the degpix from the obs structure.",
@@ -1204,23 +1203,23 @@ def pyfhd_parser():
         "--ps-beam-threshold",
         type=float,
         default=0,
-        help="Minimum value to which to calculate the beam out to in image space. "
+        help="Minimum value to calculate the beam out to in image space. "
         "The beam in UV space is pre-calculated and may have its own "
-        "beam_threshold (see that keyword for more information), and this is "
-        "only an additional cut in image space.",
+        "beam_threshold (see that keyword for more information). This is "
+        "just an additional cut in image space.",
     )
     healpix.add_argument(
         "--ps-fov",
         type=float,
         default=None,
-        help="Field of view in degrees for Healpix cube generation. Overrides "
+        help="Field of view in degrees for HEALPix cube generation. Overrides "
         "kpix in the obs dictionary if set.",
     )
     healpix.add_argument(
         "--ps-dimension",
         type=int,
         default=None,
-        help="UV plane dimension in pixel number for Healpix cube generation. "
+        help="UV plane dimension in pixel number for HEALPix cube generation. "
         "Overrides ps_degpix if set. If ps_kspan, ps_dimension, or ps_degpix are "
         "not set, the UV plane dimension is calculated from the FoV and the "
         "degpix from the obs dictionary.",
@@ -1229,7 +1228,7 @@ def pyfhd_parser():
         "--ps-degpix",
         type=float,
         default=None,
-        help="Degrees per pixel for Healpix cube generation. If ps_kspan, "
+        help="Degrees per pixel for HEALPix cube generation. If ps_kspan, "
         "ps_dimension, or ps_degpix are not set, the UV plane dimension is "
         "calculated from the FoV and the degpix from the obs dictionary.",
     )
@@ -1246,7 +1245,7 @@ def pyfhd_parser():
         type=list,
         default=[],
         action="append",
-        help="A list of tile names to manually flag in the healpix export. "
+        help="A list of tile names to manually flag in the HEALPix export. "
         "I repeat, a list of tile names, NOT tile indices.",
     )
     healpix.add_argument(
@@ -1267,26 +1266,26 @@ def pyfhd_parser():
         "--restrict-healpix-inds",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Only allow gridding of the output healpix cubes to include the "
-        "healpix pixels specified in a file.\n"
-        "This is useful for restricting many observations to have consistent "
-        "healpix pixels during integration, and saves on memory and walltime.",
+        help="Only allow gridding of the output HEALPix cubes to include the "
+        "HEALPix pixels specified in a file.\n"
+        "This is useful for restricting many observations, resulting in consistent "
+        "HEALPix pixels during integration. It also saves memory and walltime.",
     )
     healpix.add_argument(
         "--healpix-inds",
         default=None,
         type=Path,
-        help="In the event you want to restrict the healpix indices to a specified "
+        help="In the event you want to restrict the HEALPix indices to a specified "
         "file, use a combination of restrict-healpix-inds and this argument to "
-        "restrict the healpix indexes to your given file rather than a "
+        "restrict the HEALPix indexes to your given file rather than a "
         "predetermined one from the obs dictionary.",
     )
     healpix.add_argument(
         "--split-ps-export",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Split up the Healpix outputs into even and odd time samples.\n"
-        "This is essential to propogating errors in εppsilon.\n"
+        help="Split up the HEALPix outputs into even and odd time samples.\n"
+        "This is essential to propagating errors in εppsilon.\n"
         "Requires more than one time sample.",
     )
 
