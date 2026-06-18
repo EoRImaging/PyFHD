@@ -1201,8 +1201,9 @@ Gridding
   file into a ``HDF5`` file, in the same location as the ``sav`` file.
 
 Running the gridding step in ``pyfhd`` is relatively simple as its enabled by
-default, and the small number of options available to you are found in the
-Gridding section of the API Documentation.
+default, and the small number of options available to you are found here
+`Gridding <https://pyfhd.readthedocs.io/en/latest/documentation/documentation.html#gridding>`_
+in the Gridding section of the API Documentation. 
 
 Running Gridding with the sample data
 +++++++++++++++++++++++++++++++++++++
