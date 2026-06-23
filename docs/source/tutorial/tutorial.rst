@@ -1797,20 +1797,17 @@ Problems that need to be solved
 HEALPIX
 +++++++
 The HEALPIX outputs from ``pyfhd`` are stored in the ``healpix`` directory. The
-translated parts of ``healpix_snapshot_cube_generate.pro`` from ``FHD`` have
-precision errors, potential bugs, and they have caused differences in the
-resulting ``obs_id_hpx_even/odd_XX/YY.h5`` files the translation that exist in
-``FHD``. So the ``obs_id_hpx_even/odd_XX/YY.h5`` files generated from ``pyfhd``
-as the ``obs_id_even/odd_cubeXX/YY.sav`` files that exist in ``FHD``.
-However, I'm not sure if they should be given that the differentces could just
-precision in which case there might be a problem at all. Furthermore the size of
-the files that get generated and the format is not easy to create in Python, and
-takes a long time to create with regards to the rest of the ``pyfhd`` pipeline
-(and the resulting files are also large in when compared to other outputs).
-Recent tests also show issues with the fits files produced for  HEALPIX as well.
-With that said, by default healpix files are generated, the entirety of ``pyfhd``
-runs in full. If you want to ensure that HEALPIX files are generated then adjust
-a config of your choice with the following options:
+translated parts of ``healpix_snapshot_cube_generate.pro`` from ``FHD`` may have
+precision errors and potential bugs. When comparing power spectrum from pyfhd 
+and FHD, a power issue was observed. Calibrating and gridding have been 
+validated down to floating point precision, so we assume the issue lies 
+in Healpix generation.
+
+By default, healpix files are generated, as long as the entirety of ``pyfhd``
+runs in full. In the config file, the most important options are the 
+``save-healpix-fits`` and the ``snapshot-healpix-export`` options, which 
+are set to ``true`` by default and are the toggles which allow the HEALPIX 
+functions to be called. The config file has the following options:
 
 .. code-block:: yaml
 
@@ -1833,10 +1830,6 @@ a config of your choice with the following options:
   restrict-healpix-inds : true
   healpix-inds: ~
   split-ps-export : true
-
-The most important options are the ``save-healpix-fits`` and the
-``snapshot-healpix-export`` options, which are set to ``true`` by default and are
-the toggles which allow the HEALPIX functions to be called.
 
 Beam Setup
 ++++++++++
