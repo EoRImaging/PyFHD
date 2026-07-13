@@ -458,8 +458,10 @@ def load_dataset(
     pyfhd.io.pyfhd_io.load : Load a HDF5 file
     """
     # If the corresponding attribute is True set the current
-    # key to None as its an empty dataset
-    if h5py_obj.attrs[key]:
+    # key to None as its an empty dataset. Files not written by pyfhd's save()
+    # (e.g. HDF5 produced by deepdish/PyTables) don't carry this sentinel
+    # attribute, so a missing attribute means the dataset holds real data.
+    if h5py_obj.attrs.get(key, False):
         return None
     else:
         if dataset.shape == ():
