@@ -501,10 +501,11 @@ def group_to_dict(group: h5py.Group) -> dict:
 
 
 def load(
-    file_name: Path, logger: Logger | None = None,
+    file_name: Path,
+    logger: Logger | None = None,
     lazy_load: bool = False,
-    ret_attrs: bool = False
-    ) -> dict[str, object] | NDArray[Any] | h5py.File:
+    ret_attrs: bool = False,
+) -> dict[str, object] | NDArray[Any] | h5py.File:
     """
     Loads a HDF5 file into pyfhd, it reads the HDF5 into an array if the
     HDF5 file contains a single dataset, while a HDF5 which contains multiple
@@ -563,7 +564,7 @@ def load(
                             return_dict[key] = load_dataset(h5_file, key, h5_file[key])
                         case h5py.Group():
                             return_dict[key] = group_to_dict(h5_file[key])
-                else:  
+                else:
                     # If not in the primary keys, it's an attribute
                     return_dict[key] = h5_file.attrs[key]
             return return_dict
