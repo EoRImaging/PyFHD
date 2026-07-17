@@ -163,7 +163,7 @@ def healpix_cnv_generate(
             pyfhd_config["healpix_inds"] = importlib_resources.files(
                 "pyfhd.resources.healpix"
             ).joinpath(files[min_i]["name"])
-        hpx_inds = load(pyfhd_config["healpix_inds"], logger=logger)
+        hpx_inds = load(pyfhd_config["healpix_inds"], logger=logger, ret_attrs=True)
         if isinstance(hpx_inds, dict):
             if "nside" in hpx_inds:
                 nside = hpx_inds["nside"]
