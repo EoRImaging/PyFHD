@@ -458,8 +458,10 @@ def load_dataset(
     pyfhd.io.pyfhd_io.load : Load a HDF5 file
     """
     # If the corresponding attribute is True set the current
-    # key to None as its an empty dataset
-    if h5py_obj.attrs[key]:
+    # key to None as its an empty dataset. Files not written by pyfhd's save()
+    # (e.g. HDF5 produced by deepdish/PyTables) don't carry this sentinel
+    # attribute, so a missing attribute means the dataset holds real data.
+    if h5py_obj.attrs.get(key, False):
         return None
     else:
         if dataset.shape == ():
@@ -499,7 +501,10 @@ def group_to_dict(group: h5py.Group) -> dict:
 
 
 def load(
-    file_name: Path, logger: Logger | None = None, lazy_load: bool = False
+    file_name: Path,
+    logger: Logger | None = None,
+    lazy_load: bool = False,
+    ret_attrs: bool = False,
 ) -> dict[str, object] | NDArray[Any] | h5py.File:
     """
     Loads a HDF5 file into pyfhd, it reads the HDF5 into an array if the
@@ -517,7 +522,9 @@ def load(
         Set to true if you wish to lazy load the file, currently the only file
         that will be supported to do this in pyfhd will be the beam/psf file,
         but support for other files can be done easily enough, by default False
-
+    ret_attrs : bool, optional
+        Set to true if you wish to return the attributes of the HDF5 file,
+        by default False
 
     Returns
     -------
@@ -532,12 +539,16 @@ def load(
     pyfhd.io.pyfhd_io.group_to_dict : Converts a h5py Group object to a dictionary
     """
     h5_file = h5py.File(file_name, "r")
+    if ret_attrs:
+        keys = np.unique(list(h5_file.keys()) + list(h5_file.attrs.keys()))
+    else:
+        keys = np.unique(list(h5_file.keys()))
     if lazy_load:
         return h5_file
     try:
-        if len(h5_file.keys()) == 1:
+        if len(keys) == 1:
             # Assume that it contains only one numpy array, in which case read the array
-            key = list(h5_file.keys())[0]
+            key = keys[0]
             if logger:
                 logger.info(f"Loading {key} from {file_name} into an array")
             array = load_dataset(h5_file, key, h5_file[key])
@@ -546,12 +557,16 @@ def load(
             return_dict = {}
             if logger:
                 logger.info(f"Loading {file_name} into a dictionary")
-            for key in h5_file:
-                match h5_file[key]:
-                    case h5py.Dataset():
-                        return_dict[key] = load_dataset(h5_file, key, h5_file[key])
-                    case h5py.Group():
-                        return_dict[key] = group_to_dict(h5_file[key])
+            for key in keys:
+                if key in h5_file:
+                    match h5_file[key]:
+                        case h5py.Dataset():
+                            return_dict[key] = load_dataset(h5_file, key, h5_file[key])
+                        case h5py.Group():
+                            return_dict[key] = group_to_dict(h5_file[key])
+                else:
+                    # If not in the primary keys, it's an attribute
+                    return_dict[key] = h5_file.attrs[key]
             return return_dict
     finally:
         if not lazy_load:

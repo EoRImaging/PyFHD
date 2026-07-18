@@ -72,6 +72,31 @@ def test_save_and_load_empty():
 
 
 @pytest.mark.github_actions
+def test_load_file_without_empty_sentinel_attribute():
+    """Files not written by pyfhd's save() (e.g. HDF5 produced by deepdish or
+    PyTables, like several of the bundled healpix inds resources) do not carry
+    the per-dataset "is empty" sentinel attribute. load() must read such a
+    dataset as real data instead of raising a KeyError for the missing
+    attribute.
+    """
+    expected = np.arange(10, dtype=np.int32)
+
+    # Mimic a foreign file: a real dataset plus unrelated metadata attributes,
+    # but no matching "hpx_inds" sentinel attribute.
+    with File("foreign_data.h5", "w") as f:
+        f.create_dataset("hpx_inds", data=expected)
+        f.attrs["nside"] = 512
+
+    loaded_data = load("foreign_data.h5")
+
+    assert np.array_equal(loaded_data, expected), (
+        "Dataset without a sentinel attribute was not loaded correctly"
+    )
+
+    Path("foreign_data.h5").unlink()  # Clean up the test file
+
+
+@pytest.mark.github_actions
 def test_lazy_load():
     """
     Test the lazy loading functionality of pyfhd.

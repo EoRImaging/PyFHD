@@ -35,10 +35,10 @@ jobs:
       - name: Install the project
         run: uv sync ${{ matrix.uv-options }} --all-extras --dev
 
-      - name: Install pyuvdata fhd_beam_decompose branch
+      - name: Install pyuvdata
         run: |
           cd ../
-          git clone -b fhd_beam_decompose https://github.com/RadioAstronomySoftwareGroup/pyuvdata.git
+          git clone https://github.com/RadioAstronomySoftwareGroup/pyuvdata.git
           cd pyfhd
           uv pip install --no-deps ../pyuvdata
 
