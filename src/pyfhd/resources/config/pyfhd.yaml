@@ -33,6 +33,8 @@ interpolate-kernel : true
 # saved-beam-file-path: './input'
 # this is for a UVBeam readable file:
 uvbeam-file-path: './input'
+# uvbeam-zfile-path: ~
+# uvbeam-mwa-include-cross-feed-coupling: true
 uvbeam-freq-buffer: 2e6
 # use this for an analytic beam (e.g. short dipole shown here)
 # analytic-beam-yaml : "!AnalyticBeam
@@ -68,6 +70,7 @@ calibration-auto-fit: false
 calibration-auto-initialize: true
 cal-gain-init: 1
 min-cal-baseline : 50.
+max-cal-baseline : ~
 max-cal-iter: 100
 cal-adaptive-calibration-gain: false
 cal-phase-fit-iter: 4
@@ -127,6 +130,9 @@ snapshot-healpix-export : true
 calibration-plots: true
 gridding-plots: true
 image-plots: true
+log_plots: true
+sigma_clipping: 3
+percentile_clipping: 1
 
 # Model
 # Current choices of model-file-type are sav, uvfits and h5 (prefer sav and uvfits)
@@ -142,8 +148,9 @@ allow-sidelobe-model-sources : false
 # eor-vis-filepath : ~
 # enhance-eor : 1
 # sim-noise : ~
-# tile-flag-list : ~
 # remove-sim-flags : false
+# tile-flag-list : ~
+# extra-vis-filepath : ~
 
 # HEALPIX
 healpix-inds: ~
