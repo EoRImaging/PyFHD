@@ -55,14 +55,14 @@ cal-reflection-mode-file : false
 transfer-calibration : ~
 cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
 cal-convergence-threshold: 1e-7
-cal-time-average: false 
+cal-time-average: false
 calibration-auto-fit: false
 calibration-auto-initialize: false
 cal-gain-init: 1
 min-cal-baseline : 50.
 max-cal-iter: 100
 cal-adaptive-calibration-gain: false
-cal-phase-fit-iter: 4         
+cal-phase-fit-iter: 4
 digital-gain-jump-polyfit: false
 vis-baseline-hist : false
 cal-stop : false
@@ -70,7 +70,7 @@ diffuse-calibrate : ~
 calibration-catalog-file-path  :  ~ # 'GLEAM_v2_plus_rlb2019.sav' (FHD Default)
 transfer-model-uv : ~
 
-# Flagging      
+# Flagging
 time-cut: ~
 flag-basic: true
 flag-freq-start : ~
@@ -154,4 +154,3 @@ ps-beam-threshold: 0
 ps-tile-flag-list: []
 n-avg : 2
 rephase-weights: True
-

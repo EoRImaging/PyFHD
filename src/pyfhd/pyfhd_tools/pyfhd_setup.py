@@ -203,7 +203,7 @@ def pyfhd_parser():
         action="store_true",
         help="Copy sample data from pyfhd package directory to the current "
         "working directory. Will copy to an 'input' directory.",
-    )    
+    )
     parser.add_argument(
         "-i",
         "--input-path",
@@ -273,7 +273,7 @@ def pyfhd_parser():
         help="Size of UV pixels in wavelengths. Given a defined number of pixels "
         "in dimension, this sets the UV space extent. This will supersede degpix "
         "if dimension is also set.",
-    )    
+    )
     parser.add_argument(
         "--dimension",
         type=int,
@@ -342,7 +342,7 @@ def pyfhd_parser():
         default="mwa",
         choices=["mwa", "ovro-lwa", "hera", "other"],
         help="Set the instrument used for the FHD run.",
-    )    
+    )
     instrument.add_argument(
         "--override-target-phasera",
         default=None,
