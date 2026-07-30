@@ -1,18 +1,18 @@
 # Default Arguments for pyfhd
 # ~ returns None in Python (i.e. NULL)
-input-path : './input'
-recalculate-all : false
-silent : false
-log-file : true
-conserve-memory : false
-memory-threshold : 1000000000
-n-pol : 2
-FoV : ~
-kbinsize : 0.5
-dimension : 2048
-elements : 2048
-min-baseline : 1.
-deproject-w-term : ~
+input-path: './input'
+recalculate-all: false
+silent: false
+log-file: true
+conserve-memory: false
+memory-threshold: 1000000000
+n-pol: 2
+FoV: ~
+kbinsize: 0.5
+dimension: 2048
+elements: 2048
+min-baseline: 1.
+deproject-w-term: ~
 
 # Checkpointing
 save-checkpoints: true
@@ -21,14 +21,14 @@ calibrate-checkpoint: ~
 gridding-checkpoint: ~
 
 # Instrument
-instrument : 'mwa'
+instrument: 'mwa'
 override-target-phasera: ~
 override-target-phasedec: ~
 
 # Beam Setup
 lazy-load-beam: false
-recalculate-beam : true
-interpolate-kernel : true
+recalculate-beam: true
+interpolate-kernel: true
 # use this for an FHD saved beam:
 # saved-beam-file-path: './input'
 # this is for a UVBeam readable file:
@@ -40,63 +40,63 @@ uvbeam-freq-buffer: 2e6
 # analytic-beam-yaml : "!AnalyticBeam
 #   class: ShortDipoleBeam
 # "
-beam-offset-time : 56
+beam-offset-time: 56
 beam-per-baseline: false
-beam-nfreq-avg : 16
-beam-model-version : 2
+beam-nfreq-avg: 16
+beam-model-version: 2
 psf-dim: 54
-psf-resolution : 100
+psf-resolution: 100
 beam-mask-threshold: 100
-beam-clip-floor : true
+beam-clip-floor: true
 
 # Calibration
-calibrate-visibilities : true
-bandpass-calibrate : true
-cal-bp-transfer : ~
-calibration-polyfit : true
+calibrate-visibilities: true
+bandpass-calibrate: true
+cal-bp-transfer: ~
+calibration-polyfit: true
 auto-ratio-calibration: true
-cable-bandpass-fit : true # Depends on instrument cable length text file
-cal-amp-degree-fit : 2
-cal-phase-degree-fit : 1
-cal-reflection-mode-theory : 150
-cal-reflection-mode-delay : false
-cal-reflection-hyperresolve : true
-cal-reflection-mode-file : false
-transfer-calibration : ~
+cable-bandpass-fit: true # Depends on instrument cable length text file
+cal-amp-degree-fit: 2
+cal-phase-degree-fit: 1
+cal-reflection-mode-theory: 150
+cal-reflection-mode-delay: false
+cal-reflection-hyperresolve: true
+cal-reflection-mode-file: false
+transfer-calibration: ~
 cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
 cal-convergence-threshold: 1e-7
 cal-time-average: false
 calibration-auto-fit: false
 calibration-auto-initialize: true
 cal-gain-init: 1
-min-cal-baseline : 50.
-max-cal-baseline : ~
+min-cal-baseline: 50.
+max-cal-baseline: ~
 max-cal-iter: 100
 cal-adaptive-calibration-gain: false
 cal-phase-fit-iter: 4
 # Only set to true if you're using MWA data before date 2014-07-23 (23rd July 2014)
 digital-gain-jump-polyfit: false
-vis-baseline-hist : true
-cal-stop : false
+vis-baseline-hist: true
+cal-stop: false
 
 
 # Flagging
 time-cut: ~
 flag-basic: true
-flag-freq-start : ~
-flag-freq-end : ~
+flag-freq-start: ~
+flag-freq-end: ~
 flag-tiles: []
 flag-frequencies: true
 flag-model: true
-flag-calibration : true
+flag-calibration: true
 flag-calibration-frequencies: false
-flag-visibilities : false
-transfer-weights : ~
+flag-visibilities: false
+transfer-weights: ~
 
 # Gridding
-recalculate-grid : true
+recalculate-grid: true
 mask-mirror-indices: false
-image-filter : 'filter_uv_uniform'
+image-filter: 'filter_uv_uniform'
 grid-spectral: false
 grid-weights: true
 grid-variance: true
@@ -112,19 +112,19 @@ dft-threshold : true
 # deconvolution-filter : 'filter_uv_uniform'
 
 # Export
-output-path : './output'
-description : ~
-pad-uv-image : 1.
-ring-radius-multi : 10.
-export-images : true
-save-visibilities : true
+output-path: './output'
+description: ~
+pad-uv-image: 1.
+ring-radius-multi: 10.
+export-images: true
+save-visibilities: true
 save-weights: true
 save-model: true
 save-obs: true
 save-params: true
 save-cal: true
 save-healpix-fits: true
-snapshot-healpix-export : true
+snapshot-healpix-export: true
 
 # Plotting
 calibration-plots: true
@@ -136,11 +136,11 @@ percentile_clipping: 1
 
 # Model
 # Current choices of model-file-type are sav, uvfits and h5 (prefer sav and uvfits)
-model-file-type : 'sav'
+model-file-type: 'sav'
 # If you set model-file-type to uvfits or HDF5, set import-model-uvfits to the (ideally absolute) path of the fits file
 # If model-file-type is set to sav then it will look for the sav files as said in the function import_vis_model_from_sav
 model-file-path: './input'
-allow-sidelobe-model-sources : false
+allow-sidelobe-model-sources: false
 
 # Simulation
 # run-simulation : false
@@ -154,15 +154,15 @@ allow-sidelobe-model-sources : false
 
 # HEALPIX
 healpix-inds: ~
-restrict-healpix-inds : true
-split-ps-export : true
-ps-kbinsize : 0.5
+restrict-healpix-inds: true
+split-ps-export: true
+ps-kbinsize: 0.5
 ps-fov: ~
-ps-kspan : 600
+ps-kspan: 600
 ps-dimension: ~
 ps-degpix: ~
 ps-nfreq-avg: ~
 ps-beam-threshold: 0
 ps-tile-flag-list: []
-n-avg : 2
-rephase-weights: True
+n-avg: 2
+rephase-weights: true
