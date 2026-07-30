@@ -5,14 +5,13 @@ recalculate-all : false
 silent : false
 log-file : true
 conserve-memory : false
-instrument : 'mwa'
 memory-threshold : 1000000000
+n-pol : 2
+FoV : ~
+kbinsize : 0.5
 dimension : 2048
 elements : 2048
-kbinsize : 0.5
-FoV : ~
 min-baseline : 1.
-n-pol : 2
 deproject-w-term : ~
 
 # Checkpointing
@@ -22,10 +21,14 @@ calibrate-checkpoint: ~
 gridding-checkpoint: ~
 
 # Instrument
+instrument : 'mwa'
 override-target-phasera: ~
 override-target-phasedec: ~
 
 # Beam Setup
+lazy-load-beam: false
+recalculate-beam : true
+interpolate-kernel : true
 # use this for an FHD saved beam:
 # saved-beam-file-path: './input'
 # this is for a UVBeam readable file:
@@ -35,48 +38,47 @@ uvbeam-freq-buffer: 2e6
 # analytic-beam-yaml : "!AnalyticBeam
 #   class: ShortDipoleBeam
 # "
-lazy-load-beam: false
-recalculate-beam : true
-beam-clip-floor : true
-interpolate-kernel : true
+beam-offset-time : 56
+beam-per-baseline: false
 beam-nfreq-avg : 16
+beam-model-version : 2
 psf-dim: 54
 psf-resolution : 100
 beam-mask-threshold: 100
-beam-model-version : 2
-beam-offset-time : 56
-beam-per-baseline: false
+beam-clip-floor : true
 
 # Calibration
 calibrate-visibilities : true
-cable-bandpass-fit : true # Depends on instrument cable length text file
+bandpass-calibrate : true
 cal-bp-transfer : ~
 calibration-polyfit : true
+auto-ratio-calibration: true
+cable-bandpass-fit : true # Depends on instrument cable length text file
 cal-amp-degree-fit : 2
 cal-phase-degree-fit : 1
-cal-reflection-hyperresolve : true
 cal-reflection-mode-theory : 150
 cal-reflection-mode-delay : false
+cal-reflection-hyperresolve : true
 cal-reflection-mode-file : false
+transfer-calibration : ~
+cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
+cal-convergence-threshold: 1e-7
+cal-time-average: false
 calibration-auto-fit: false
 calibration-auto-initialize: true
 cal-gain-init: 1
-cal-convergence-threshold: 1e-7
-cal-adaptive-calibration-gain: false
-cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
-cal-phase-fit-iter: 4
 min-cal-baseline : 50.
-vis-baseline-hist : true
-bandpass-calibrate : true
-auto-ratio-calibration: true
-cal-time-average: false
+max-cal-iter: 100
+cal-adaptive-calibration-gain: false
+cal-phase-fit-iter: 4
 # Only set to true if you're using MWA data before date 2014-07-23 (23rd July 2014)
 digital-gain-jump-polyfit: false
-transfer-calibration : ~
+vis-baseline-hist : true
 cal-stop : false
-max-cal-iter: 100
+
 
 # Flagging
+time-cut: ~
 flag-basic: true
 flag-freq-start : ~
 flag-freq-end : ~
@@ -87,12 +89,11 @@ flag-calibration : true
 flag-calibration-frequencies: false
 flag-visibilities : false
 transfer-weights : ~
-time-cut: ~
 
 # Gridding
 recalculate-grid : true
-image-filter : 'filter_uv_uniform'
 mask-mirror-indices: false
+image-filter : 'filter_uv_uniform'
 grid-spectral: false
 grid-weights: true
 grid-variance: true
@@ -109,18 +110,18 @@ dft-threshold : true
 
 # Export
 output-path : './output'
+description : ~
+pad-uv-image : 1.
+ring-radius-multi : 10.
 export-images : true
+save-visibilities : true
+save-weights: true
+save-model: true
 save-obs: true
 save-params: true
 save-cal: true
-save-visibilities : true
-save-weights: true
 save-healpix-fits: true
-save-model: true
 snapshot-healpix-export : true
-pad-uv-image : 1.
-ring-radius-multi : 10.
-description : ~
 
 # Plotting
 calibration-plots: true
@@ -145,16 +146,16 @@ allow-sidelobe-model-sources : false
 # remove-sim-flags : false
 
 # HEALPIX
+healpix-inds: ~
+restrict-healpix-inds : true
+split-ps-export : true
 ps-kbinsize : 0.5
-ps-kspan : 600
-ps-beam-threshold: 0
 ps-fov: ~
+ps-kspan : 600
 ps-dimension: ~
 ps-degpix: ~
 ps-nfreq-avg: ~
+ps-beam-threshold: 0
 ps-tile-flag-list: []
 n-avg : 2
 rephase-weights: True
-restrict-healpix-inds : true
-healpix-inds: ~
-split-ps-export : true
