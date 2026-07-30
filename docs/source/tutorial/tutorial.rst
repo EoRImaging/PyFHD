@@ -930,14 +930,13 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     silent : false
     log-file : true
     conserve-memory : false
-    instrument : 'mwa'
     memory-threshold : 100000000
+    n-pol : 2
+    FoV : ~
+    kbinsize : 0.5
     dimension : 2048
     elements : 2048
-    kbinsize : 0.5
-    FoV : ~
     min-baseline : 1.
-    n-pol : 2
     deproject-w-term : ~
 
     # Checkpointing
@@ -947,58 +946,60 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     gridding-checkpoint: ~
 
     # Instrument
+    instrument : 'mwa'
     override-target-phasera: ~
     override-target-phasedec: ~
 
     # Beam Setup
-    saved-beam-file-path: /path/to/beams/decomp_beam_pointing0.h5
     lazy-load-beam: true
     recalculate-beam : true
-    beam-clip-floor : true
     interpolate-kernel : true
+    saved-beam-file-path: /path/to/beams/decomp_beam_pointing0.h5
+    beam-offset-time : 0
+    beam-per-baseline: false
     beam-nfreq-avg : 16
+    beam-model-version : 2
     psf-dim: 54
     psf-resolution : 100
     beam-mask-threshold: 100
-    beam-model-version : 2
-    beam-offset-time : 0
-    beam-per-baseline: false
-
+    beam-clip-floor : true    
+         
     # Calibration
     calibrate-visibilities : true
-    cable-bandpass-fit : true # Depends on instrument cable length text file
+    bandpass-calibrate : true
     cal-bp-transfer : ~
     calibration-polyfit : true
-    allow-sidelobe-cal-sources : true
+    auto-ratio-calibration: true
+    cable-bandpass-fit : true # Depends on instrument cable length text file  
     cal-amp-degree-fit : 2
     cal-phase-degree-fit : 1
-    cal-reflection-hyperresolve : true
     cal-reflection-mode-theory : 150
     cal-reflection-mode-delay : false
+    cal-reflection-hyperresolve : true   
     cal-reflection-mode-file : false
+    transfer-calibration : ~
+    cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
+    cal-convergence-threshold: 1e-7
+    cal-time-average: false
     calibration-auto-fit: false
     calibration-auto-initialize: false
     cal-gain-init: 1
-    cal-convergence-threshold: 1e-7
-    cal-adaptive-calibration-gain: false
-    cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
-    cal-phase-fit-iter: 4
     min-cal-baseline : 50.
-    vis-baseline-hist : true
-    bandpass-calibrate : true
-    auto-ratio-calibration: true
-    cal-time-average: false
+    max-cal-iter: 100
+    cal-adaptive-calibration-gain: false
+    cal-phase-fit-iter: 4
     digital-gain-jump-polyfit: false
-    return-cal-visibilities : true
-    calibration-flag-iterate : 0
+    vis-baseline-hist : true
+    cal-stop : true
     diffuse-calibrate : ~
     calibration-catalog-file-path  :  ~ # 'GLEAM_v2_plus_rlb2019.sav' (FHD Default)
-    transfer-calibration : ~
-    cal-stop : true
     transfer-model-uv : ~
-    max-cal-iter: 100
-
+    return-cal-visibilities : true
+    calibration-flag-iterate : 0
+    allow-sidelobe-cal-sources : true
+    
     # Flagging
+    time-cut: ~
     flag-basic: true
     flag-freq-start : ~
     flag-freq-end : ~
@@ -1008,13 +1009,12 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     flag-calibration : true
     flag-calibration-frequencies: false
     flag-visibilities : false
-    transfer-weights : ~
-    time-cut: ~
+    transfer-weights : ~    
 
     # Gridding
     recalculate-grid : true
-    image-filter : 'filter_uv_uniform'
     mask-mirror-indices: false
+    image-filter : 'filter_uv_uniform'
     grid-spectral: false
     grid-weights: true
     grid-variance: true
@@ -1031,18 +1031,19 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
 
     # Export
     output-path : '/path/to/output'
+    description : 1091128160
+    pad-uv-image : 1.
+    ring-radius-multi : 10.
     export-images : true
+    save-visibilities : false
+    save-weights: false
+    save-model: true
     save-obs: true
     save-params: true
     save-cal: true
-    save-visibilities : false
-    save-weights: false
     save-healpix-fits: false
     snapshot-healpix-export : false
-    pad-uv-image : 1.
-    ring-radius-multi : 10.
-    description : 1091128160
-
+    
     # Plotting
     calibration-plots: true
     gridding-plots: true
@@ -1070,19 +1071,19 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     # remove-sim-flags : false
 
     # HEALPIX
+    healpix-inds: ~
+    restrict-healpix-inds : true
+    split-ps-export : true
     ps-kbinsize : 0.5
-    ps-kspan : 200
-    ps-beam-threshold: 0
     ps-fov: ~
+    ps-kspan : 200
     ps-dimension: ~
     ps-degpix: ~
-    ps-nfreq-avg: ~
+    ps-nfreq-avg: ~    
+    ps-beam-threshold: 0
     ps-tile-flag-list: []
     n-avg : 2
-    rephase-weights: True
-    restrict-healpix-inds : true
-    healpix-inds: ~
-    split-ps-export : true
+    rephase-weights: True   
 
   .. raw:: html
 
