@@ -1815,24 +1815,24 @@ functions to be called. The config file has the following options:
 .. code-block:: yaml
 
   # Export
-  output-path : './output'
+  output-path: './output'
   save-healpix-fits: true # IMPORTANT
-  snapshot-healpix-export : true # IMPORTANT
+  snapshot-healpix-export: true # IMPORTANT
 
   # HEALPIX (These are the defaults)
-  ps-kbinsize : 0.5
-  ps-kspan : 600
-  ps-beam-threshold: 0
+  healpix-inds: ~
+  restrict-healpix-inds: true
+  split-ps-export: true
+  ps-kbinsize: 0.5
   ps-fov: ~
+  ps-kspan: 600
   ps-dimension: ~
   ps-degpix: ~
   ps-nfreq-avg: ~
+  ps-beam-threshold: 0
   ps-tile-flag-list: []
   n-avg : 2
-  rephase-weights: True
-  restrict-healpix-inds : true
-  healpix-inds: ~
-  split-ps-export : true
+  rephase-weights: true
 
 Beam Setup
 ++++++++++
