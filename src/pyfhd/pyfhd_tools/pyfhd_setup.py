@@ -245,7 +245,7 @@ def pyfhd_parser():
         type=int,
         default=1e9,
         help="Set a memory threshold for each chunk in bytes. By default "
-        "it is set at ~100MB",
+        "it is set at ~1GB",
     )
     parser.add_argument(
         "--n-pol",
