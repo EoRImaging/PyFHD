@@ -1,6 +1,8 @@
 # Installation
 
-The dependencies on pyfhd to run with FHD have been removed. This makes installing `pyfhd` much easier than FHD. `pyfhd` is currently supported for Python 3.11+.
+The dependencies on pyfhd to run with FHD have been removed. This makes 
+installing `pyfhd` much easier than FHD. `pyfhd` is currently supported for 
+Python 3.11+.
 
 ## Installing to do some development on pyfhd?
 
