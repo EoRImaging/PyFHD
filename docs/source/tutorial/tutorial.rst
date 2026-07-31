@@ -497,7 +497,7 @@ clarified in the next section.
 .. important::
   The configuration used for the sample is very different to a full MWA run due
   to limited use of frequencies and times used in the sample data to keep it small.
-  For a better template to base your configuration on go to :ref:`_pyfhd-config-file`.
+  For a better template to base your configuration on go to :ref:`pyfhd-config-file`.
 
 The Required Inputs and the outputs of ``pyfhd``
 ----------------------------------------------------------
@@ -680,7 +680,7 @@ Within the logs of the ``pyfhd`` you should see the following message::
 
 .. code-block:: text
   yyyy-mm-dd HH:MM:SS - INFO:
-        Checkpoint Loaded: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary loaded from output/pyfhd_1088285600_example/calibrate_checkpoint.h5
+      Checkpoint Loaded: Calibrated and Flagged visibility parameters, array and weights, the flagged observation metadata dictionary and the calibration dictionary loaded from output/pyfhd_1088285600_example/calibrate_checkpoint.h5
 
 Do note if you wish to use the ``gridding-checkpoint`` then you also need ``calibrate-checkpoint``.
 
@@ -1882,7 +1882,7 @@ Deconvolution is currently in active development. The degridding branch can be f
 `<https://github.com/EoRImaging/pyfhd/compare/main...degridding>`_.
 
 Four Polarizations
-+++++++++++++++
+++++++++++++++++++
 The ability for pyfhd to handle four polarizations is not well tested, and may not
 be fully implemented in places. Another great opportunity to contribute.
 
