@@ -470,17 +470,6 @@ def pyfhd_parser():
         "However, this is computationally difficult for most machines.",
     )
     beam.add_argument(
-        "--beam-model-version",
-        type=int,
-        default=2,
-        help="A number that indicates the tile beam model calculation.\n"
-        "This is dependent on the instrument, and specific calculations are "
-        "carried out in <instrument>_beam_setup_gain.\n"
-        "MWA range: 0, 1 (or anything else captured in the else statement), 2\n"
-        "PAPER range: 1 (or anything else captured in the else statement), 2\n"
-        "HERA range: 2 (or anything else captured in the else statement)",
-    )
-    beam.add_argument(
         "--psf-dim",
         default=54,
         type=int,

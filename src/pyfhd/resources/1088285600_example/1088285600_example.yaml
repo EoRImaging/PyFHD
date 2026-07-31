@@ -33,7 +33,6 @@ saved-beam-file-path: './src/pyfhd/resources/1088285600_example/gauss_beam_point
 beam-offset-time : 0
 beam-per-baseline: false
 beam-nfreq-avg : 16
-beam-model-version : 2
 psf-dim: 54
 psf-resolution : 100
 beam-mask-threshold: 100

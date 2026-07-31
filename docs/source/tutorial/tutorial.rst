@@ -959,7 +959,6 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     beam-offset-time : 0
     beam-per-baseline: false
     beam-nfreq-avg : 16
-    beam-model-version : 2
     psf-dim: 54
     psf-resolution : 100
     beam-mask-threshold: 100
