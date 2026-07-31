@@ -1890,4 +1890,6 @@ be fully implemented in places. Another great opportunity to contribute.
 Simulation
 ++++++++++
 `FHD`_ has the ability to do simulations. Many of these simulation features haven't
-been translated to ``pyfhd``, this would be a large piece of work.
+been translated to ``pyfhd``, this would be a large piece of work. The work being done
+in the degridding branch will help enable this feature. 
+
