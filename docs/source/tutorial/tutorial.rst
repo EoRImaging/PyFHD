@@ -926,19 +926,19 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
 
     # Default Arguments for pyfhd
     # ~ returns None in Python (i.e. NULL)
-    input-path : '/path/to/input/uvfits/1091128160'
-    recalculate-all : false
-    silent : false
-    log-file : true
-    conserve-memory : false
-    memory-threshold : 100000000
-    n-pol : 2
-    FoV : ~
-    kbinsize : 0.5
-    dimension : 2048
-    elements : 2048
-    min-baseline : 1.
-    deproject-w-term : ~
+    input-path: '/path/to/input/uvfits/1091128160'
+    recalculate-all: false
+    silent: false
+    log-file: true
+    conserve-memory: false
+    memory-threshold: 100000000
+    n-pol: 2
+    FoV: ~
+    kbinsize: 0.5
+    dimension: 2048
+    elements: 2048
+    min-baseline: 1.
+    deproject-w-term: ~
 
     # Checkpointing
     save-checkpoints: false
@@ -947,37 +947,37 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     gridding-checkpoint: ~
 
     # Instrument
-    instrument : 'mwa'
+    instrument: 'mwa'
     override-target-phasera: ~
     override-target-phasedec: ~
 
     # Beam Setup
     lazy-load-beam: true
-    recalculate-beam : true
-    interpolate-kernel : true
+    recalculate-beam: true
+    interpolate-kernel: true
     saved-beam-file-path: /path/to/beams/decomp_beam_pointing0.h5
-    beam-offset-time : 0
+    beam-offset-time: 0
     beam-per-baseline: false
-    beam-nfreq-avg : 16
+    beam-nfreq-avg: 16
     psf-dim: 54
-    psf-resolution : 100
+    psf-resolution: 100
     beam-mask-threshold: 100
-    beam-clip-floor : true
+    beam-clip-floor: true
 
     # Calibration
-    calibrate-visibilities : true
-    bandpass-calibrate : true
-    cal-bp-transfer : ~
-    calibration-polyfit : true
+    calibrate-visibilities: true
+    bandpass-calibrate: true
+    cal-bp-transfer: ~
+    calibration-polyfit: true
     auto-ratio-calibration: true
-    cable-bandpass-fit : true # Depends on instrument cable length text file
-    cal-amp-degree-fit : 2
-    cal-phase-degree-fit : 1
-    cal-reflection-mode-theory : 150
-    cal-reflection-mode-delay : false
-    cal-reflection-hyperresolve : true
-    cal-reflection-mode-file : false
-    transfer-calibration : ~
+    cable-bandpass-fit: true # Depends on instrument cable length text file
+    cal-amp-degree-fit: 2
+    cal-phase-degree-fit: 1
+    cal-reflection-mode-theory: 150
+    cal-reflection-mode-delay: false
+    cal-reflection-hyperresolve: true
+    cal-reflection-mode-file: false
+    transfer-calibration: ~
     cal-base-gain: ~ # This is set to None by default to set the default based on cal-adaptive-calibration-gain as per FHD
     cal-convergence-threshold: 1e-7
     cal-time-average: false
@@ -989,60 +989,60 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
     cal-adaptive-calibration-gain: false
     cal-phase-fit-iter: 4
     digital-gain-jump-polyfit: false
-    vis-baseline-hist : true
-    cal-stop : true
-    diffuse-calibrate : ~
-    calibration-catalog-file-path  :  ~ # 'GLEAM_v2_plus_rlb2019.sav' (FHD Default)
-    transfer-model-uv : ~
-    return-cal-visibilities : true
-    calibration-flag-iterate : 0
-    allow-sidelobe-cal-sources : true
+    vis-baseline-hist: true
+    cal-stop: true
+    diffuse-calibrate: ~
+    calibration-catalog-file-path:  ~ # 'GLEAM_v2_plus_rlb2019.sav' (FHD Default)
+    transfer-model-uv: ~
+    return-cal-visibilities: true
+    calibration-flag-iterate: 0
+    allow-sidelobe-cal-sources: true
 
     # Flagging
     time-cut: ~
     flag-basic: true
-    flag-freq-start : ~
-    flag-freq-end : ~
+    flag-freq-start: ~
+    flag-freq-end: ~
     flag-tiles: []
     flag-frequencies: false
     flag-model: true
-    flag-calibration : true
+    flag-calibration: true
     flag-calibration-frequencies: false
-    flag-visibilities : false
-    transfer-weights : ~
+    flag-visibilities: false
+    transfer-weights: ~
 
     # Gridding
-    recalculate-grid : true
+    recalculate-grid: true
     mask-mirror-indices: false
-    image-filter : 'filter_uv_uniform'
+    image-filter: 'filter_uv_uniform'
     grid-spectral: false
     grid-weights: true
     grid-variance: true
     grid-uniform: false
 
     # Deconvolution
-    # deconvolve : false
-    # max-deconvolution-components : 20000
-    # filter-background : true
-    # smooth-width : 32
-    dft-threshold : true
-    # return-decon-visibilities : false
-    # deconvolution-filter : 'filter_uv_uniform'
+    # deconvolve: false
+    # max-deconvolution-components: 20000
+    # filter-background: true
+    # smooth-width: 32
+    dft-threshold: true
+    # return-decon-visibilities: false
+    # deconvolution-filter: 'filter_uv_uniform'
 
     # Export
-    output-path : '/path/to/output'
-    description : 1091128160
-    pad-uv-image : 1.
-    ring-radius-multi : 10.
-    export-images : true
-    save-visibilities : false
+    output-path: '/path/to/output'
+    description: 1091128160
+    pad-uv-image: 1.
+    ring-radius-multi: 10.
+    export-images: true
+    save-visibilities: false
     save-weights: false
     save-model: true
     save-obs: true
     save-params: true
     save-cal: true
     save-healpix-fits: false
-    snapshot-healpix-export : false
+    snapshot-healpix-export: false
 
     # Plotting
     calibration-plots: true
@@ -1051,39 +1051,39 @@ directory (not that we need it for this run, as we use ``--cal-stop`` to stop
 
     # Model
     # Current choices of model-file-type are sav and uvfits
-    model-file-type : 'uvfits'
+    model-file-type: 'uvfits'
     # If you set model-file-type to uvfits, set import-model-uvfits to the
     # (ideally absolute) path of the fits file
     # If model-file-type is set to sav then it will look for the sav files as
     # said in the function import_vis_model_from_sav
     model-file-path: '/path/to/models/1091128160/puma_LoBES_2s_80kHz_hbeam_1091128160.uvfits'
-    diffuse-model : ~
-    model-catalog-file-path  :  ~ # 'GLEAM_v2_plus_rlb2019.sav' (FHD Default)
-    allow-sidelobe-model-sources : false
+    diffuse-model: ~
+    model-catalog-file-path:  ~ # 'GLEAM_v2_plus_rlb2019.sav' (FHD Default)
+    allow-sidelobe-model-sources: false
 
     # Simulation
-    # run-simulation : false
-    # in-situ-sim-input : ~
-    # eor-vis-filepath : ~
-    # enhance-eor : 1
-    # sim-noise : ~
-    # tile-flag-list : ~
-    # remove-sim-flags : false
+    # run-simulation: false
+    # in-situ-sim-input: ~
+    # eor-vis-filepath: ~
+    # enhance-eor: 1
+    # sim-noise: ~
+    # tile-flag-list: ~
+    # remove-sim-flags: false
 
     # HEALPIX
     healpix-inds: ~
-    restrict-healpix-inds : true
-    split-ps-export : true
-    ps-kbinsize : 0.5
+    restrict-healpix-inds: true
+    split-ps-export: true
+    ps-kbinsize: 0.5
     ps-fov: ~
-    ps-kspan : 200
+    ps-kspan: 200
     ps-dimension: ~
     ps-degpix: ~
     ps-nfreq-avg: ~
     ps-beam-threshold: 0
     ps-tile-flag-list: []
-    n-avg : 2
-    rephase-weights: True
+    n-avg: 2
+    rephase-weights: true
 
   .. raw:: html
 
