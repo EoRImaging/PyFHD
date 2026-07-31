@@ -278,13 +278,13 @@ def pyfhd_parser():
         "--dimension",
         type=int,
         default=2048,
-        help="The number of pixels in the UV plane along one axis.",
+        help="The number of pixels in the UV plane along the u axis.",
     )
     parser.add_argument(
         "--elements",
         type=int,
         default=2048,
-        help="The number of pixels in the UV plane along the other axis.",
+        help="The number of pixels in the UV plane along the v axis.",
     )
     parser.add_argument(
         "--min-baseline",
