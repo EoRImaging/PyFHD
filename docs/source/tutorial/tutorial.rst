@@ -653,9 +653,9 @@ stored in the ``checkpoints`` directory and they are saved at the following poin
 
 - ``obs_checkpoint`` - ``obs`` dict creation, reading of visibilities and weights,
   creation of the ``params`` dict
-- ``calibrate_checkpoint`` - End of calibration, creation of the ``cal`` dict
-   which saves the observations, params, calibrated visibilities, model visibilities,
-   and visibility weights.
+- ``calibrate_checkpoint`` - End of calibration, creation of the ``cal`` dict 
+  which saves the observations, params, calibrated visibilities, model visibilities, 
+  and visibility weights.
 - ``gridding_checkpoint`` - End of gridding, creation of the ``gridding`` dict
   which holds the gridded visibilities, associated weights, variances, models, etc.
 
