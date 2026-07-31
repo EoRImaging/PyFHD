@@ -791,7 +791,8 @@ as shown below (otherwise you download the raw data as well, which we don't need
 .. image:: meta_job_form.png
   :width: 800px
 
-You can check the status of your download by clicking 'My Jobs' in the top left. Once they are ready to download, you'll see something like:
+You can check the status of your download by clicking 'My Jobs' in the top left. 
+Once they are ready to download, you'll see something like:
 
 .. image:: jobs_ready.png
   :width: 800px
