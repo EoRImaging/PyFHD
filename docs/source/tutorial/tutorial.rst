@@ -1253,7 +1253,7 @@ you'll notice some more advanced options being used here. Such options, like
 take notice that the beam is being loaded here, through the use of the
 ``--saved-beam-file-path`` option, this is required for gridding to work. If you
 wish to learn more about the ``--lazy-load-beam`` option, refer to :ref:`lazy-loading`
-section below.
+section below, but note that it currently has no effect when using UVBeam beam models.
 
 .. code-block:: bash
 
