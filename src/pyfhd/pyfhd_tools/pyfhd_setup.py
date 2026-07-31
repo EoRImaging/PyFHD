@@ -418,7 +418,7 @@ def pyfhd_parser():
         help="For AEE beams only. Option to include the couplings between the "
         "different feed directions (i.e. couplings between x and y feeds). "
         "Including these couplings is more correct, but they are excluded in the "
-        "default IDL FHD beam so option is supplied to enable matching with "
+        "default IDL FHD beam so the option is supplied to enable matching with "
         "that. Default is True.",
     )
     beam.add_argument(
