@@ -73,6 +73,7 @@ fully propagated, causing shape errors.
 `gridding_utils.dirty_image_generate`.
 * Fixed spelling errors in example config yamls.
 * Fixed a bug that could cause an undefined variable error in image plotting.
+* Fixed a bug in `pyfhd_io.load` that did not properly read HDF5 files created by other writers.
 
 ### Test Changes
 * Fixed two tests in `test_weight_invert` to handle floating point errors.

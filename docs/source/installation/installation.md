@@ -1,7 +1,8 @@
 # Installation
 
-The dependencies on pyfhd to run with FHD have been removed, this makes installing
-and `pyfhd` much easier than FHD. `pyfhd` is currently supported for Python 3.11+.
+The dependencies on pyfhd to run with FHD have been removed. This makes
+installing `pyfhd` much easier than FHD. `pyfhd` is currently supported for
+Python 3.11+.
 
 ## Installing to do some development on pyfhd?
 
@@ -17,8 +18,8 @@ can't install (HPC environments). `uv` is best used for development as it suppor
 a lot of features that Python developers of packages will appreciate (oh,
 and by the way, _it's fast_, like _really fast_ at installing packages).
 `conda` is best used where you need to use more than just Python, but perhaps a
-combination of languages and tools, `conda` has the ability to manage any
-compilers, CUDA versions, system tools etc.
+combination of languages and tools. `conda` has the ability to manage many
+compilers: CUDA versions, system tools etc.
 
 ### Make a venv environment
 This assumes you have python installed.
@@ -54,7 +55,7 @@ conda env create --file environment.yml python=3.11 # You can make it 3.11 or 3.
 conda activate pyfhd
 ```
 
-You can deactivate the environment anytime by using `conda deactivate`
+You can deactivate the environment at any time by using `conda deactivate`
 
 ### Installing pyfhd
 
@@ -70,7 +71,7 @@ You can Verify the installation using the version command
 pyfhd -v
 ```
 
-It should give you output that looks like this:
+It should give you an output that looks like this:
 
 ```
     ________________________________________________________________________
