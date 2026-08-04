@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_880267fb36989467_test_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.11.0">coverage.py v7.11.0</a>,
-            created at 2026-07-31 19:42 +0000
+            created at 2026-08-04 21:58 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -82,7 +82,7 @@
     </div>
 </header>
 <main id="source">
-    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="key">import</span> <span class="nam">subprocess</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="key">import</span> <span class="nam">subprocess</span>  <span class="com"># nosec B404</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t"><span class="key">from</span> <span class="nam">copy</span> <span class="key">import</span> <span class="nam">deepcopy</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">from</span> <span class="nam">logging</span> <span class="key">import</span> <span class="nam">Logger</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t"><span class="key">from</span> <span class="nam">math</span> <span class="key">import</span> <span class="nam">factorial</span><span class="op">,</span> <span class="nam">pi</span>&nbsp;</span><span class="r"></span></p>
@@ -1193,7 +1193,7 @@
     <p class="mis show_mis"><span class="n"><a id="t1109" href="#t1109">1109</a></span><span class="t">    <span class="key">if</span> <span class="nam">dry_run</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1110" href="#t1110">1110</a></span><span class="t">        <span class="nam">stdout</span> <span class="op">=</span> <span class="str">"This was a dry run, not launching IDL code\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1111" href="#t1111">1111</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1112" href="#t1112">1112</a></span><span class="t">        <span class="nam">stdout</span> <span class="op">=</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span><span class="nam">cmd</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="nam">stdout</span><span class="op">=</span><span class="nam">subprocess</span><span class="op">.</span><span class="nam">PIPE</span><span class="op">,</span> <span class="nam">text</span><span class="op">=</span><span class="key">True</span><span class="op">)</span><span class="op">.</span><span class="nam">stdout</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1112" href="#t1112">1112</a></span><span class="t">        <span class="nam">stdout</span> <span class="op">=</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span><span class="nam">cmd</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="nam">stdout</span><span class="op">=</span><span class="nam">subprocess</span><span class="op">.</span><span class="nam">PIPE</span><span class="op">,</span> <span class="nam">text</span><span class="op">=</span><span class="key">True</span><span class="op">)</span><span class="op">.</span><span class="nam">stdout</span>  <span class="com"># nosec B603</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1113" href="#t1113">1113</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1114" href="#t1114">1114</a></span><span class="t">    <span class="key">return</span> <span class="nam">stdout</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1115" href="#t1115">1115</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -1701,7 +1701,7 @@
             <a class="nav" href="z_880267fb36989467_test_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.11.0">coverage.py v7.11.0</a>,
-            created at 2026-07-31 19:42 +0000
+            created at 2026-08-04 21:58 +0000
         </p>
     </div>
 </footer>
