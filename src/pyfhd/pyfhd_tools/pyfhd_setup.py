@@ -63,6 +63,7 @@ def git_info():
             commit = part.split("+g")[-1]
             break
     branch_part = commit_part + 1
+    branch_flag = False
     if not dirty_flag:
         if len(parts) > commit_part + 1:
             branch_flag = True
