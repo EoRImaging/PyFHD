@@ -1,4 +1,4 @@
-import subprocess
+import subprocess  # nosec B404
 from copy import deepcopy
 from logging import Logger
 from math import factorial, pi
@@ -1109,7 +1109,7 @@ def run_command(cmd: str, dry_run=False):
     if dry_run:
         stdout = "This was a dry run, not launching IDL code\n"
     else:
-        stdout = subprocess.run(cmd.split(), stdout=subprocess.PIPE, text=True).stdout
+        stdout = subprocess.run(cmd.split(), stdout=subprocess.PIPE, text=True).stdout  # nosec B603
 
     return stdout
 
