@@ -5,8 +5,11 @@ from pathlib import Path
 from astropy.stats import sigma_clipped_stats
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+from matplotlib.figure import Figure
+from matplotlib.colors import Colormap
 import numpy as np
 from numpy.typing import NDArray
+from typing import Literal, cast
 
 logger = logging.getLogger(__name__)
 
@@ -19,14 +22,14 @@ def truncate_colormap(cmap, *, minval=0.0, maxval=1.0, nseg=100):
     return new_cmap
 
 
-def color_range(count_missing: int = None) -> tuple:
+def color_range(count_missing: int = 0) -> tuple:
     """
     Define the color range for the image data.
 
     Parameters
     ----------
     count_missing : int, optional
-        Count of missing values, by default None
+        Count of missing values, by default 0
 
     Returns
     -------
@@ -47,16 +50,16 @@ def color_range(count_missing: int = None) -> tuple:
 
 
 def log_color_calc(
-    data: NDArray[np.integer | np.floating | np.complexfloating],
+    data: NDArray[np.integer | np.floating],
     *,
-    data_range: NDArray[np.integer | np.floating] = None,
-    color_profile: str = "log_cut",
-    log_cut_val: float = None,
+    data_range: NDArray[np.integer | np.floating] | None = None,
+    color_profile: Literal["log_cut", "sym_log", "abs"] = "log_cut",
+    log_cut_val: int | float | None = None,
     sigma_clip_level: float | None = None,
-    min_abs: float = None,
-    count_missing: int = None,
-    wh_missing: NDArray[np.integer] = None,
-    missing_color: int = None,
+    min_abs: int | float | None = None,
+    count_missing: int = 0,
+    wh_missing: tuple[NDArray[np.intp], ...] | None = None,
+    missing_color: int | None = None,
     invert_colorbar: bool = False,
 ) -> tuple:
     """
@@ -64,26 +67,26 @@ def log_color_calc(
 
     Parameters
     ----------
-    data : NDArray[np.integer | np.floating | np.complexfloating]
+    data : NDArray[np.integer | np.floating]
         A 2D array of data to be displayed as an image.
-        The data can be of type int, float, or complex.
-    data_range : NDArray[np.integer | np.floating], optional
+        The data can be of type int or float.
+    data_range : NDArray[np.integer | np.floating] | None, optional
         Min/max color bar range, by default [np.nanmin(image), np.nanmax(image)]
-    color_profile : str, optional
+    color_profile : Literal["log_cut", "sym_log", "abs"], optional
         Color bar profiles for logarithmic scaling.
         "log_cut", "sym_log", "abs", by default "log_cut"
-    log_cut_val : int | float, optional
+    log_cut_val : int | float | None, optional
         Minimum log value to cut at, by default None
-    sigma_clip_level : float, optional
-        Number of standard deviations to use as clipping threshold, only used it
+    sigma_clip_level : float | None, optional
+        Number of standard deviations to use as clipping threshold, only used if
         log is True. Default is None meaning that true min and max are used.
-    min_abs : int | float, optional
+    min_abs : int | float | None, optional
         The minimum absolute value for the color bar, by default None
     count_missing : int, optional
-        The number of missing values, by default None
-    wh_missing : NDArray[np.integer], optional
+        The number of missing values, by default 0
+    wh_missing : tuple[NDArray[np.intp], ...] | None, optional
         The location of the missing values, by default None
-    missing_color : int, optional
+    missing_color : int | None, optional
         The index of the color bar for missing values, by default None
     invert_colorbar : bool, optional
         Invert the color bar, by default False
@@ -106,20 +109,12 @@ def log_color_calc(
 
     # Handle data_range
     if data_range is None:
-        true_range = [np.nanmin(data), np.nanmax(data)]
+        true_range = np.array([np.nanmin(data), np.nanmax(data)], dtype=np.float64)
     else:
         if len(data_range) != 2:
             raise ValueError("data_range must be a 2-element vector")
         if data_range[1] < data_range[0]:
             raise ValueError("data_range[0] must be less than data_range[1]")
-
-    # Handle sym_log profile constraints
-    if color_profile == "sym_log" and data_range[0] > 0:
-        logger.warning(
-            "sym_log profile cannot be selected with an entirely positive data "
-            "range. Switching to log_cut"
-        )
-        color_profile = "log_cut"
 
     data_color_range, data_n_colors = color_range(count_missing=count_missing)
 
@@ -169,7 +164,7 @@ def log_color_calc(
             lower_bound = mean - sigma_clip_level * std
             upper_bound = mean + sigma_clip_level * std
 
-            data_range = [10**lower_bound, 10**upper_bound]
+            data_range = np.array([10**lower_bound, 10**upper_bound], dtype=np.float64)
 
             # Count how many data points are outside the clipping bounds.
             num_clipped = np.sum(
@@ -181,11 +176,20 @@ def log_color_calc(
             # Report display range and clipping percentage.
             logger.info(
                 f"Sigma clipping of level {sigma_clip_level} applied: "
-                "{data_range[0]:.2e} to {data_range[1]:.2e}"
+                f"{data_range[0]:.2e} to {data_range[1]:.2e}\n"
+                f"True data range: {true_range[0]:.2e} to {true_range[1]:.2e}"
             )
             logger.info(f"Percentage of data clipped: {percent_clipped:.2f}%")
         else:
             data_range = true_range
+
+    # Handle sym_log profile constraints
+    if color_profile == "sym_log" and data_range[0] > 0:
+        logger.warning(
+            "sym_log profile cannot be selected with an entirely positive data "
+            "range. Switching to log_cut"
+        )
+        color_profile = "log_cut"
 
     # Handle log_cut color profile
     if color_profile == "log_cut":
@@ -244,11 +248,11 @@ def log_color_calc(
         # Calculate the minimum absolute value
         if min_abs is None:
             if count_pos > 0 and count_neg > 0:
-                min_abs = min(min_pos, abs(max_neg))
+                min_abs = float(min(min_pos, abs(max_neg)))
             elif count_pos > 0:
-                min_abs = min_pos
+                min_abs = float(min_pos)
             elif count_neg > 0:
-                min_abs = abs(max_neg)
+                min_abs = float(abs(max_neg))
             else:
                 min_abs = 1.0
 
@@ -353,36 +357,36 @@ def log_color_calc(
 
 def quick_image(
     image: NDArray[np.integer | np.floating | np.complexfloating],
-    xvals: NDArray[np.integer | np.floating] = None,
-    yvals: NDArray[np.integer | np.floating] = None,
+    xvals: NDArray[np.integer | np.floating] | None = None,
+    yvals: NDArray[np.integer | np.floating] | None = None,
     *,
     transpose: bool = True,
-    data_range: NDArray[np.integer | np.floating] = None,
-    data_min_abs: float = None,
+    data_range: NDArray[np.integer | np.floating] | None = None,
+    data_min_abs: float | None = None,
     sigma_clip_level: float | None = None,
     percentile_clip_level: float | None = None,
-    xrange: NDArray[np.integer | np.floating] = None,
-    yrange: NDArray[np.integer | np.floating] = None,
-    data_aspect: float = None,
+    xrange: NDArray[np.integer | np.floating] | None = None,
+    yrange: NDArray[np.integer | np.floating] | None = None,
+    data_aspect: float | None = None,
     log: bool = False,
-    color_profile: str = "log_cut",
-    cmap: str | None = None,
-    xtitle: str = None,
-    ytitle: str = None,
-    title: str = None,
-    cb_title: str = None,
-    note: str = None,
-    charsize: int = None,
+    color_profile: Literal["log_cut", "sym_log", "abs"] = "log_cut",
+    cmap: str | Colormap | None = None,
+    xtitle: str | None = None,
+    ytitle: str | None = None,
+    title: str | None = None,
+    cb_title: str | None = None,
+    note: str | None = None,
+    charsize: int | None = None,
     xlog: bool = False,
     ylog: bool = False,
-    multi_pos: list = None,
-    start_multi_params: dict = None,
-    alpha: float = None,
-    missing_value: int | float | complex = None,
-    savefile: str = None,
+    multi_pos: list | None = None,
+    start_multi_params: dict | None = None,
+    alpha: float | None = None,
+    missing_value: int | float | complex | None = None,
+    savefile: str | Path | None = None,
     png: bool = False,
-    eps: bool = False,
     pdf: bool = False,
+    eps: bool = False,
 ) -> None:
     """
     Create an image from a 2D array of data, with optional handling for log scaling,
@@ -414,21 +418,21 @@ def quick_image(
         The data can be of type int, float, or complex.
     xvals : NDArray[np.integer | np.floating], optional
         An array of x-axis values, by default None
-    yvals : NDArray[np.integer | np.floating], optional
+    yvals : NDArray[np.integer | np.floating] | None, optional
         An array of y-axis values, by default None
     transpose : bool
         Option to transpose the array before calling imshow. imshow puts the
         0th axis along the y axis, which is often not what we want. Setting this
         to True results in the 0th axis being plotted along the x axis.
         Defaults to True.
-    data_range : NDArray[np.integer | np.floating], optional
+    data_range : NDArray[np.integer | np.floating] | None, optional
         Min/max color bar range, by default [np.nanmin(image), np.nanmax(image)]
-    data_min_abs : float, optional
+    data_min_abs : float | None, optional
         The minimum absolute value for the color bar, by default None
-    sigma_clip_level : float, optional
-        Number of standard deviations to use as clipping threshold, only used it
+    sigma_clip_level : float | None, optional
+        Number of standard deviations to use as clipping threshold, only used if
         log is True. Default is None meaning that true min and max are used.
-    percentile_clip_level : float, optional
+    percentile_clip_level : float | None, optional
         Percentile level to use for clipping. For example, a value of 1 means that
         the display range will be set to the 1st and 99th percentiles of the data.
         Only used if log is False. Default is None meaning that true min and max
@@ -441,33 +445,37 @@ def quick_image(
         The aspect ratio of y to x, by default None
     log : bool, optional
         Color bar on logarithmic scale, by default False
-    color_profile : str, optional
+    color_profile : Literal["log_cut", "sym_log", "abs"], optional
         Color bar profiles for logarithmic scaling.
         "log_cut", "sym_log", "abs", by default "log_cut"
-    cmap : str, optional
+    cmap : str | Colormap | None, optional
         Matplotlib colormap to use.
-    xtitle : str, optional
+    xtitle : str | None, optional
         The label for the x-axis.
-    ytitle : str, optional
+    ytitle : str | None, optional
         The label for the y-axis.
-    title : str, optional
+    title : str | None, optional
         The title of the image.
-    cb_title : str, optional
+    cb_title : str | None, optional
         The title of the colourbar.
-    note : str, optional
+    note : str | None, optional
         A small note to place on the bottom right of the image, by default None
-    charsize : int, optional
+    charsize : int | None, optional
         The size of the font, by default None
     xlog : bool, optional
         Use logarithmic scale for the x-axis, by default False
     ylog : bool, optional
         Use logarithmic scale for the y-axis, by default False
-    savefile : str | Path, optional
-        The path to save the image file. If None, the image is displayed on screen.
+    multi_pos : list | None, optional
+        List defining the position of the image in a multi-panel layout, by default None
+    start_multi_params : dict | None, optional
+        Dictionary containing parameters for multi-panel layout, by default None
+    alpha : float | None, optional
+        The alpha transparency of the image, by default None
     missing_value : float | int, optional
         The value in the data array that represents missing data. If None, no missing data handling is performed.
-    log : bool, optional
-        Whether to apply logarithmic scaling to the data. Default is True.
+    savefile : str | Path | None, optional
+        The path to save the image file. If None, the image is displayed on screen.
     png : bool, optional
         Whether to save the image as a PNG file. Default is False.
     pdf : bool, optional
@@ -482,21 +490,20 @@ def quick_image(
     """
     # Validate the image input
     if image is None or not isinstance(image, np.ndarray):
-        print("Image is undefined or not a valid numpy array.")
-        return
+        raise ValueError("Image is undefined or not a valid numpy array.")
 
     # Ensure the image is 2D
     if image.ndim != 2:
-        print("Image must be 2-dimensional.")
-        return
+        raise ValueError("Image must be 2-dimensional.")
 
     if transpose:
         image = image.T
 
     # Handle complex images. Default is to show the real part.
     if np.iscomplexobj(image):
-        print("Image is complex, showing real part.")
+        logger.warning("Image is complex, showing real part.")
         image = np.real(image)
+    image = cast(NDArray[np.integer | np.floating], image)
 
     # Handle missing values by setting them to NaN
     if missing_value is not None:
@@ -544,7 +551,7 @@ def quick_image(
                 lower_bound = np.nanpercentile(image, percentile_clip_level)
                 upper_bound = np.nanpercentile(image, 100 - percentile_clip_level)
 
-                data_range = [lower_bound, upper_bound]
+                data_range = np.array([lower_bound, upper_bound], dtype=np.float64)
 
                 # Count how many data points are outside the clipping bounds.
                 num_clipped = np.sum((image < lower_bound) | (image > upper_bound))
@@ -553,11 +560,13 @@ def quick_image(
 
                 logger.info(
                     f"Percentile clipping of level {percentile_clip_level} "
-                    "applied: {data_range[0]:.2e} to {data_range[1]:.2e}"
+                    f"applied: {data_range[0]:.2e} to {data_range[1]:.2e}"
                 )
                 logger.info(f"Percentage of data clipped: {percent_clipped:.2f}%")
             else:
-                data_range = [np.nanmin(image), np.nanmax(image)]
+                data_range = np.array(
+                    [np.nanmin(image), np.nanmax(image)], dtype=np.float64
+                )
 
         data_color_range, data_n_colors = color_range(count_missing=count_missing)
 
@@ -577,7 +586,7 @@ def quick_image(
             image[wh_high] = data_color_range[1]
 
         # Handle missing values
-        if missing_value is not None and count_missing > 0:
+        if count_missing > 0 and missing_color is not None:
             image[wh_missing] = missing_color
 
         cb_ticks = np.linspace(data_color_range[0], data_color_range[1], num=5)
@@ -619,11 +628,13 @@ def quick_image(
     elif xrange is not None and yrange is not None:
         # If xvals and yvals are not provided, use xrange and yrange directly
         extent = [xrange[0], xrange[1], yrange[0], yrange[1]]
-        image = image[np.ix_(yrange, xrange)]
+        image = image[
+            np.ix_(np.asarray(yrange, dtype=np.intp), np.asarray(xrange, dtype=np.intp))
+        ]
 
     im = ax.imshow(
         image,
-        extent=extent,
+        extent=tuple(extent) if extent is not None else None,
         aspect=data_aspect or "auto",
         cmap=cmap,
         vmin=0,
@@ -674,7 +685,7 @@ def quick_image(
             raise ValueError(
                 "multi_pos must be a 4-element list defining the plot position."
             )
-        ax.set_position(multi_pos)
+        ax.set_position(tuple(multi_pos))
 
     # Handle start_multi_params for multi-panel layout
     if start_multi_params is not None:
@@ -682,18 +693,24 @@ def quick_image(
         ncols = start_multi_params.get("ncol", 1)
         index = start_multi_params.get("index", 1) - 1  # Convert to 0-based index
         ax.set_position(
-            [
+            (
                 (index % ncols) / ncols,
                 1 - (index // ncols + 1) / nrows,
                 1 / ncols,
                 1 / nrows,
-            ]
+            )
         )
 
     _save_or_display(fig, savefile, png, pdf, eps)
 
 
-def _save_or_display(fig, savefile, png, pdf, eps):
+def _save_or_display(
+    fig: Figure,
+    savefile: str | Path | None,
+    png: bool = False,
+    pdf: bool = False,
+    eps: bool = False,
+) -> None:
     """
     Save the figure to a file if a savefile path is provided or if any of the
     format flags (png, pdf, eps) are True. If no savefile path is provided and
@@ -701,7 +718,7 @@ def _save_or_display(fig, savefile, png, pdf, eps):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : Figure
         The matplotlib figure object containing the rendered image.
     savefile : str | Path | None
         Base path for saving the image file. Defaults to "quick_image" if a
@@ -730,7 +747,7 @@ def _save_or_display(fig, savefile, png, pdf, eps):
                 elif extension == ".pdf":
                     pdf = True
                 else:
-                    print("Unrecognized extension, using PNG")
+                    logger.warning("Unrecognized extension, using PNG")
                     png = True
 
         # Set default savefile if not provided
@@ -744,7 +761,7 @@ def _save_or_display(fig, savefile, png, pdf, eps):
         # Ensure only one output format is set
         formats_set = sum([png, eps, pdf])
         if formats_set > 1:
-            print("Only one of eps, png, pdf can be set. Defaulting to png.")
+            logger.warning("Only one of eps, png, pdf can be set. Defaulting to png.")
             eps = pdf = False
             png = True
 
