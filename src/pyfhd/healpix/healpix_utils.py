@@ -1,12 +1,15 @@
-import sys
-from logging import Logger
-from pathlib import Path
-import h5py
 import importlib_resources
+import logging
+import sys
+from pathlib import Path
+
+import h5py
 import numpy as np
+from astropy.coordinates import EarthLocation
 from numpy.typing import NDArray
 from healpy import query_disc
 from healpy.pixelfunc import ang2vec, pix2vec, vec2ang
+
 from pyfhd.beam_setup.beam_utils import beam_image
 from pyfhd.gridding.visibility_grid import visibility_grid
 from pyfhd.gridding.gridding_utils import dirty_image_generate
@@ -18,7 +21,8 @@ from pyfhd.pyfhd_tools.pyfhd_utils import (
     region_grow,
 )
 from pyfhd.pyfhd_tools.unit_conv import radec_to_altaz, radec_to_pixel
-from astropy.coordinates import EarthLocation
+
+logger = logging.getLogger(__name__)
 
 
 def healpix_cnv_apply(
@@ -65,7 +69,6 @@ def healpix_cnv_generate(
     mask: NDArray[np.int64] | None,
     hpx_radius: float,
     pyfhd_config: dict,
-    logger: Logger,
     nside: int = None,
 ) -> dict:
     """
@@ -88,8 +91,6 @@ def healpix_cnv_generate(
         converted to HEALPix pixels.
     pyfhd_config : dict
         pyfhd configuration settings
-    logger : Logger
-        pyfhd's Logger
     nside : int
         The HEALPix nside parameter, calculated based on the observation
         metadata if none provided. Defaults to None.
@@ -168,7 +169,7 @@ def healpix_cnv_generate(
             pyfhd_config["healpix_inds"] = importlib_resources.files(
                 "pyfhd.resources.healpix"
             ).joinpath(files[min_i]["name"])
-        hpx_inds = load(pyfhd_config["healpix_inds"], logger=logger, ret_attrs=True)
+        hpx_inds = load(pyfhd_config["healpix_inds"], ret_attrs=True)
         if isinstance(hpx_inds, dict):
             if "nside" in hpx_inds:
                 nside = hpx_inds["nside"]
@@ -335,7 +336,6 @@ def healpix_cnv_generate(
 def beam_image_cube(
     obs: dict,
     psf: dict | h5py.File,
-    logger: Logger,
     freq_i_arr: NDArray[np.integer] | None = None,
     pol_i_arr: NDArray[np.integer] | None = None,
     n_freq_bin: int | None = None,
@@ -352,8 +352,6 @@ def beam_image_cube(
         Observation metadata dictionary
     psf : dict | h5py.File
         Beam dictionary
-    logger : Logger
-        pyfhd's Logger
     freq_i_arr : np.ndarray | None, optional
         Index array of the beam frequency binning in the observation
         metadata dictionary, by default None
@@ -481,7 +479,6 @@ def vis_model_freq_split(
     vis_arr: NDArray[np.complex128],
     polarization: int,
     pyfhd_config: dict,
-    logger: Logger,
     fft: bool = True,
     save_uvf: bool = True,
     uvf_name: str = "",
@@ -511,8 +508,6 @@ def vis_model_freq_split(
         The polarization index
     pyfhd_config : dict
         pyfhd configuration settings
-    logger : Logger
-        pyfhd's Logger
     fft : bool, optional
         Calculate the orthoslant image instead of the u-v plane,
         by default True
@@ -585,7 +580,6 @@ def vis_model_freq_split(
             params,
             polarization,
             pyfhd_config,
-            logger,
             model=vis_model_arr[polarization],
             fi_use=fi_use,
             bi_use=bi_use,
@@ -613,28 +607,23 @@ def vis_model_freq_split(
         if fft:
             # No x_range and y_range hence no check for it here
             dirty_arr[fi], _, _ = dirty_image_generate(
-                gridding_dict["image_uv"], pyfhd_config, logger, degpix=obs["degpix"]
+                gridding_dict["image_uv"], pyfhd_config, degpix=obs["degpix"]
             )
             dirty_arr[fi] *= gridding_dict["n_vis"]
             weights_arr[fi], _, _ = dirty_image_generate(
                 gridding_dict["weights"] * rephase_use,
                 pyfhd_config,
-                logger,
                 degpix=obs["degpix"],
             )
             weights_arr[fi] *= gridding_dict["n_vis"]
             variance_arr[fi], _, _ = dirty_image_generate(
                 gridding_dict["variance"] * rephase_use,
                 pyfhd_config,
-                logger,
                 degpix=obs["degpix"],
             )
             variance_arr[fi] *= gridding_dict["n_vis"]
             model_arr[fi], _, _ = dirty_image_generate(
-                gridding_dict["model_return"],
-                pyfhd_config,
-                logger,
-                degpix=obs["degpix"],
+                gridding_dict["model_return"], pyfhd_config, degpix=obs["degpix"]
             )
             model_arr[fi] *= gridding_dict["n_vis"]
         else:
@@ -664,7 +653,6 @@ def vis_model_freq_split(
             ),
             h5_save_dict,
             f"{pyfhd_config['obs_id']}_{uvf_name}_{obs['pol_names'][polarization]}_dirty_uv_arr_gridded_uvf.h5",
-            logger=logger,
         )
         save(
             Path(
@@ -673,7 +661,6 @@ def vis_model_freq_split(
             ),
             h5_save_dict,
             f"{pyfhd_config['obs_id']}_{uvf_name}_{obs['pol_names'][polarization]}_weights_uv_gridded_uvf.h5",
-            logger=logger,
         )
         save(
             Path(
@@ -682,7 +669,6 @@ def vis_model_freq_split(
             ),
             h5_save_dict,
             f"{pyfhd_config['obs_id']}_{uvf_name}_{obs['pol_names'][polarization]}_variance_uv_arr_gridded_uvf.h5",
-            logger=logger,
         )
         save(
             Path(
@@ -691,7 +677,6 @@ def vis_model_freq_split(
             ),
             h5_save_dict,
             f"{pyfhd_config['obs_id']}_{uvf_name}_{obs['pol_names'][polarization]}_model_uv_arr_gridded_uvf.h5",
-            logger=logger,
         )
 
     cube_split = {

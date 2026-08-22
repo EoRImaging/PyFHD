@@ -1,7 +1,7 @@
+import logging
 import time
 import warnings
 from datetime import timedelta
-from logging import Logger
 
 import h5py
 import numpy as np
@@ -21,6 +21,8 @@ from ..pyfhd_tools.pyfhd_utils import (
     _print_time_diff,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def visibility_degrid(
     *,
@@ -30,7 +32,6 @@ def visibility_degrid(
     psf: dict | h5py.File,
     params: dict,
     pyfhd_config: dict,
-    logger: Logger,
     polarization: int = 0,
     fill_model_visibilities: bool = False,
     vis_input: NDArray[np.complex128] | None = None,
@@ -115,7 +116,6 @@ def visibility_degrid(
         psf=psf,
         params=params,
         vis_weights=vis_weights,
-        logger=logger,
         fill_model_visibilities=fill_model_visibilities,
         interp_flag=interp_flag,
     )
@@ -303,7 +303,6 @@ def visibility_degrid(
                     box_matrix = grid_beam_per_baseline(
                         psf=psf,
                         pyfhd_config=pyfhd_config,
-                        logger=logger,
                         uu=uu,
                         vv=vv,
                         ww=ww,
@@ -375,10 +374,7 @@ def visibility_degrid(
             )
     end_time = time.time()
     _print_time_diff(
-        t0,
-        end_time,
-        f"degridding polarization {obs['pol_names'][polarization]}",
-        logger,
+        t0, end_time, f"degridding polarization {obs['pol_names'][polarization]}"
     )
 
     if beam_per_baseline:

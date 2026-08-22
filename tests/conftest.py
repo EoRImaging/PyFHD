@@ -1,5 +1,4 @@
 import copy
-import logging
 
 import numpy as np
 import pytest
@@ -110,7 +109,7 @@ def mwa_aee_beam_zenith_2013(zenith_obs_2013_main, tmp_path_factory):
         "cal_stop": False,
     }
 
-    psf, antenna = create_psf(obs, pyfhd_config, logger=logging.getLogger())
+    psf, antenna = create_psf(obs, pyfhd_config)
 
     yield antenna, psf, obs, pyfhd_config
 
@@ -166,7 +165,6 @@ def model_uv_zenith_2013():
         flux=flux_arr,
         mem_thresh=1e10,
         conserve_memory=True,
-        logger=logging.getLogger(),
     )
     model_uv_full = np.zeros((dim_use, dim_use), dtype=np.complex128)
     model_uv_full[xinds, yinds] = model_uv_vals

@@ -1,4 +1,3 @@
-from logging import Logger
 from os import environ as env
 from pathlib import Path
 
@@ -119,7 +118,6 @@ def test_visibility_degrid(
         psf=h5_before["psf"],
         params=h5_before["params"],
         pyfhd_config=h5_before["pyfhd_config"],
-        logger=Logger(1),
         polarization=h5_before["polarization"],
         fill_model_visibilities=h5_before["fill_model_visibilities"],
         vis_input=h5_before["vis_input"],
@@ -148,7 +146,6 @@ def test_vis_degrid_zenith_2013(
         psf=psf,
         params=params,
         pyfhd_config=pyfhd_config,
-        logger=Logger(1),
         polarization=pol_i,
         fill_model_visibilities=True,
         conserve_memory=True,
