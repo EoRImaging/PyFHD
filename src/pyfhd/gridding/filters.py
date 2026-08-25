@@ -1,8 +1,9 @@
 import numpy as np
 from numpy.typing import NDArray
-from pyfhd.pyfhd_tools.pyfhd_utils import weight_invert
-import pyfhd.gridding.gridding_utils as gridding_utils
 from logging import Logger
+
+from ..pyfhd_tools.pyfhd_utils import weight_invert
+from . import gridding_utils
 
 
 def filter_uv_uniform(

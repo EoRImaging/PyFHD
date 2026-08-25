@@ -1,8 +1,10 @@
 import subprocess  # nosec B404
 from copy import deepcopy
+from datetime import timedelta
 from logging import Logger
 from math import factorial, pi
 from sys import exit
+
 import h5py
 import numpy as np
 from astropy import units as u
@@ -10,6 +12,30 @@ from astropy.coordinates import SkyCoord
 from numba import njit
 from numpy.typing import ArrayLike, NDArray
 from scipy.ndimage import label, median_filter
+from scipy import special
+
+
+def _print_time_diff(start: float, end: float, description: str, logger: Logger):
+    """
+    Print the time difference in a nice format between start and end time
+
+    Parameters
+    ----------
+    start : float
+        Start time in seconds since epoch
+    end : float
+        End time in seconds since epoch
+    """
+    runtime = end - start
+    if runtime > 60:
+        runtime = timedelta(seconds=runtime)
+        logger.info(f"{description} completed in: {runtime}")
+    elif runtime < 1:
+        logger.info(
+            f"{description} completed in: {round(runtime * 1000, 5)} milliseconds"
+        )
+    else:
+        logger.info(f"{description} completed in: {round(runtime, 5)} seconds")
 
 
 @njit
@@ -662,11 +688,10 @@ def weight_invert(
         An array of values of some dtype
     threshold: float | None, optional
         A real number set as the threshold for the array.
-        By default its set to None, in this case function checks
-        for zeros, by default None
+        By default its set to None, in this case function checks for zeros.
     use_abs: bool, optional
         If True, take the absolute value (sometimes useful for complex numbers)
-        By default this is False, so will leave as a complex number and invert, by default False
+        By default this is False, so will leave as a complex number and invert.
 
     Returns
     -------
@@ -676,11 +701,20 @@ def weight_invert(
     """
     # IDL is able to treat one number as an array (because every number is aprrently an array of size 1?)
     # As such we need to check if it's a number less than or equal to 0 and make a zeros array of size 1
+    scalar = False
     if np.isscalar(weights):
-        result = np.zeros(1, dtype=type(weights))
-        weights = np.array([weights], dtype=type(weights))
+        scalar = True
+        weights = np.array([weights])
     else:
-        result = np.zeros_like(weights, dtype=weights.dtype)
+        # convert lists or tuples to arrays
+        weights = np.asarray(weights)
+
+    dtype_use = weights.dtype
+    if np.issubdtype(weights.dtype, np.integer):
+        # must convert ints to floats
+        dtype_use = float
+    result = np.zeros_like(weights, dtype=dtype_use)
+
     weights_use = weights
     if use_abs or np.iscomplexobj(weights_use):
         """
@@ -689,12 +723,12 @@ def weight_invert(
         and if you apply an imaginary threshold it applies to only imaginary numbers.
         For example Python:
         test = np.array([1j, 2 + 2j, 3j])
-        np.where(test >= 2) == array([1])
-        np.where(test >= 2j) == array([1,2])
+        np.nonzero(test >= 2) == array([1])
+        np.nonzero(test >= 2j) == array([1,2])
         Meanwhile in IDL:
         test = COMPLEX([0,2,0],[1,2,3]) ;COMPLEX(REAL, IMAGINARY)
-        where(test ge 2) == [1, 2]
-        where(test ge COMPLEX(0,2)) == [1, 2]
+        np.nonzero(test ge 2) == [1, 2]
+        np.nonzero(test ge COMPLEX(0,2)) == [1, 2]
 
         IDL on the otherhand, uses the ABS function on COMPLEX numbers before using WHERE.
         Hence the behaviour we're seeing above. This is why we also check for a complexobj
@@ -705,24 +739,21 @@ def weight_invert(
     # If threshold has been set then...
     if threshold is not None:
         # Get the indexes which meet the threshold
-        # As indicated before IDL applies abs before using where to complex numbers
-        i_use = np.where(weights_use >= threshold)
+        i_use = np.nonzero(
+            (weights_use >= threshold)
+            & (~np.isnan(weights_use))
+            & (~np.isinf(weights_use))
+        )
     else:
         # Otherwise get where they are not zero
-        i_use = np.nonzero(weights_use)
-
+        i_use = np.nonzero(
+            (weights_use != 0) & (~np.isnan(weights_use)) & (~np.isinf(weights_use))
+        )
     if np.size(i_use) > 0:
-        result[i_use] = 1 / weights[i_use]
+        result[i_use] = 1.0 / weights[i_use]
 
-    # Replace all NaNs with Zeros
-    if np.size(np.where(np.isnan(result))) != 0:
-        result[np.where(np.isnan(result))] = 0
-    # Replace all Infinities with Zeros
-    if np.size(np.where(np.isinf(result))) != 0:
-        result[np.where(np.isinf(result))] = 0
-
-    # If the result is an array containing 1 result, then return the result, not an array
-    if np.size(result) == 1:
+    # If a scalar was passed in, then return the result, not an array
+    if scalar:
         return result[0]
     return result
 
@@ -913,6 +944,7 @@ def idl_argunique(
 
 
 def angle_difference(
+    *,
     ra1: float,
     dec1: float,
     ra2: float,
@@ -981,7 +1013,7 @@ def parallactic_angle(latitude: float, hour_angle: float, dec: float) -> float:
     x_term = np.cos(np.radians(dec)) * np.tan(np.radians(latitude)) - np.sin(
         np.radians(dec)
     ) * np.cos(np.radians(hour_angle))
-    return np.degrees(np.arctan(y_term / x_term))
+    return np.degrees(np.arctan2(y_term, x_term))
 
 
 def simple_deproject_w_term(
@@ -1608,3 +1640,152 @@ def crosspol_split_real_imaginary(
         pol_names[3] = f"{crosspol_name}_imag"
 
     return image, pol_names
+
+
+def spectral_window(
+    n_samples: int,
+    type: str = "Blackman-Harris",
+    periodic: bool = False,
+    fractional_size: float | None = None,
+) -> NDArray[np.floating]:
+    """
+    Generate a 1D spectral window, typically used before a Fourier Transform.
+
+    Set the periodic keyword for cases in which n_samples is even but
+    there is a single maximum (ie k=0 exists) -- this implies an asymmetric window
+    function and is correct for FFTs with even numbers of samples
+
+    Parameters
+    ----------
+    n_samples : int
+        Length of window function.
+    type : str
+        Window function type. One of: Hann, Hamming, Blackman, Nutall, Blackman-Nutall,
+        Blackman-Harris, Blackman-Harris^2, Kaiser3, Tukey.
+    fractional_size : float
+
+    Returns
+    -------
+    window : np.ndarray of float
+        The spectral window. A 1D array of length n_samples with values between
+        0 and 1.
+    """
+
+    type_list = [
+        "Hann",
+        "Hamming",
+        "Blackman",
+        "Nutall",
+        "Blackman-Nutall",
+        "Blackman-Harris",
+        "Blackman-Harris^2",
+        "Kaiser3",
+        "Tukey",
+    ]
+    if type not in type_list:
+        raise ValueError(
+            f"Spectral window type {type} not recognized. Must be one of {type_list}"
+        )
+
+    if n_samples < 2:
+        raise ValueError("n_samples must be greater than 2")
+
+    if n_samples % 2 == 0 and periodic:
+        n_use = n_samples + 1
+    else:
+        n_use = n_samples
+
+    cos_term1 = np.cos(2.0 * np.pi * np.arange(n_use) / (n_use - 1))
+    cos_term2 = np.cos(4.0 * np.pi * np.arange(n_use) / (n_use - 1))
+    cos_term3 = np.cos(6.0 * np.pi * np.arange(n_use) / (n_use - 1))
+    # cos_term4 = np.cos(8.0 * np.pi * np.arange(n_use) / (n_use - 1))
+
+    match type:
+        case "Hann":
+            window = 0.5 * (1 - cos_term1)
+        case "Hamming":
+            window = 0.54 - 0.46 * cos_term1
+        case "Blackman":
+            window = (1 - 0.16) / 2.0 - 0.5 * cos_term1 + (0.16 / 2.0) * cos_term2
+        case "Nutall":
+            window = (
+                0.355768
+                - 0.487396 * cos_term1
+                + 0.144232 * cos_term2
+                - 0.012604 * cos_term3
+            )
+        case "Blackman-Nutall":
+            window = (
+                0.3635819
+                - 0.4891775 * cos_term1
+                + 0.1365995 * cos_term2
+                - 0.0106411 * cos_term3
+            )
+        case "Blackman-Harris":
+            window = (
+                0.35875
+                - 0.48829 * cos_term1
+                + 0.14128 * cos_term2
+                - 0.01168 * cos_term3
+            )
+        case "Blackman-Harris^2":
+            window = (
+                0.35875
+                - 0.48829 * cos_term1
+                + 0.14128 * cos_term2
+                - 0.01168 * cos_term3
+            ) ^ 2.0
+        case "Kaiser3":
+            window = special.iv(
+                0,
+                np.pi
+                * 3
+                * np.sqrt(1 - ((2 * (np.arange(n_use) - n_use / 2) / n_use) ** 2.0)),
+            ) / special.iv(0, np.pi * 3)
+        case "Tukey":
+            if fractional_size is not None:
+                alpha = 1.0 - fractional_size
+            else:
+                alpha = 0.5
+            window = np.ones(n_samples)
+
+            edge_length = int(np.round(alpha * (n_use - 1) / 2.0))
+            if edge_length > 0:
+                n_region_1 = np.arange(edge_length)
+                n_region_3 = n_samples - 1 - np.flip(np.arange(edge_length))
+                center_length = n_samples - 2 * edge_length
+                if center_length > 0:
+                    window[0:edge_length] = (1.0 / 2.0) * (
+                        1
+                        + np.cos(np.pi * ((2 * n_region_1) / (alpha * (n_use - 1)) - 1))
+                    )
+                    window[edge_length : edge_length + center_length] = 1
+                    window[edge_length + center_length :] = (1.0 / 2.0) * (
+                        1
+                        + np.cos(
+                            np.pi
+                            * (
+                                (2 * n_region_3) / (alpha * (n_use - 1))
+                                - (2.0 / alpha)
+                                + 1
+                            )
+                        )
+                    )
+                else:
+                    window[0 : edge_length - 1] = (1.0 / 2.0) * (
+                        1
+                        + np.cos(np.pi * ((2 * n_region_1) / (alpha * (n_use - 1)) - 1))
+                    )
+                    window[edge_length : edge_length * 2 - 1] = (1.0 / 2.0) * (
+                        1
+                        + np.cos(
+                            np.pi
+                            * (
+                                (2 * n_region_3) / (alpha * (n_use - 1))
+                                - (2.0 / alpha)
+                                + 1
+                            )
+                        )
+                    )
+
+    return window[0:n_samples]

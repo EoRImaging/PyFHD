@@ -197,9 +197,8 @@ def pyfhd_parser():
         "-i",
         "--input-path",
         type=Path,
-        help="Directory for the uvfits files and other inputs. By default it "
-        "looks for a directory called input in the working directory",
-        default="./input/",
+        help="Directory for the uvfits files and other inputs.",
+        default=None,
     )
     parser.add_argument(
         "-r",
@@ -231,7 +230,7 @@ def pyfhd_parser():
     )
     parser.add_argument(
         "--memory-threshold",
-        type=int,
+        type=float,
         default=1e9,
         help="Set a memory threshold for each chunk in bytes. By default "
         "it is set at ~1GB",
@@ -302,10 +301,17 @@ def pyfhd_parser():
         "--obs-checkpoint",
         default=False,
         action=OrderedBooleanOptionalAction,
-        help="Load the checkpoint just after the creation of observation metadata "
-        "dictionary. It should contain the observation metadata dictionary "
-        "and the uncalibrated visibility parameters, arrays, and weights. If "
-        "calibrate-checkpoint has been set, then obs-checkpoint will be ignored.",
+        help="Load the checkpoint just after creating the observation metadata "
+        "dictionary, should contain the observation metadata dictionary, "
+        "uncalibrated visibility parameters, array and weights.",
+    )
+    checkpoints.add_argument(
+        "--beam-checkpoint",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Load the checkpoint just after setting up the beam, should contain "
+        "the observation metadata dictionary, "
+        "uncalibrated visibility parameters, array and weights.",
     )
     checkpoints.add_argument(
         "--calibrate-checkpoint",
@@ -460,7 +466,7 @@ def pyfhd_parser():
     )
     beam.add_argument(
         "--psf-dim",
-        default=54,
+        default=None,
         type=int,
         help="Controls the span of the beam in u-v space. Some defaults are 30, "
         "54 (1e6 mask with -2) or 62 (1e7 with -2).",
@@ -497,6 +503,111 @@ def pyfhd_parser():
         "calibration of the dirty, modeling, and subtraction to make a residual "
         "occurs. Otherwise, none of these occur and an uncalibrated dirty cube "
         "is output.",
+    )
+    calibration.add_argument(
+        "--calibration-catalog-file-path",
+        default=None,
+        type=Path,
+        help="The path to a calibration file path, must be readable by pyradiosky's "
+        "SkyModel object. ",
+    )
+    calibration.add_argument(
+        "--calibration-model-delay-filter",
+        default=True,
+        action=OrderedBooleanOptionalAction,
+        help="Option to apply a delay filter to the model visibilities after "
+        "degridding. When this is done, the bandwidth of the simulated "
+        "visibilities is doubled and then reduced back to the input frequency "
+        "array after filtering.",
+    )
+    calibration.add_argument(
+        "--calibration-sidelobe-catalog-file-path",
+        default=None,
+        type=Path,
+        help="The path to a calibration catalog file path to use for the primary "
+        "beam sidelobes, must be readable by pyradiosky's SkyModel object. ",
+    )
+    calibration.add_argument(
+        "--calibration-allow-sidelobe-sources",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Option to allow sidelobe sources when creating calibration model "
+        "visibilities. Also affects the defaulting of cal-beam-threshold.",
+    )
+    calibration.add_argument(
+        "--calibration-beam-threshold",
+        type=float,
+        default=None,
+        help="Threshold for beam cut on sources for calibration model visibilities. "
+        "Sources below the beam threshold will be cut from the skymodel to avoid "
+        "sources in the nulls. Defaults to 0.05 unless allow_sidelobe_sources "
+        "is True, in which case the default is 0.01.",
+    )
+    calibration.add_argument(
+        "--calibration-restrict-sources",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Option to restrict sources to near the beam center.",
+    )
+    calibration.add_argument(
+        "--calibration-catalog-flux-threshold",
+        type=float,
+        default=None,
+        help="Threshold for flux values to include. These are catalog fluxes, not "
+        "apparent (i.e. beam-weighted) fluxes. Can be negative, indicating an "
+        "upper bound on fluxes. Default is None.",
+    )
+    calibration.add_argument(
+        "--calibration-max-sources",
+        type=int,
+        default=None,
+        help="Maximum number of sources to include, chosen from highest to lowest "
+        "apparent (i.e. beam-weighted) flux. If a sidelobe_catalog_path is provided, "
+        "sources are taken first from the main lobe catalog and then from the "
+        "sidelobe catalog (if max_sources is greater than the number of sources "
+        "in the main lobe catalog after the various cuts). Default is None.",
+    )
+    calibration.add_argument(
+        "--calibration-catalog-refraction",
+        type=str,
+        default=None,
+        help="Option for what refraction algorithm to use to account for refraction in "
+        "earth's atmosphere when computing the pixel locations (and therefore "
+        "when calculating beam values) for calibration sources. Allowed values "
+        "are None (for no refraction correction), 'idl' to use the refraction "
+        "algorithm from the IDL astrolib or 'astropy' to use astropy's refraction "
+        "algorithm with temperatures and pressures estimated using the IDL "
+        "astrolib algorithm. Default is None.",
+    )
+    calibration.add_argument(
+        "--calibration-catalog-spectral-index",
+        type=float,
+        default=None,
+        help="Spectral index to use for all sources. Overwrites the spectral index "
+        "from the calibration catalog. Default is None.",
+    )
+    calibration.add_argument(
+        "--calibration-catalog-preserve-zero-spectral-index",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Option to keep any spectral indices that are set to zero. Default "
+        "is False, If False, the spectral index is reset to the mean spectral "
+        "index of the catalog for any sources with zero spectral index.",
+    )
+    calibration.add_argument(
+        "--calibration-collapse-extended-sources",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Option to replace extended source components with a single component "
+        "at the flux weighted average location with a flux equal to the total flux "
+        "of all the components. Default is False.",
+    )
+    calibration.add_argument(
+        "--calibration-catalog-flatten-spectrum",
+        default=False,
+        action=OrderedBooleanOptionalAction,
+        help="Option to flatten the spectrum by the average spectral index (calculated "
+        "as a flux-weighted average). Default is False",
     )
     calibration.add_argument(
         "--bandpass-calibrate",
@@ -945,7 +1056,7 @@ def pyfhd_parser():
         type=Path,
         help="Set the output path for the current run, note a directory will "
         "still be created inside the given path",
-        default="./output/",
+        default=".",
     )
     export.add_argument(
         "--description",
@@ -1080,12 +1191,12 @@ def pyfhd_parser():
     )
     model.add_argument(
         "--model-file-path",
-        default="./input",
+        default=None,
         type=Path,
-        help="In the case you chose sav for model-file-type then this will be a "
+        help="In the case you chose 'sav' for model-file-type then this will be a "
         "directory containing all the <obs_id>_params and "
         "<obs_id>_vis_model_<pol_name> sav files.\n"
-        "In the case you chose uvfits, then the path is to a uvfits file, in "
+        "In the case you chose 'uvfits', then the path is to a uvfits file, in "
         "which case make sure the phase centre of model data must match the 'RA' "
         "and 'DEC' values in the metafits file (NOT the 'RAPHASE' and 'DECPHASE').",
     )
@@ -1627,6 +1738,12 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
         )
         warnings += 1
 
+    # require psf_dim to be a multiple of 2
+    if pyfhd_config["psf_dim"] is not None:
+        if pyfhd_config["psf_dim"] % 2 != 0:
+            logger.error("If set, psf-dim must be a multiple of 2.")
+            errors += 1
+
     if pyfhd_config["beam_offset_time"] < 0:
         pyfhd_config["beam_offset_time"] = 0
         logger.warning("You set the offset time to less than 0, it was reset to 0.")
@@ -1726,6 +1843,42 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     # cal_bp_transfer when enabled should point to a file with a saved bandpass (Error)
     errors += _check_file_exists(pyfhd_config, "cal_bp_transfer")
 
+    # If the user has set a calibration catalog file, check it exists (Error)
+    if pyfhd_config["calibration_catalog_file_path"] is not None:
+        pyfhd_config["calibration_catalog_file_path"] = (
+            Path(pyfhd_config["calibration_catalog_file_path"]).expanduser().resolve()
+        )
+        if not Path(pyfhd_config["calibration_catalog_file_path"]).exists():
+            logger.error(
+                f"Catalog file {pyfhd_config['calibration_catalog_file_path']} "
+                "does not exist, please check your input path"
+            )
+            errors += 1
+    # If the user has set a calibration catalog file, check it exists (Error)
+    if pyfhd_config["calibration_sidelobe_catalog_file_path"] is not None:
+        pyfhd_config["calibration_sidelobe_catalog_file_path"] = (
+            Path(pyfhd_config["calibration_sidelobe_catalog_file_path"])
+            .expanduser()
+            .resolve()
+        )
+        if not Path(pyfhd_config["calibration_sidelobe_catalog_file_path"]).exists():
+            logger.error(
+                f"Sidelobe catalog file {pyfhd_config['calibration_sidelobe_catalog_file_path']} "
+                "does not exist, please check your input path"
+            )
+            errors += 1
+
+    if (
+        pyfhd_config["calibrate_visibilities"]
+        and pyfhd_config["calibration_catalog_file_path"] is None
+        and pyfhd_config["model_file_path"] is None
+    ):
+        logger.error(
+            "If calibrating, either  model_file_path or calibration_catalog_file_path "
+            "must be set."
+        )
+        errors += 1
+
     # If cal_amp_degree_fit or cal_phase_degree_fit have ben set but
     # calibration_polyfit isn't warn the user (Warning)
     if (
@@ -1740,7 +1893,8 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
         )
         warnings += 1
 
-    # cal_reflection_hyperresolve gets ignored when cal_reflection_mode_file is set (Warning)
+    # cal_reflection_hyperresolve gets ignored when cal_reflection_mode_file is
+    # set (Warning)
     if (
         pyfhd_config["cal_reflection_hyperresolve"]
         and pyfhd_config["cal_reflection_mode_file"]
@@ -1806,76 +1960,72 @@ def pyfhd_setup(options: argparse.Namespace) -> Tuple[dict, logging.Logger]:
     #     )
     #     warnings += 1
 
-    # allow_sidelobe_model_sources depends on model_visibilities (Error)
-    if (
-        pyfhd_config["allow_sidelobe_model_sources"]
-        and not pyfhd_config["model_visibilities"]
-    ):
-        logger.error(
-            "allow_sidelobe_model_sources shouldn't be True when model_visibilities "
-            "is not, check if you meant to turn on model_visibilities"
-        )
-        errors += 1
-
     # if importing model visiblities from a uvfits file, check that file
     # exists
-    if pyfhd_config["model_file_path"]:
+    if pyfhd_config["model_file_path"] is not None:
         pyfhd_config["model_file_path"] = (
             Path(pyfhd_config["model_file_path"]).expanduser().resolve()
         )
         errors += _check_file_exists(pyfhd_config, "model_file_path")
 
-    if pyfhd_config["model_file_path"] == "sav":
-        # We're expecting to find a params file, then a vis_model_XX and "
-        # "vis_model_YY at the very least
-        if not Path.exists(
-            Path(
-                pyfhd_config["model_file_path"], f"{pyfhd_config['obs_id']}_params.sav"
-            )
-        ):
-            errors += 1
-            logger.error(
-                "You selected the model-file-path and sav, but pyfhd can't find "
-                "the sav file for the model params"
-            )
-        files_in_model_path = glob(f"{pyfhd_config['model_file_path']}/*")
-        pattern = rf".*{re.escape(pyfhd_config['obs_id'])}.*\.sav$"
-        regex = re.compile(pattern)
-        matching_files = [
-            file_path for file_path in files_in_model_path if regex.match(file_path)
-        ]
-        if len(matching_files) <= 2:
-            errors + 1
-            logger.error(
-                "You are missing some required files to read in the model "
-                "visibilities from sav files, here is the list of found sav files: "
-                f"{matching_files}."
-            )
-        elif pyfhd_config["n_pol"] and len(matching_files) < pyfhd_config["n_pol"] + 1:
-            errors += 1
-            logger.error(
-                "You are missing files based on the number of polarizations you "
-                f"have set, you should have a params file then {pyfhd_config['n_pol']} "
-                f"polarization files. Here is the list of found sav files: {matching_files}."
-            )
-        elif pyfhd_config["n_pol"] and len(matching_files) > pyfhd_config["n_pol"] + 1:
-            warnings += 1
-            logger.warning(
-                "You have more files than expected for the number of polarizations "
-                f"you set, you set {pyfhd_config['n_pol']} polarizations but "
-                f"found {len(matching_files) - 1} polarization files. You can most "
-                "likely ignore this warning. Here is the list of found sav files: "
-                f"{matching_files}."
-            )
-        elif not pyfhd_config["n_pol"]:
-            warnings += 1
-            logger.warning(
-                "Since you have told pyfhd before hand you are using 0 polarizations "
-                "and letting the uvfits header set the number of polarizations, "
-                "pyfhd will have no way to validate if the number of "
-                "savs is correct, check the list of found files carefully: "
-                f"{matching_files}. If you're sure this is fine, ignore this warning."
-            )
+        if pyfhd_config["model_file_path"] == "sav":
+            # We're expecting to find a params file, then a vis_model_XX and "
+            # "vis_model_YY at the very least
+            if not Path.exists(
+                Path(
+                    pyfhd_config["model_file_path"],
+                    f"{pyfhd_config['obs_id']}_params.sav",
+                )
+            ):
+                errors += 1
+                logger.error(
+                    "You selected the model-file-path and sav, but pyfhd can't find "
+                    "the sav file for the model params"
+                )
+            files_in_model_path = glob(f"{pyfhd_config['model_file_path']}/*")
+            pattern = rf".*{re.escape(pyfhd_config['obs_id'])}.*\.sav$"
+            regex = re.compile(pattern)
+            matching_files = [
+                file_path for file_path in files_in_model_path if regex.match(file_path)
+            ]
+            if len(matching_files) <= 2:
+                errors + 1
+                logger.error(
+                    "You are missing some required files to read in the model "
+                    "visibilities from sav files, here is the list of found sav files: "
+                    f"{matching_files}."
+                )
+            elif (
+                pyfhd_config["n_pol"]
+                and len(matching_files) < pyfhd_config["n_pol"] + 1
+            ):
+                errors += 1
+                logger.error(
+                    "You are missing files based on the number of polarizations you "
+                    f"have set, you should have a params file then {pyfhd_config['n_pol']} "
+                    f"polarization files. Here is the list of found sav files: {matching_files}."
+                )
+            elif (
+                pyfhd_config["n_pol"]
+                and len(matching_files) > pyfhd_config["n_pol"] + 1
+            ):
+                warnings += 1
+                logger.warning(
+                    "You have more files than expected for the number of polarizations "
+                    f"you set, you set {pyfhd_config['n_pol']} polarizations but "
+                    f"found {len(matching_files) - 1} polarization files. You can most "
+                    "likely ignore this warning. Here is the list of found sav files: "
+                    f"{matching_files}."
+                )
+            elif not pyfhd_config["n_pol"]:
+                warnings += 1
+                logger.warning(
+                    "Since you have told pyfhd before hand you are using 0 polarizations "
+                    "and letting the uvfits header set the number of polarizations, "
+                    "pyfhd will have no way to validate if the number of "
+                    "savs is correct, check the list of found files carefully: "
+                    f"{matching_files}. If you're sure this is fine, ignore this warning."
+                )
 
     # Entirety of Simulation Group depends on run-simulation (Error)
     # if not pyfhd_config["run_simulation"] and (

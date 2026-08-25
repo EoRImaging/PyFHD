@@ -101,11 +101,11 @@ def visibility_grid(
     # For each unflagged baseline, get the minimum contributing pixel number for gridding
     # and the 2D derivatives for bilinear interpolation
     baselines_dict = baseline_grid_locations(
-        obs,
-        psf,
-        params,
-        vis_weights,
-        logger,
+        obs=obs,
+        psf=psf,
+        params=params,
+        vis_weights=vis_weights,
+        logger=logger,
         bi_use=bi_use,
         fi_use=fi_use,
         mask_mirror_indices=pyfhd_config["mask_mirror_indices"],
@@ -189,6 +189,7 @@ def visibility_grid(
         psf_image_dim = psf["image_info"]["psf_image_dim"]
         if isinstance(psf_image_dim, h5py.Dataset):
             psf_image_dim = psf_image_dim[0]
+        # psf_dim is guaranteed to be even
         image_bot = int(-(psf_dim / 2) * psf_intermediate_res + psf_image_dim / 2)
         image_top = int(
             (psf_dim * psf_resolution - 1)
@@ -378,28 +379,28 @@ def visibility_grid(
                 # Make the beams on the fly with corrective phases given the baseline location for each visibility
                 # to the static uv-grid
                 box_matrix = grid_beam_per_baseline(
-                    psf,
-                    pyfhd_config,
-                    logger,
-                    uu,
-                    vv,
-                    ww,
-                    l_mode,
-                    m_mode,
-                    n_tracked,
-                    frequency_array,
-                    x,
-                    y,
-                    xmin_use,
-                    ymin_use,
-                    freq_i,
-                    bt_index,
-                    polarization,
-                    image_bot,
-                    image_top,
-                    psf_dim3,
-                    box_matrix,
-                    vis_n,
+                    psf=psf,
+                    pyfhd_config=pyfhd_config,
+                    logger=logger,
+                    uu=uu,
+                    vv=vv,
+                    ww=ww,
+                    l_mode=l_mode,
+                    m_mode=m_mode,
+                    n_tracked=n_tracked,
+                    frequency_array=frequency_array,
+                    x=x,
+                    y=y,
+                    xmin_use=xmin_use,
+                    ymin_use=ymin_use,
+                    freq_i=freq_i,
+                    bt_index=bt_index,
+                    polarization=polarization,
+                    image_bot=image_bot,
+                    image_top=image_top,
+                    psf_dim3=psf_dim3,
+                    box_matrix=box_matrix,
+                    vis_n=vis_n,
                 )
             else:
                 for ii in range(vis_n):
