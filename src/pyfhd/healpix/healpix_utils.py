@@ -578,14 +578,14 @@ def vis_model_freq_split(
         if np.size(fi_use) == 0:
             continue
         gridding_dict = visibility_grid(
-            vis_arr[polarization],
-            vis_weights[polarization],
-            obs,
-            psf,
-            params,
-            polarization,
-            pyfhd_config,
-            logger,
+            visibility=vis_arr[polarization],
+            vis_weights=vis_weights[polarization],
+            obs=obs,
+            psf=psf,
+            params=params,
+            polarization=polarization,
+            pyfhd_config=pyfhd_config,
+            logger=logger,
             model=vis_model_arr[polarization],
             fi_use=fi_use,
             bi_use=bi_use,
